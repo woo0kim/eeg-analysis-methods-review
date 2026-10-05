@@ -99,6 +99,38 @@ buy selection, not convergence.
 
 ![Reported vs. reproduced accuracy by epoch-selection rule](results/validation_figure.png)
 
+## Paper vs. this reproduction
+
+### What differs, and why
+
+| | Paper | Released code | This experiment | Why |
+|---|---|---|---|---|
+| Data files | BCI Competition IV 2a | `preprocessing/BCIIV2a.m` reads the competition GDF files with BioSig, plus the separately released true-label `.mat` files | BNCI Horizon 2020 release 001-2014: the same recordings as `.mat`, with the session-E labels included | open download without registration; no MATLAB or BioSig needed |
+| Preprocessing | [2, 6] s of each trial, 4–40 Hz band-pass ("6-order Chebyshev"), z-score | MATLAB: samples `Pos+500 … Pos+1499`, 22 EEG channels, `cheby2(6, 60, [4 40] Hz)` + `filtfilt` | Python port `code/preprocess_2a.py`: same window, channels and filter, `filtfilt` with MATLAB's default padding, NaN → 0 | no MATLAB on CARC; the port follows the script line by line |
+| Subject loop | – | `BCIIV2a.m` overwrites its argument with `subject_index = 6` (line 8) | all 9 subjects preprocessed | as released, every call would preprocess subject 6 |
+| Reported epoch | not described | maximum test accuracy over 2000 per-epoch evaluations of the test session (`bestAcc`) | protocol A keeps this rule and also reads the last-100 mean, final epoch and all-epoch mean from the same runs; protocol B picks the epoch on a validation split | this is the question the experiment answers |
+| Seeds | not reported | `np.random.randint(2021)`, a new random seed every run | fixed seeds 2023, 2024, 2025 | repeatable runs, and a seed spread to report |
+| Test pass | – | forward pass with autograd on | inside `torch.no_grad()` | saves memory; outputs are identical |
+| Hardware, software | Python 3.10, GeForce RTX 3090 | – | Python 3.11.9, torch 2.6.0+cu124, NVIDIA A40 (USC CARC) | the hardware we have |
+
+Every changed line of the model and training code is marked `# [MOD]` in `code/run_validation.py`.
+
+### Settings we had to choose (the paper and the code are silent)
+
+| Setting | Value | Why |
+|---|---|---|
+| Validation split (protocol B) | the first 20% (58 trials) of session T after the seed-dependent shuffle the released code already applies; not stratified by class; z-score statistics from the remaining 80% | the paper and the code have no validation set; 20% is a common hold-out size, and taking it after the existing shuffle leaves the rest of the pipeline untouched |
+| Seeds per subject | 3 (27 runs per protocol) | the paper gives single numbers with no seed information; 3 seeds give a spread at ~19 min per run |
+| Read-outs of protocol A | last 100 epochs, final epoch, mean of all epochs | read-outs that never use the test labels to pick an epoch |
+
+### Run configuration
+
+Everything not listed above is the released `conformer.py` for Dataset I: 22 × 1000 input, depth 6,
+10 heads, embedding 40, batch 72, Adam (lr 2e-4, β 0.5 / 0.999), 2000 epochs, segmentation-and-
+recombination augmentation, cross-entropy loss, z-score with training-set statistics,
+`cudnn.deterministic = True`, `cudnn.benchmark = False`. Environment: see [Environment](#environment) and
+`requirements.txt`.
+
 ## Layout
 
 ```

@@ -13,6 +13,7 @@ numbers without a GPU.
 |---|---|---|---|
 | [EEG Conformer](methods/eeg-conformer) | Song et al., IEEE TNSRE 2023 | [bciciv2a-epoch-selection](methods/eeg-conformer/experiments/bciciv2a-epoch-selection) | The reported accuracy is the best of 2000 test-set evaluations; with a validation split it drops by ~9 pp. |
 | [CBraMod](methods/cbramod) | Wang et al., ICLR 2025 | [finetune-public-datasets](methods/cbramod/experiments/finetune-public-datasets) | Released code and weights fall short of the paper on all four public datasets tested; EEGNet (same pipeline) is included as a baseline. |
+| [LaBraM](methods/labram) | Jiang et al., ICLR 2024 | [finetune-cbramod-splits](methods/labram/experiments/finetune-cbramod-splits) | CBraMod's strongest baseline, run under CBraMod's splits, seeds and scoring: it matches the CBraMod paper's LaBraM numbers on 10 of 12 metrics, and CBraMod beats it only on PhysioNet-MI (tie on BCIC-IV-2a and Mumtaz2016, LaBraM ahead on MentalArithmetic). |
 
 ## Layout
 
@@ -28,7 +29,7 @@ numbers without a GPU.
 │       ├── upstream/               git submodule: the authors' code at the evaluated commit (never edited)
 │       └── experiments/
 │           └── <experiment>/
-│               ├── README.md       question, setup, results, how to reproduce, provenance
+│               ├── README.md       question, results, paper vs. this reproduction, how to reproduce
 │               ├── code/ | scripts/
 │               ├── env/            environment setup / pip freeze (or requirements.txt)
 │               ├── results/        numbers, figures, summary.csv
@@ -37,7 +38,9 @@ numbers without a GPU.
 │   ├── run_queue.py                file-based multi-GPU job queue
 │   └── build_results_index.py      methods/*/experiments/*/results/summary.csv -> RESULTS.md
 └── docs/
-    └── adding-an-experiment.md     conventions and the summary.csv schema
+    ├── adding-an-experiment.md     conventions, the "Paper vs. this reproduction" section, summary.csv schema
+    ├── reports/<method>/           weekly reports and slides (YYYY-MM-DD_<method>_weekly-report.docx | -slides.pptx)
+    └── templates/                  blank weekly report template
 ```
 
 Methods are the top level because each one brings its own code, environment and preprocessing.
@@ -62,6 +65,10 @@ python tools/build_results_index.py
 Re-running training needs a GPU; each experiment README gives the exact commands, hardware and
 run time. Raw data, checkpoints and re-run outputs are kept out of git (`.gitignore`).
 
+## Reports
+
+Weekly reports and slides live in [docs/reports](docs/README.md), one folder per method.
+
 ## Adding work
 
 See [docs/adding-an-experiment.md](docs/adding-an-experiment.md): pin the upstream code as a submodule,
@@ -70,11 +77,11 @@ rebuild `RESULTS.md`.
 
 ## Compute
 
-- mcl-server: 8× NVIDIA Quadro M6000 (CBraMod)
+- mcl-server: 8× NVIDIA Quadro M6000 (CBraMod, LaBraM)
 - USC CARC: NVIDIA A40, Slurm (EEG Conformer)
 
 ## License
 
-Code under `methods/*/upstream/` keeps its authors' license (EEG Conformer: GPL-3.0, CBraMod: MIT), as
+Code under `methods/*/upstream/` keeps its authors' license (EEG Conformer: GPL-3.0, CBraMod and LaBraM: MIT), as
 do files that copy from it (marked `# [MOD]`). No license has been chosen yet for the rest of this
 repository.

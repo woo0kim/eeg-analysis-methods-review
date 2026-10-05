@@ -30,6 +30,19 @@ methods/<method>/experiments/<name>/
 Name experiments after the dataset and the question (`bciciv2a-epoch-selection`), or only the question
 when one pipeline spans several datasets (`finetune-public-datasets`).
 
+Every experiment README has a **Paper vs. this reproduction** section with three parts (see the
+existing experiments):
+
+1. *What differs, and why*: a table of every place where the paper, the released code and this
+   experiment differ (data source, preprocessing, splits, model selection, hyperparameters, hardware),
+   with the reason for each change.
+2. *Settings we had to choose*: every setting the paper and the code leave open (seeds, number of runs,
+   validation split, baseline hyperparameters, channel mappings …), the value used, and why.
+3. *Run configuration*: the full hyperparameter set, software versions and hardware actually used.
+
+The rule of thumb: run the released code as released; where the paper and the code disagree, run the
+code and list the disagreement; change only what is needed to run it, and say why.
+
 Rules:
 
 - Commit enough raw output (per-epoch curves, full logs) that every number in the README can be

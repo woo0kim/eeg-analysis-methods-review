@@ -33,23 +33,44 @@ ISRUC and CHB-MIT are public but were too large for this round.
 
 ### CBraMod with the released weights vs. the paper
 
-| Dataset (paper table) | Metric | Paper | Reproduced | Δ | p (Welch) | Paper: LaBraM-Base |
+| Dataset (paper table) | Metric | Paper | Reproduced | Δ | p (Welch) | LaBraM-Base: paper / ours |
 |---|---|---|---|---|---|---|
-| PhysioNet-MI (T3) | balanced acc. | 0.6417 ± 0.0091 | 0.6265 ± 0.0054 | −0.0152 | 0.016 | 0.6173 |
-| | Cohen's κ | 0.5222 ± 0.0169 | 0.5019 ± 0.0072 | −0.0203 | 0.053 | 0.4912 |
-| | weighted F1 | 0.6427 ± 0.0100 | 0.6271 ± 0.0051 | −0.0156 | 0.021 | 0.6177 |
-| BCIC-IV-2a (T15) | balanced acc. | 0.5138 ± 0.0066 | 0.4571 ± 0.0399 | −0.0567 | 0.033 | 0.4869 |
-| | Cohen's κ | 0.3518 ± 0.0094 | 0.2762 ± 0.0532 | −0.0756 | 0.032 | 0.3159 |
-| | weighted F1 | 0.4984 ± 0.0085 | 0.4138 ± 0.0673 | −0.0846 | 0.048 | 0.4758 |
-| Mumtaz2016 (T10) | balanced acc. | 0.9560 ± 0.0056 | 0.8933 ± 0.0101 | −0.0627 | <0.001 | 0.9409 |
-| | AUC-PR | 0.9923 ± 0.0032 | 0.9780 ± 0.0049 | −0.0143 | 0.001 | 0.9798 |
-| | AUROC | 0.9921 ± 0.0025 | 0.9770 ± 0.0059 | −0.0151 | 0.003 | 0.9782 |
-| MentalArithmetic (T12) | balanced acc. | 0.7256 ± 0.0132 | 0.5889 ± 0.0209 | −0.1367 | <0.001 | 0.6909 |
-| | AUC-PR | 0.6267 ± 0.0099 | 0.5110 ± 0.1096 | −0.1157 | 0.077 | 0.5999 |
-| | AUROC | 0.7905 ± 0.0073 | 0.7344 ± 0.0515 | −0.0561 | 0.071 | 0.7721 |
+| PhysioNet-MI (T3) | balanced acc. | 0.6417 ± 0.0091 | 0.6265 ± 0.0054 | −0.0152 | 0.016 | 0.6173 / 0.6098 |
+| | Cohen's κ | 0.5222 ± 0.0169 | 0.5019 ± 0.0072 | −0.0203 | 0.053 | 0.4912 / 0.4797 |
+| | weighted F1 | 0.6427 ± 0.0100 | 0.6271 ± 0.0051 | −0.0156 | 0.021 | 0.6177 / 0.6129 |
+| BCIC-IV-2a (T15) | balanced acc. | 0.5138 ± 0.0066 | 0.4571 ± 0.0399 | −0.0567 | 0.033 | 0.4869 / 0.4477 |
+| | Cohen's κ | 0.3518 ± 0.0094 | 0.2762 ± 0.0532 | −0.0756 | 0.032 | 0.3159 / 0.2637 |
+| | weighted F1 | 0.4984 ± 0.0085 | 0.4138 ± 0.0673 | −0.0846 | 0.048 | 0.4758 / 0.3911 |
+| Mumtaz2016 (T10) | balanced acc. | 0.9560 ± 0.0056 | 0.8933 ± 0.0101 | −0.0627 | <0.001 | 0.9409 / 0.8905 |
+| | AUC-PR | 0.9923 ± 0.0032 | 0.9780 ± 0.0049 | −0.0143 | 0.001 | 0.9798 / 0.9711 |
+| | AUROC | 0.9921 ± 0.0025 | 0.9770 ± 0.0059 | −0.0151 | 0.003 | 0.9782 / 0.9664 |
+| MentalArithmetic (T12) | balanced acc. | 0.7256 ± 0.0132 | 0.5889 ± 0.0209 | −0.1367 | <0.001 | 0.6909 / 0.6562 |
+| | AUC-PR | 0.6267 ± 0.0099 | 0.5110 ± 0.1096 | −0.1157 | 0.077 | 0.5999 / 0.6146 |
+| | AUROC | 0.7905 ± 0.0073 | 0.7344 ± 0.0515 | −0.0561 | 0.071 | 0.7721 / 0.7791 |
 
 All 12 metrics come out below the paper. Table 15's column headers read "AUC-PR / AUROC" but hold
-Cohen's κ / weighted F1 (author, issue #21).
+Cohen's κ / weighted F1 (author, issue #21). The LaBraM-Base column gives the paper's number and ours
+(next section).
+
+### Against LaBraM-Base run the same way
+
+The paper's comparison with its strongest baseline, LaBraM-Base, uses LaBraM numbers from the CBraMod
+authors' own runs. Since our CBraMod numbers came out lower, we re-ran LaBraM-Base with its released code
+and weights on the same data, splits, seeds, checkpoint rule and metric code
+([methods/labram/experiments/finetune-cbramod-splits](../../../labram/experiments/finetune-cbramod-splits)).
+Balanced accuracy (5 seeds each):
+
+| Dataset | CBraMod (ours) | LaBraM-Base (ours) | CBraMod − LaBraM | p (Welch) | Paper: CBraMod − LaBraM |
+|---|---|---|---|---|---|
+| PhysioNet-MI | 0.6265 ± 0.0054 | 0.6098 ± 0.0098 | +0.0167 | 0.015 | +0.0244 |
+| BCIC-IV-2a | 0.4571 ± 0.0399 | 0.4477 ± 0.0421 | +0.0094 | 0.73 | +0.0269 |
+| Mumtaz2016 | 0.8933 ± 0.0101 | 0.8905 ± 0.0041 | +0.0028 | 0.59 | +0.0151 |
+| MentalArithmetic | 0.5889 ± 0.0209 | 0.6562 ± 0.0397 | −0.0674 | 0.015 | +0.0347 |
+
+CBraMod is significantly better on PhysioNet-MI (κ and weighted F1 too), the two are indistinguishable on
+BCIC-IV-2a and Mumtaz2016, and LaBraM-Base is better on MentalArithmetic. LaBraM-Base itself lands within
+noise of the paper's LaBraM numbers on 10 of 12 metrics, while CBraMod is significantly below its paper
+numbers on 9 of 12: the paper's LaBraM numbers hold up much better than its CBraMod numbers.
 
 ### Pre-training, frozen backbone, and an EEGNet baseline (balanced accuracy)
 
@@ -87,6 +108,51 @@ None of these closes the gap to the paper. `results/results.txt` has every metri
 | `eegnet` | `scripts/run_eegnet.py` instead of `finetune_main.py` |
 | `pretrained@seed3407` | `pretrained` with the code's default seed |
 | `BCIC-IV-2a@v0616` | `pretrained` on data made by `scripts/preprocessing_bciciv2a_0616.py` |
+
+## Paper vs. this reproduction
+
+We ran the released code as released. Where the paper and the code disagree, the code wins, because that
+is what the authors published as runnable; the disagreements are listed so they can be checked.
+
+### Where the paper and the released code disagree
+
+| | Paper | Released code (what we ran) | Effect |
+|---|---|---|---|
+| Learning rate | 1e-4 (Table 6) | `multi_lr=True` by default: backbone 1e-4, classifier head 5e-4 | the head trains 5× faster than Table 6 suggests |
+| BCIC-IV-2a samples | 5,088 (Appendix, Table 15) | 5,184 since commit `bdd9894` ("refine the preprocessing code", fixes A04T) | main runs use the current code; the `@v0616` check re-creates the paper-era 5,088 samples from commit `0ff6be9` and scores no better (0.4446 vs. 0.4571) |
+| MentalArithmetic filtering | 0.5–45 Hz band-pass (Appendix) | `preprocessing_stress.py` applies no filter, only resampling to 200 Hz | none expected if the band-pass describes the recordings as distributed (PhysioNet `eegmat` says they were filtered at acquisition) |
+| Mumtaz2016 split | 24 / 5 / 5 MDD and 19 / 4 / 5 healthy subjects | file-index split → 22 / 5 / 6 MDD and 21 / 4 / 5 healthy (counted from `logs/prep_mumtaz.log`; no subject in two splits) | different test subjects from the paper's |
+| MentalArithmetic channels | "20 electrodes … 10-20 system" | 19 scalp channels plus `EEG A2-A1` (an ear-reference derivation) | none for CBraMod; matters for LaBraM, which has no embedding for A2-A1 |
+| Fine-tuning seeds | "five different random seeds", not listed | default `--seed 3407` | we used 0–4 and one run at 3407 |
+
+### What we had to change to make it run
+
+| Change | Why |
+|---|---|
+| Hard-coded `/data/...` paths → this server's paths (`scripts/make_preproc.py`, env variables) | author paths do not exist elsewhere |
+| LMDB `map_size` → 20 GB in the copied preprocessing scripts | the released SHU-MI script reserves ~105 MB for ~2.5 GB and raises `MapFullError`; capacity only, data unchanged |
+| `lmdb==1.4.1` (the requirements do not pin it) | lmdb 2.x refuses the loaders' triple open of one environment |
+| `--use_pretrained_weights ''` for `scratch` | `type=bool` turns any non-empty string, including `False`, into True |
+| Mumtaz2016 download keeps both copies of duplicated figshare file names, prefixed with the file id (CBraMod issue #13) | figshare's "download all" would overwrite one with the other |
+
+### Settings we had to choose (the paper and the code are silent)
+
+| Setting | Value | Why |
+|---|---|---|
+| Seeds | 0, 1, 2, 3, 4 (+ a single run at the code default 3407) | the paper reports 5 seeds without naming them |
+| Datasets | PhysioNet-MI, BCIC-IV-2a, Mumtaz2016, MentalArithmetic | the 4 of 13 that are public and fit one week of compute (see [Datasets](#datasets)) |
+| EEGNet baseline | EEGNet-8,2: F1 = 8, D = 2, F2 = 16, temporal kernel 100 samples (0.5 s at 200 Hz, i.e. the original 64 at 128 Hz), dropout 0.25; trained through CBraMod's Trainer with every Table 6 setting; with no `backbone` parameters the whole model gets the head learning rate 5e-4 | the paper's EEGNet rows come from BIOT's code with unreported settings; running EEGNet through the identical pipeline isolates the model |
+| Robustness checks | lr 5e-4 without `multi_lr` (the first author's suggestion in issue #6), seed 3407, `@v0616` data | the explanations offered for low reproduced numbers |
+
+### Run configuration
+
+`finetune_main.py` defaults = paper Table 6: 50 epochs, batch 64, AdamW (β 0.9 / 0.999, ε 1e-8), lr 1e-4
+(head 5e-4, see above), weight decay 5e-2, cosine annealing to 1e-6 over all steps, gradient clipping 1,
+dropout 0.1, label smoothing 0.1 (multi-class), classifier `all_patch_reps`, 16 loader workers. The
+checkpoint is the epoch with the best validation Cohen's κ (multi-class) or AUROC (binary), first on ties,
+and the test set is scored once with it. Environment: Python 3.11.7, PyTorch 2.1.2 + CUDA 12.1 (as the
+paper states), `env/pip_freeze.txt`; hardware: 8× Quadro M6000 12 GB, one run per GPU (the paper does
+not name its fine-tuning GPUs; it pre-trained on 4× RTX A5000).
 
 ## Layout
 

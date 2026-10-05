@@ -14,7 +14,7 @@
 
 | Experiment | Datasets | Question | Finding |
 |---|---|---|---|
-| [finetune-public-datasets](experiments/finetune-public-datasets) | PhysioNet-MI, BCIC-IV-2a, Mumtaz2016, MentalArithmetic | Do the released code and weights reproduce the paper's fine-tuning results? | No: all 12 metrics fall below the paper (balanced accuracy −0.015 to −0.137). EEGNet trained through the same pipeline beats CBraMod on BCIC-IV-2a. |
+| [finetune-public-datasets](experiments/finetune-public-datasets) | PhysioNet-MI, BCIC-IV-2a, Mumtaz2016, MentalArithmetic | Do the released code and weights reproduce the paper's fine-tuning results? | No: all 12 metrics fall below the paper (balanced accuracy −0.015 to −0.137). EEGNet trained through the same pipeline beats CBraMod on BCIC-IV-2a. Against [LaBraM-Base run the same way](../labram/experiments/finetune-cbramod-splits), CBraMod wins only on PhysioNet-MI. |
 
 ## Not yet covered
 
