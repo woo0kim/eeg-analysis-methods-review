@@ -39,6 +39,7 @@ numbers without a GPU.
 │   └── build_results_index.py      methods/*/experiments/*/results/summary.csv -> RESULTS.md
 └── docs/
     ├── adding-an-experiment.md     conventions, the "Paper vs. this reproduction" section, summary.csv schema
+    ├── literature/                 literature investigations (e.g. how review papers report others' results)
     ├── reports/<method>/           weekly reports and slides (YYYY-MM-DD_<method>_weekly-report.docx | -slides.pptx)
     └── templates/                  blank weekly report template
 ```

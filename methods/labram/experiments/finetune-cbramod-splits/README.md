@@ -72,6 +72,27 @@ balanced accuracy (AUROC 0.7835 ± 0.0241) and Mumtaz2016 0.8919 ± 0.0030 (AURO
 conclusions above do not change. `results/results.txt` has every metric with per-seed values and the
 selected epochs; LaBraM's own PyHealth metrics for every epoch are in `logs/runs/*/log.txt`.
 
+### How much the reported number depends on the reporting rule
+
+The same runs scored at other epochs (`code/selection_analysis.py` → `results/selection_analysis.txt`,
+test balanced accuracy, mean ± std over seeds 0–4). "Best test epoch" picks the epoch with the test labels; it
+is not a valid protocol and is shown only as an upper bound (it is the rule in EEG Conformer's released code).
+
+| Dataset | Best val. κ / AUROC (headline) | Best val. accuracy (LaBraM code) | Last epoch (50) | Best test epoch | Paper |
+|---|---|---|---|---|---|
+| PhysioNet-MI | 0.6098 ± 0.0098 | 0.6098 ± 0.0098 | 0.5995 ± 0.0078 | 0.6161 ± 0.0082 | 0.6173 |
+| BCIC-IV-2a | 0.4477 ± 0.0421 | 0.4477 ± 0.0421 | 0.4536 ± 0.0147 | 0.4847 ± 0.0202 | 0.4869 |
+| Mumtaz2016 | 0.8905 ± 0.0041 | 0.8919 ± 0.0030 | 0.8858 ± 0.0079 | 0.9078 ± 0.0052 | 0.9409 |
+| MentalArithmetic | 0.6562 ± 0.0397 | 0.6632 ± 0.0988 | 0.6354 ± 0.0334 | 0.7215 ± 0.0421 | 0.6909 |
+
+Choosing the epoch on the test set would add +0.006 (PhysioNet-MI) to +0.065 (MentalArithmetic). On
+PhysioNet-MI, BCIC-IV-2a and Mumtaz2016 the paper's number is at or above even that upper bound, so the
+remaining gaps there come from the recipe or the data pipeline, not from which epoch is reported. On Mumtaz2016,
+choosing the decision threshold on the validation set (Youden's J) instead of 0.5 gives 0.8959 ± 0.0048, which
+does not close the gap either. By epoch 50 the training accuracy is 0.96–1.00 on every dataset.
+`results/fig_epoch_selection.png` (and the 2 × 2 version used in the slides, `fig_epoch_selection_2x2.png`)
+plots the test balanced accuracy at every epoch with the epoch each seed reports.
+
 ## Paper vs. this reproduction
 
 ### What differs, and why
@@ -116,8 +137,10 @@ code/run_labram.py      hooks CBraMod's data into LaBraM's released run_class_fi
 code/add_jobs.py        queues the runs for tools/run_queue.py (recipe and launch variables)
 code/collect.py         scores every run with CBraMod's rule and metric code -> results.txt / results.json
 code/export_summary.py  results.json -> results/summary.csv (feeds the repo-wide RESULTS.md)
+code/selection_analysis.py  test score under other epoch-selection rules and thresholds -> selection_analysis.txt
+code/make_figure.py     per-epoch test balanced accuracy -> fig_epoch_selection.png (2x2: _2x2.png)
 env/                    setup_env.sh, pip_freeze.txt
-results/                results.txt, results.json, summary.csv
+results/                results.txt, results.json, summary.csv, selection_analysis.txt, fig_epoch_selection*.png
 logs/runs/<dataset>__labram__s<seed>/
     preds.npz           validation and test probabilities for each of the 50 epochs, with labels
     log.txt             LaBraM's per-epoch JSON log (its own metrics)
@@ -127,13 +150,16 @@ logs/queue.log          start and end of every job
 
 ## Reproducing
 
-From the committed predictions, with no GPU (numpy, scipy, scikit-learn):
+From the committed predictions, with no GPU (numpy, scipy, scikit-learn; matplotlib for the figure):
 
 ```bash
 mkdir -p results_rerun
 python code/collect.py logs/runs results_rerun > results_rerun/results.txt
 diff results_rerun/results.txt results/results.txt
 python code/export_summary.py results
+python code/selection_analysis.py logs/runs > results_rerun/selection_analysis.txt
+diff results_rerun/selection_analysis.txt results/selection_analysis.txt
+python code/make_figure.py logs/runs results_rerun/fig_epoch_selection.png   # add 2x2 for the slide version
 ```
 
 Re-running the training on a Linux GPU server, after the CBraMod data have been preprocessed (step 2 of
