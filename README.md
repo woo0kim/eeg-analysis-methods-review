@@ -6,6 +6,8 @@ paper's. Every experiment keeps enough raw output (training logs, per-epoch curv
 numbers without a GPU.
 
 **[RESULTS.md](RESULTS.md)** collects every reproduced number by method and dataset.
+**[SUMMARY.md](SUMMARY.md)** summarizes them: methods grouped by characteristics, datasets, baselines, and all
+models compared on identical splits.
 
 ## Methods
 
@@ -14,12 +16,14 @@ numbers without a GPU.
 | [EEG Conformer](methods/eeg-conformer) | Song et al., IEEE TNSRE 2023 | [bciciv2a-epoch-selection](methods/eeg-conformer/experiments/bciciv2a-epoch-selection) | The reported accuracy is the best of 2000 test-set evaluations; with a validation split it drops by ~9 pp. |
 | [CBraMod](methods/cbramod) | Wang et al., ICLR 2025 | [finetune-public-datasets](methods/cbramod/experiments/finetune-public-datasets) | Released code and weights fall short of the paper on all four public datasets tested; EEGNet (same pipeline) is included as a baseline. |
 | [LaBraM](methods/labram) | Jiang et al., ICLR 2024 | [finetune-cbramod-splits](methods/labram/experiments/finetune-cbramod-splits) | CBraMod's strongest baseline, run under CBraMod's splits, seeds and scoring: it matches the CBraMod paper's LaBraM numbers on 10 of 12 metrics, and CBraMod beats it only on PhysioNet-MI (tie on BCIC-IV-2a and Mumtaz2016, LaBraM ahead on MentalArithmetic). |
+| [EEGNet](methods/eegnet) (baseline) | Lawhern et al., J. Neural Eng. 2018 | [bciciv2a-epoch-selection](methods/eegnet/experiments/bciciv2a-epoch-selection); also inside CBraMod's [finetune-public-datasets](methods/cbramod/experiments/finetune-public-datasets) | Run through EEG Conformer's own training loop, EEGNet trails Conformer only when each model's best test-set epoch is reported (−6.1 pp); at the last-100-epoch mean they are level, and with a validation split the gap (−2.65 pp) is not significant. Cross-subject, in CBraMod's pipeline, it is the best model on BCI-IV-2a. |
 
 ## Layout
 
 ```
 .
 ├── RESULTS.md                      generated index of all results (tools/build_results_index.py)
+├── SUMMARY.md                      hand-written summary: methods, datasets, baselines, cross-method comparison
 ├── datasets/
 │   ├── README.md                   dataset registry: source, access, which experiments use it
 │   └── download.sh                 shared downloader -> $EEG_DATA_ROOT (default ~/data)
@@ -36,7 +40,8 @@ numbers without a GPU.
 │               └── logs/           raw training logs
 ├── tools/
 │   ├── run_queue.py                file-based multi-GPU job queue
-│   └── build_results_index.py      methods/*/experiments/*/results/summary.csv -> RESULTS.md
+│   ├── build_results_index.py      methods/*/experiments/*/results/summary.csv -> RESULTS.md
+│   └── compare_methods.py          Welch tests between models run on CBraMod's splits (SUMMARY.md)
 └── docs/
     ├── adding-an-experiment.md     conventions, the "Paper vs. this reproduction" section, summary.csv schema
     ├── literature/                 literature investigations (e.g. how review papers report others' results)
@@ -57,6 +62,7 @@ cd eeg-analysis-methods-review
 
 # Recompute the committed numbers on a laptop (numpy, scipy, matplotlib)
 cd methods/eeg-conformer/experiments/bciciv2a-epoch-selection && python code/analyze.py results && cd -
+cd methods/eegnet/experiments/bciciv2a-epoch-selection && python code/analyze.py results && cd -
 cd methods/cbramod/experiments/finetune-public-datasets && mkdir -p results_rerun \
   && python scripts/collect.py logs/runs results_rerun > results_rerun/results.txt \
   && diff results_rerun/results.txt results/results.txt && cd -
@@ -78,11 +84,11 @@ rebuild `RESULTS.md`.
 
 ## Compute
 
-- mcl-server: 8× NVIDIA Quadro M6000 (CBraMod, LaBraM)
+- mcl-server: 8× NVIDIA Quadro M6000 (CBraMod, LaBraM, EEGNet)
 - USC CARC: NVIDIA A40, Slurm (EEG Conformer)
 
 ## License
 
-Code under `methods/*/upstream/` keeps its authors' license (EEG Conformer: GPL-3.0, CBraMod and LaBraM: MIT), as
-do files that copy from it (marked `# [MOD]`). No license has been chosen yet for the rest of this
-repository.
+Code under `methods/*/upstream/` keeps its authors' license (EEG Conformer: GPL-3.0, CBraMod and LaBraM: MIT,
+braindecode for EEGNet: BSD-3-Clause), as do files that copy from it (marked `# [MOD]`). No license has been chosen
+yet for the rest of this repository.

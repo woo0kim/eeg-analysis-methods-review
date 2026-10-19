@@ -12,7 +12,7 @@ using its own pipeline.
 
 | Dataset | Task | Source | `download.sh` key | Raw files under `$EEG_DATA_ROOT` | Used by |
 |---|---|---|---|---|---|
-| BCI Competition IV-2a | motor imagery, 4-class, 9 subjects | [BNCI Horizon 2020, 001-2014](https://bnci-horizon-2020.eu/database/data-sets) | `bciciv2a` | `bciciv2a/data_mat/A0{1..9}{T,E}.mat` | [EEG-Conformer](../methods/eeg-conformer/experiments/bciciv2a-epoch-selection), [CBraMod](../methods/cbramod/experiments/finetune-public-datasets) |
+| BCI Competition IV-2a | motor imagery, 4-class, 9 subjects | [BNCI Horizon 2020, 001-2014](https://bnci-horizon-2020.eu/database/data-sets) | `bciciv2a` | `bciciv2a/data_mat/A0{1..9}{T,E}.mat` | [EEG-Conformer](../methods/eeg-conformer/experiments/bciciv2a-epoch-selection), [CBraMod](../methods/cbramod/experiments/finetune-public-datasets), [EEGNet](../methods/eegnet/experiments/bciciv2a-epoch-selection) |
 | PhysioNet-MI | motor imagery, 4-class (imagery runs R04/06/08/10/12/14) | [PhysioNet eegmmidb 1.0.0](https://physionet.org/content/eegmmidb/1.0.0/) | `physio` | `physio/files/S*/S*R*.edf` | [CBraMod](../methods/cbramod/experiments/finetune-public-datasets) |
 | Mumtaz2016 | depression (MDD) vs. healthy | [figshare 4244171](https://doi.org/10.6084/m9.figshare.4244171) | `mumtaz` | `mumtaz/files/` | [CBraMod](../methods/cbramod/experiments/finetune-public-datasets) |
 | MentalArithmetic | mental stress, 2-class | [PhysioNet eegmat 1.0.0](https://physionet.org/content/eegmat/1.0.0/) | `mental` | `mental_arithmetic/edf/` | [CBraMod](../methods/cbramod/experiments/finetune-public-datasets) |
