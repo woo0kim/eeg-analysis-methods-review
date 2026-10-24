@@ -19,7 +19,7 @@ SETTING = {
     'frozen': 'released weights, backbone frozen',
     'pt-lr5e-4-single': 'fine-tuned, lr 5e-4 without multi_lr (issue #6)',
     'pretrained@seed3407': 'fine-tuned, code-default seed 3407 only',
-    'eegnet': "EEGNet-8,2 through CBraMod's fine-tuning pipeline",
+    'eegnet': "our PyTorch EEGNet-8,2 through CBraMod's fine-tuning pipeline",
 }
 
 rows = []
