@@ -20,6 +20,7 @@ narrative that went to the weekly meeting.
 | 2026-09-24 | EEG Conformer | [report](reports/eeg-conformer/2026-09-24_eeg-conformer_weekly-report.docx) | [slides](reports/eeg-conformer/2026-09-24_eeg-conformer_weekly-slides.pptx) | [bciciv2a-epoch-selection](../methods/eeg-conformer/experiments/bciciv2a-epoch-selection) |
 | 2026-10-01 | CBraMod | [report](reports/cbramod/2026-10-01_cbramod_weekly-report.docx) | [slides](reports/cbramod/2026-10-01_cbramod_weekly-slides.pptx) | [finetune-public-datasets](../methods/cbramod/experiments/finetune-public-datasets), [LaBraM baseline](../methods/labram/experiments/finetune-cbramod-splits) |
 | 2026-10-08 | LaBraM | [report](reports/labram/2026-10-08_labram_weekly-report.docx) | [slides](reports/labram/2026-10-08_labram_weekly-slides.pptx) | [finetune-cbramod-splits](../methods/labram/experiments/finetune-cbramod-splits), [review papers: reproduction vs. citation](literature/review-papers-reproduction-vs-citation.md) |
+| 2026-10-22 | ATCNet; braindecode re-implementations of all methods | [report](reports/atcnet/2026-10-22_atcnet_weekly-report.docx) | [slides](reports/atcnet/2026-10-22_atcnet_weekly-slides.pptx) | [atcnet/bciciv2a-model-selection](../methods/atcnet/experiments/bciciv2a-model-selection), [atcnet/braindecode-bciciv2a](../methods/atcnet/experiments/braindecode-bciciv2a), [eeg-conformer/braindecode-bciciv2a](../methods/eeg-conformer/experiments/braindecode-bciciv2a), [cbramod/braindecode-public-datasets](../methods/cbramod/experiments/braindecode-public-datasets), [labram/braindecode-cbramod-splits](../methods/labram/experiments/braindecode-cbramod-splits), [eegnet/braindecode-cbramod-splits](../methods/eegnet/experiments/braindecode-cbramod-splits) |
 
 Notes on how the reports relate to the committed code:
 
@@ -38,6 +39,10 @@ Notes on how the reports relate to the committed code:
   TUAB/TUEV re-runs it quotes are from two published benchmarks (EEG-FM-Bench, AdaBrain-Bench), not ours. Section
   III.6 and slides 5–6 summarize [literature/review-papers-reproduction-vs-citation.md](literature/review-papers-reproduction-vs-citation.md).
   Both files were generated from the CBraMod report and deck as templates.
+- **ATCNet and braindecode, 2026-10-22.** Covers the braindecode re-runs of the four earlier methods and the new
+  ATCNet experiments; every number is in the experiment READMEs above. The report fills
+  `templates/weekly-report-template.docx`; the deck reuses the title, closing slide and layout of the LaBraM deck
+  (there is no blank slide template).
 
 ## Templates
 

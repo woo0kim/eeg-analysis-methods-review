@@ -15,7 +15,9 @@
 
 EEGNet is not validated here against its own paper. It is the baseline that two of the papers we validate compare
 against: EEG Conformer (Table II) and CBraMod (Tables 3, 10, 12, 15). Each experiment runs it inside that paper's
-own pipeline so that only the model differs.
+own pipeline so that only the model differs. Both experiments in this folder use braindecode's `EEGNet`; the older
+cross-subject runs inside CBraMod's experiment used our own PyTorch implementation, and
+[braindecode-cbramod-splits](experiments/braindecode-cbramod-splits) repeats them with braindecode's.
 
 ## Experiments
 
@@ -23,6 +25,7 @@ own pipeline so that only the model differs.
 |---|---|---|---|
 | [bciciv2a-epoch-selection](experiments/bciciv2a-epoch-selection) | BCI IV 2a, within-subject | Does EEG Conformer's lead over EEGNet survive when both are trained by Conformer's released loop and their reported epoch is chosen by the same rule? | Only under the test-set maximum. Under that rule Conformer leads by 6.10 pp (78.72 vs. 72.62%, all 9 subjects, Wilcoxon p = 0.0039). At the last-100-epoch mean or the final epoch the two are level (EEGNet ahead by 0.76 and 0.14 pp). With a validation split Conformer leads by 2.65 pp (70.01 vs. 67.36%), not significantly (p = 0.16). Conformer's test accuracy fluctuates about 5× more from epoch to epoch, so the maximum inflates it more. |
 | EEGNet baseline inside CBraMod's [finetune-public-datasets](../cbramod/experiments/finetune-public-datasets) | PhysioNet-MI, BCI-IV-2a, Mumtaz2016, MentalArithmetic, cross-subject | How does EEGNet do through CBraMod's released fine-tuning pipeline? | Best of all models on BCI-IV-2a (0.5288 balanced accuracy vs. 0.4571 CBraMod, 0.4477 LaBraM-Base); ties on Mumtaz2016; below both foundation models on PhysioNet-MI. These runs predate this folder and use our own PyTorch EEGNet-8,2 (`scripts/run_eegnet.py` there), not braindecode. |
+| [braindecode-cbramod-splits](experiments/braindecode-cbramod-splits) | PhysioNet-MI, BCI-IV-2a, Mumtaz2016, MentalArithmetic, cross-subject | Does braindecode's `EEGNet`, through the same CBraMod pipeline, give the same numbers as our PyTorch EEGNet? | Yes: none of the 12 metrics differs significantly (closest: PhysioNet-MI, −0.012, p = 0.053). Still the best model on BCI-IV-2a (0.5255) and tied on Mumtaz2016; 8 of 12 metrics within noise of the CBraMod paper's EEGNet rows (our PyTorch EEGNet: 6). |
 
 ## Not yet covered
 

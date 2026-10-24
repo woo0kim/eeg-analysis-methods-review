@@ -14,6 +14,7 @@
 | Experiment | Dataset | Question | Finding |
 |---|---|---|---|
 | [bciciv2a-epoch-selection](experiments/bciciv2a-epoch-selection) | BCI IV 2a | How much of the reported accuracy comes from picking the best of 2000 test-set evaluations? | The released rule reproduces the paper (78.72% vs. 78.66%), but a held-out validation split gives 70.01% and the last-100-epoch mean 68.77%. |
+| [braindecode-bciciv2a](experiments/braindecode-bciciv2a) | BCI IV 2a | Does braindecode's `EEGConformer` (braindecode 1.8.1), trained by the same released loop, reproduce the released model? | Yes. Its layers match the released model's, but its attention divides by √(head dim) = 2 instead of √40; with 27 runs per protocol that changes nothing measurable: 78.56% under the released rule, 69.32% with a validation split, 67.96% at the last-100-epoch mean (all p ≥ 0.07 against the released model). Its lead over EEGNet is again significant only under the released rule. |
 
 Its EEGNet baseline (Table II) was re-run through the same training loop and epoch-selection rules in
 [methods/eegnet/experiments/bciciv2a-epoch-selection](../eegnet/experiments/bciciv2a-epoch-selection). Conformer's

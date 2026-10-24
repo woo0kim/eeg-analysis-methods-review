@@ -1,0 +1,57 @@
+braindecode EEGConformer: 54 runs (27 A, 27 B)
+released conformer.py model: 54 runs (27 A, 27 B)
+
+braindecode EEGConformer per subject, mean ± SD over 3 seeds (accuracy, %)
+
+| Subject | Paper | max test acc over 2000 epochs (released rule) | mean of the last 100 epochs | final epoch | mean over all 2000 epochs | validation-selected epoch (protocol B) |
+|---|---|---|---|---|---|---|
+| 1 | 88.19 | 90.28 ± 0.35 | 80.11 ± 1.21 | 85.42 ± 2.76 | 78.70 ± 1.72 | 84.38 ± 2.28 |
+| 2 | 61.46 | 59.26 ± 0.20 | 46.91 ± 0.75 | 47.22 ± 4.21 | 46.74 ± 0.68 | 44.10 ± 7.76 |
+| 3 | 93.40 | 93.29 ± 0.53 | 85.71 ± 1.10 | 87.96 ± 5.54 | 82.66 ± 1.33 | 84.38 ± 2.11 |
+| 4 | 78.13 | 79.28 ± 1.00 | 68.33 ± 1.02 | 66.32 ± 8.51 | 65.74 ± 2.08 | 74.19 ± 3.61 |
+| 5 | 52.08 | 54.98 ± 1.57 | 42.80 ± 1.76 | 42.36 ± 5.68 | 40.86 ± 1.10 | 42.59 ± 2.00 |
+| 6 | 65.28 | 62.38 ± 0.53 | 51.40 ± 0.99 | 51.74 ± 0.35 | 50.53 ± 1.74 | 52.66 ± 2.12 |
+| 7 | 92.36 | 91.67 ± 0.60 | 75.62 ± 0.67 | 77.78 ± 4.54 | 72.35 ± 1.25 | 78.59 ± 2.83 |
+| 8 | 88.19 | 87.50 ± 0.69 | 79.16 ± 2.46 | 80.79 ± 1.91 | 76.81 ± 2.12 | 81.71 ± 1.12 |
+| 9 | 88.89 | 88.43 ± 0.87 | 81.57 ± 0.85 | 79.98 ± 2.31 | 79.94 ± 1.40 | 81.25 ± 1.39 |
+| **Avg** | **78.66** | **78.56** | **67.96** | **68.84** | **66.04** | **69.32** |
+
+braindecode vs. released model, same training loop and rule (grand mean over 9 subjects x 3 seeds)
+
+| Rule | braindecode acc. (κ) | released acc. (κ) | braindecode − released | Subjects where braindecode is higher | Wilcoxon p (9 subjects) | braindecode − paper |
+|---|---|---|---|---|---|---|
+| max test acc over 2000 epochs (released rule) | 78.56 (0.7142) | 78.72 (0.7162) | -0.15 | 3 / 9 | 0.5749 | -0.10 |
+| mean of the last 100 epochs | 67.96 (0.5728) | 68.77 (0.5836) | -0.81 | 3 / 9 | 0.2031 | -10.71 |
+| final epoch | 68.84 (0.5845) | 69.21 (0.5895) | -0.37 | 3 / 9 | 0.7344 | -9.82 |
+| mean over all 2000 epochs | 66.04 (0.5472) | 66.74 (0.5565) | -0.70 | 2 / 9 | 0.0742 | -12.63 |
+| validation-selected epoch (protocol B) | 69.32 (0.5909) | 70.01 (0.6001) | -0.69 | 5 / 9 | 0.5703 | -9.35 |
+
+How much the reported number depends on the rule, and how much the test curve moves, per run (pp, mean ± SD over 27 runs)
+
+| Gap | braindecode | released |
+|---|---|---|
+| max − last-100 mean (protocol A) | 10.61 ± 2.86 | 9.95 ± 3.37 |
+| max − final epoch (protocol A) | 9.72 ± 4.94 | 9.50 ± 8.55 |
+| max − validation-selected (protocol B, same run) | 7.16 ± 4.18 | 6.91 ± 4.56 |
+| SD of test acc over the last 100 epochs (protocol A) | 5.71 ± 1.91 | 5.52 ± 1.70 |
+| training acc on the last batch of an epoch, mean of the last 100 epochs (protocol A) | 99.15 ± 0.42 | 99.11 ± 0.42 |
+
+When the curve gets there, and where the maximum lands (protocol A, epochs 0-based as conformer.py prints)
+
+| | braindecode | released |
+|---|---|---|
+| median first epoch above 30% test acc | 8 | 7 |
+| median first epoch within 1 pp of the last-100 mean | 71 | 72 |
+| median epoch of the maximum | 1689 | 1427 |
+| range of the epoch of the maximum | [790, 1972] | [468, 1996] |
+| share of runs whose maximum comes after epoch 1000 | 0.89 | 0.78 |
+| seconds per epoch (all runs) | 0.823 | 0.567 |
+
+braindecode EEGConformer vs. EEGNet (../../../eegnet/experiments/bciciv2a-epoch-selection, braindecode EEGNet in the same loop): does Conformer's lead depend on the Conformer implementation?
+
+| Rule | braindecode Conformer | EEGNet | braindecode Conformer − EEGNet | Subjects where Conformer is higher | Wilcoxon p | released Conformer − EEGNet |
+|---|---|---|---|---|---|---|
+| max test acc over 2000 epochs (released rule) | 78.56 | 72.62 | +5.94 | 9 / 9 | 0.0039 | +6.10 |
+| mean of the last 100 epochs | 67.96 | 69.53 | -1.57 | 4 / 9 | 0.3594 | -0.76 |
+| final epoch | 68.84 | 69.35 | -0.51 | 5 / 9 | 0.9102 | -0.14 |
+| validation-selected epoch (protocol B) | 69.32 | 67.36 | +1.95 | 6 / 9 | 0.4258 | +2.65 |
