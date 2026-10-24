@@ -1,0 +1,112 @@
+braindecode default / loso: 9 runs, seeds [1]
+braindecode default / paper2022: 90 runs, seeds [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+braindecode default / traintest: 45 runs, seeds [1, 2, 3, 4, 5]
+braindecode default / trainvaltest: 45 runs, seeds [1, 2, 3, 4, 5]
+defaults + attention dropout on the attention weights / paper2022: 9 runs, seeds [1]
+defaults + Keras BatchNorm (eps 1e-3, momentum 0.99) / paper2022: 9 runs, seeds [1]
+defaults + final max-norm 0.25 per output unit, Keras projection / paper2022: 18 runs, seeds [1, 2]
+defaults + final max-norm 0.25 per output unit, braindecode's parametrization / paper2022: 18 runs, seeds [1, 2]
+defaults + element-wise dropout in the conv block / paper2022: 9 runs, seeds [1]
+defaults + depthwise max-norm 1.0 / paper2022: 9 runs, seeds [1]
+defaults + Keras initialisers / paper2022: 9 runs, seeds [1]
+braindecode "faithful" options / traintest: 27 runs, seeds [1, 2, 3]
+braindecode "faithful" options / trainvaltest: 27 runs, seeds [1, 2, 3]
+control: braindecode + current Keras training behaviour / traintest: 45 runs, seeds [1, 2, 3, 4, 5]
+control: braindecode + current Keras training behaviour / trainvaltest: 27 runs, seeds [1, 2, 3]
+control: braindecode + 2022 Keras training behaviour / paper2022: 27 runs, seeds [1, 2, 3]
+
+braindecode vs. Keras, same protocol and seeds (mean over the 9 subjects of the per-subject mean over seeds)
+
+| Protocol | Setting | Seeds | Rule | Keras acc. (κ) | braindecode acc. (κ) | braindecode − Keras | Subjects higher | Wilcoxon p | braindecode − paper |
+|---|---|---|---|---|---|---|---|---|---|
+| paper2022 | braindecode default | 1–10 | mean of runs | 81.47 (0.753) | 76.26 (0.683) | -5.20 | 0 / 9 | 0.0039 | -9.12 |
+| paper2022 | braindecode default | 1–10 | best of 10 runs (released test()) | 84.18 (0.789) | 79.48 (0.726) | -4.71 | 0 / 9 | 0.0117 | -5.90 |
+| paper2022 | control: braindecode + 2022 Keras training behaviour | 1–3 | mean of runs | 81.34 (0.751) | 82.06 (0.761) | +0.72 | 4 / 9 | 0.5703 | -3.32 |
+| paper2022 | control: braindecode + 2022 Keras training behaviour | 1–3 | best of 3 runs (released test()) | 83.10 (0.775) | 83.10 (0.775) | +0.00 | 2 / 9 | 0.8658 | -2.28 |
+| traintest | braindecode default | 1–5 | mean of runs | 86.76 (0.823) | 76.41 (0.685) | -10.35 | 0 / 9 | 0.0039 | -8.97 |
+| traintest | braindecode default | 1–5 | best of 5 runs (released test()) | 88.12 (0.842) | 79.01 (0.720) | -9.10 | 0 / 9 | 0.0039 | -6.37 |
+| traintest | braindecode "faithful" options | 1–3 | mean of runs | 86.66 (0.822) | 83.37 (0.778) | -3.29 | 0 / 9 | 0.0039 | -2.01 |
+| traintest | braindecode "faithful" options | 1–3 | best of 3 runs (released test()) | 87.89 (0.838) | 84.80 (0.797) | -3.09 | 0 / 9 | 0.0039 | -0.58 |
+| traintest | control: braindecode + current Keras training behaviour | 1–5 | mean of runs | 86.76 (0.823) | 87.34 (0.831) | +0.58 | 8 / 9 | 0.0547 | +1.96 |
+| traintest | control: braindecode + current Keras training behaviour | 1–5 | best of 5 runs (released test()) | 88.12 (0.842) | 89.08 (0.854) | +0.96 | 7 / 9 | 0.0280 | +3.70 |
+| trainvaltest | braindecode default | 1–5 | mean of runs | 80.29 (0.737) | 67.57 (0.568) | -12.72 | 0 / 9 | 0.0039 | -17.81 |
+| trainvaltest | braindecode "faithful" options | 1–3 | mean of runs | 80.94 (0.746) | 76.31 (0.684) | -4.63 | 1 / 9 | 0.0078 | -9.07 |
+| trainvaltest | control: braindecode + current Keras training behaviour | 1–3 | mean of runs | 80.94 (0.746) | 79.82 (0.731) | -1.12 | 3 / 9 | 0.1289 | -5.56 |
+| loso | braindecode default | 1–1 | mean of runs | 69.12 (0.588) | 67.36 (0.565) | -1.76 | 3 / 9 | 0.2031 | -3.61 |
+| loso | braindecode default | 1–1 | best of 1 runs (released test()) | 69.12 (0.588) | 67.36 (0.565) | -1.76 | 3 / 9 | 0.2031 | -3.61 |
+
+Per subject, braindecode default vs. Keras, mean ± SD over seeds (accuracy, %)
+
+| Subject | paper2022: Keras | paper2022: braindecode | traintest: Keras | traintest: braindecode | trainvaltest: Keras | trainvaltest: braindecode | loso: Keras | loso: braindecode |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 85.80 ± 1.51 | 78.26 ± 0.81 | 91.11 ± 1.14 | 80.21 ± 1.79 | 85.28 ± 1.91 | 64.72 ± 3.77 | 75.87 | 73.26 |
+| 2 | 63.30 ± 2.11 | 61.11 ± 2.52 | 73.89 ± 1.38 | 61.88 ± 3.16 | 64.03 ± 3.70 | 45.83 ± 2.02 | 53.47 | 54.69 |
+| 3 | 94.17 ± 0.99 | 89.90 ± 1.24 | 96.18 ± 1.13 | 91.25 ± 0.90 | 90.07 ± 3.68 | 87.22 ± 1.14 | 84.38 | 79.69 |
+| 4 | 75.31 ± 1.24 | 72.85 ± 2.31 | 86.94 ± 1.14 | 72.64 ± 1.62 | 79.44 ± 1.88 | 63.54 ± 3.34 | 63.37 | 62.85 |
+| 5 | 79.51 ± 1.48 | 74.51 ± 1.85 | 79.86 ± 1.07 | 72.85 ± 2.30 | 73.12 ± 3.03 | 67.08 ± 4.13 | 60.42 | 63.54 |
+| 6 | 70.56 ± 2.00 | 70.45 ± 1.68 | 76.53 ± 2.65 | 68.12 ± 2.57 | 69.03 ± 3.62 | 58.47 ± 3.15 | 57.64 | 53.65 |
+| 7 | 89.06 ± 2.69 | 75.97 ± 3.77 | 96.04 ± 1.19 | 77.57 ± 3.15 | 92.64 ± 1.65 | 72.57 ± 4.77 | 72.74 | 76.22 |
+| 8 | 87.57 ± 1.05 | 83.09 ± 0.79 | 88.19 ± 0.89 | 82.99 ± 0.69 | 81.74 ± 1.78 | 75.35 ± 1.98 | 79.17 | 75.17 |
+| 9 | 87.92 ± 1.05 | 80.21 ± 1.86 | 92.08 ± 1.35 | 80.21 ± 2.05 | 87.29 ± 1.99 | 73.33 ± 3.25 | 75.00 | 67.19 |
+| **Avg** | **81.47** | **76.26** | **86.76** | **76.41** | **80.29** | **67.57** | **69.12** | **67.36** |
+
+Training behaviour, per run (mean ± SD over runs)
+
+paper2022:
+
+| Quantity | Keras | braindecode default | control: braindecode + 2022 Keras training behaviour |
+|---|---|---|---|
+| epochs trained | 697.70 ± 190.62 | 732.50 ± 205.57 | 786.26 ± 167.63 |
+| epoch of the checkpoint (1-based) | 411.96 ± 217.97 | 450.31 ± 234.03 | 505.48 ± 196.60 |
+| training accuracy, mean of the last 50 epochs (%) | 99.96 ± 0.03 | 99.83 ± 0.07 | 99.93 ± 0.05 |
+| test accuracy at the last epoch (%) | 78.14 ± 9.78 | 72.47 ± 8.52 | 78.05 ± 9.39 |
+| checkpoint − last epoch (pp) | 3.33 ± 1.76 | 3.79 ± 1.94 | 4.01 ± 2.54 |
+| minutes per run | 8.60 ± 2.29 | 8.04 ± 2.50 | 8.74 ± 1.87 |
+
+traintest:
+
+| Quantity | Keras | braindecode default | braindecode "faithful" options | control: braindecode + current Keras training behaviour |
+|---|---|---|---|---|
+| epochs trained | 790.43 ± 178.72 | 638.67 ± 187.42 | 658.93 ± 193.82 | 797.13 ± 184.93 |
+| epoch of the checkpoint (1-based) | 516.33 ± 214.32 | 351.02 ± 215.42 | 361.67 ± 198.95 | 531.20 ± 230.94 |
+| training accuracy, mean of the last 50 epochs (%) | 99.99 ± 0.01 | 99.87 ± 0.08 | 99.97 ± 0.03 | 99.99 ± 0.01 |
+| test accuracy at the last epoch (%) | 83.04 ± 8.94 | 73.83 ± 8.90 | 79.01 ± 10.01 | 83.71 ± 8.60 |
+| checkpoint − last epoch (pp) | 3.85 ± 2.32 | 2.58 ± 1.73 | 4.36 ± 4.01 | 3.63 ± 1.94 |
+| minutes per run | 10.05 ± 2.15 | 7.12 ± 2.31 | 7.41 ± 2.15 | 8.86 ± 2.26 |
+
+trainvaltest:
+
+| Quantity | Keras | braindecode default | braindecode "faithful" options | control: braindecode + current Keras training behaviour |
+|---|---|---|---|---|
+| epochs trained | 500.00 ± 0.00 | 500.00 ± 0.00 | 500.00 ± 0.00 | 500.00 ± 0.00 |
+| epoch of the checkpoint (1-based) | 443.71 ± 59.59 | 186.96 ± 142.03 | 415.33 ± 77.23 | 438.48 ± 64.47 |
+| training accuracy, mean of the last 50 epochs (%) | 99.99 ± 0.01 | 99.90 ± 0.05 | 99.98 ± 0.01 | 99.99 ± 0.01 |
+| test accuracy at the last epoch (%) | 78.96 ± 9.84 | 70.62 ± 10.16 | 75.18 ± 11.86 | 79.35 ± 10.73 |
+| checkpoint − last epoch (pp) | 0.56 ± 3.42 | -3.05 ± 3.25 | 1.13 ± 2.98 | 0.48 ± 3.30 |
+| minutes per run | 7.19 ± 0.54 | 4.65 ± 0.13 | 4.83 ± 0.13 | 4.43 ± 0.26 |
+
+loso:
+
+| Quantity | Keras | braindecode default |
+|---|---|---|
+| epochs trained | 524.30 ± 191.95 | 364.56 ± 53.16 |
+| epoch of the checkpoint (1-based) | 224.30 ± 191.95 | 64.56 ± 53.16 |
+| training accuracy, mean of the last 50 epochs (%) | 93.31 ± 1.88 | 93.26 ± 0.49 |
+| test accuracy at the last epoch (%) | 60.23 ± 13.19 | 61.63 ± 11.61 |
+| checkpoint − last epoch (pp) | 8.83 ± 5.10 | 5.73 ± 4.02 |
+| minutes per run | 72.92 ± 24.90 | 54.65 ± 7.22 |
+
+Ablation in the 2022 loop: braindecode defaults with one Keras behaviour switched on (seeds of the switch; per-subject means; Wilcoxon over the 9 subjects)
+
+| Setting | Seeds | Accuracy | − braindecode defaults (p) | − Keras 2022 code (p) |
+|---|---|---|---|---|
+| braindecode default | 1–10 | 76.26 | +0.00 (nan) | -5.20 (0.0039) |
+| defaults + element-wise dropout in the conv block | 1–1 | 78.40 | +1.50 (0.8203) | -2.35 (0.0977) |
+| defaults + attention dropout on the attention weights | 1–1 | 76.31 | -0.58 (0.0572) | -4.44 (0.0117) |
+| defaults + Keras BatchNorm (eps 1e-3, momentum 0.99) | 1–1 | 77.35 | +0.46 (0.4258) | -3.40 (0.0547) |
+| defaults + Keras initialisers | 1–1 | 76.20 | -0.69 (0.4258) | -4.55 (0.0117) |
+| defaults + final max-norm 0.25 per output unit, Keras projection | 1–2 | 81.37 | +4.57 (0.0039) | +0.00 (0.6523) |
+| defaults + final max-norm 0.25 per output unit, braindecode's parametrization | 1–2 | 80.48 | +3.68 (0.0039) | -0.89 (0.4258) |
+| defaults + depthwise max-norm 1.0 | 1–1 | 77.62 | +0.73 (0.0913) | -3.13 (0.0391) |
+| control: braindecode + 2022 Keras training behaviour | 1–3 | 82.06 | +5.13 (0.0039) | +0.72 (0.5703) |
+
