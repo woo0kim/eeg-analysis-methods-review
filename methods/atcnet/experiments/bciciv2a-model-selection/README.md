@@ -37,9 +37,10 @@ of 10 runs.
 | `traintest` | `main_TrainTest.py` (today), lr 0.001, L2, max-norm, ReduceLROnPlateau | session E = the test set | same | 9 × 10 |
 | `trainvaltest` | `main_TrainValTest.py` (today), 500 epochs | 20% of session T | mean over seeds (test set used once) | 9 × 10 |
 | `loso` | `main_TrainTest.py` with `LOSO=True` | the held-out subject = the test set | best of 3 runs per fold, and the mean | 9 folds × 3 seeds |
+| `loso_trainvaltest` | `main_TrainValTest.py` with `LOSO=True`, 500 epochs | 20% of the 8 training subjects' trials | mean over seeds (test set used once) | 9 folds × 3 seeds |
 
 Every run stores its per-epoch curves (`results/curves/`), so the test accuracy at other epochs can be read off
-without retraining. 297 runs, 2026-10-22.
+without retraining. 324 runs: 297 on 2026-10-22, the 27 `loso_trainvaltest` runs on 2026-10-26.
 
 ## Results
 
@@ -67,9 +68,10 @@ Accuracy (%) and κ, mean over the 9 subjects (`code/analyze.py`, `results/resul
 | **Paper**, LOSO, Table VI | **70.97** | 0.613 | | |
 | LOSO, `main_TrainTest.py`: best of 3 per fold | 70.16 | 0.602 | −0.81 | |
 | LOSO, `main_TrainTest.py`: mean of all 27 | 69.06 | 0.587 | −1.91 | |
+| LOSO, `main_TrainValTest.py`: mean of 3 seeds | **60.23** | 0.470 | −10.74 | |
 
 The SD of the grand mean over seeds is 0.34 pp for the 2022 code, 0.49 for `main_TrainTest.py`, 1.29 for
-`main_TrainValTest.py` and 0.42 for LOSO; per subject and run, results spread by 1–5 pp (per-subject table below).
+`main_TrainValTest.py`, 0.42 for LOSO and 0.57 for LOSO with `main_TrainValTest.py`; per subject and run, results spread by 1–5 pp (per-subject table below).
 
 - **85.38% is a best-of-10 statistic.** The authors' own runs average 81.98%; picking each subject's best run by its
   test accuracy adds 3.40 pp (9 of 9 subjects higher, p = 0.0039). In our runs of the same code the pick adds
@@ -95,26 +97,31 @@ The SD of the grand mean over seeds is 0.34 pp for the 2022 code, 0.49 for `main
   8.83 pp above the last epoch trained (8.62 above the last-50 mean): cross-subject test accuracy is noisy, so picking
   its maximum inflates more. The 2022 code cannot run LOSO as uploaded (its `load_data_LOSO` calls `load_data` with
   the arguments in the wrong order), so Table VI did not come from that code.
+- **With a validation split, LOSO falls to 60.2%.** `main_TrainValTest.py` with `LOSO=True` gives 60.23% (κ 0.470),
+  8.83 pp below the test-set checkpoint (9 of 9 folds, p = 0.0039) and 10.74 pp below the paper. Its validation trials
+  come from the training subjects (85.1% accuracy at the checkpoint), so the validation loss keeps falling and the
+  checkpoint is near the end (epoch 478 ± 19 of 500). The test set would have picked an epoch worth 68.70% in the same
+  runs, so the gap is the choice of epoch, not the 20% of training trials held out.
 
 ![Mean of runs vs. best of N, per protocol, and every run per subject](results/fig_reported_vs_reproduced.png)
 
 ### Per subject
 
 Accuracy (%); "best" is the released `test()` rule (each subject's run with the highest test accuracy), "mean ± SD" is
-over the runs (10; LOSO 3).
+over the runs (10; LOSO 3 per script).
 
-| Subject | Paper (Table IV) | Authors' 2022 runs: best | Authors' 2022 runs: mean ± SD | 2022 code, ours: best | 2022 code, ours: mean ± SD | `main_TrainTest.py`: best | `main_TrainTest.py`: mean ± SD | `main_TrainValTest.py`: mean ± SD | LOSO: best of 3 | LOSO: mean ± SD |
-|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | 88.5 | 88.54 | 86.29 ± 1.31 | 88.54 | 85.80 ± 1.51 | 92.36 | 90.97 ± 1.29 | 84.51 ± 2.26 | 76.74 | 75.98 ± 0.70 |
-| 2 | 70.5 | 70.49 | 64.48 ± 3.44 | 68.40 | 63.30 ± 2.11 | 75.69 | 74.44 ± 1.17 | 62.92 ± 4.11 | 54.34 | 52.89 ± 1.81 |
-| 3 | 97.6 | 97.57 | 94.10 ± 1.51 | 96.18 | 94.17 ± 0.99 | 97.57 | 96.49 ± 0.89 | 90.21 ± 3.27 | 84.38 | 83.91 ± 0.44 |
-| 4 | 81.0 | 80.90 | 76.77 ± 2.72 | 77.78 | 75.31 ± 1.24 | 88.89 | 86.46 ± 1.69 | 79.79 ± 1.60 | 63.37 | 62.38 ± 0.89 |
-| 5 | 83.0 | 82.99 | 80.17 ± 1.50 | 82.29 | 79.51 ± 1.48 | 82.29 | 79.55 ± 1.56 | 71.08 ± 4.67 | 62.67 | 61.23 ± 1.26 |
-| 6 | 73.6 | 73.61 | 71.18 ± 1.79 | 73.96 | 70.56 ± 2.00 | 79.51 | 77.40 ± 2.03 | 68.54 ± 2.96 | 57.64 | 56.13 ± 1.57 |
-| 7 | 93.1 | 93.06 | 89.86 ± 3.12 | 91.67 | 89.06 ± 2.69 | 97.22 | 96.11 ± 0.92 | 91.08 ± 2.15 | 77.26 | 75.00 ± 2.26 |
-| 8 | 90.3 | 90.28 | 87.22 ± 1.41 | 89.24 | 87.57 ± 1.05 | 89.58 | 88.06 ± 0.91 | 80.52 ± 2.32 | 79.34 | 79.05 ± 0.36 |
-| 9 | 91.0 | 90.97 | 87.78 ± 1.96 | 89.58 | 87.92 ± 1.05 | 93.40 | 92.53 ± 1.09 | 87.05 ± 1.54 | 75.69 | 74.94 ± 0.78 |
-| **Avg** | **85.38** | **85.38** | **81.98** | **84.18** | **81.47** | **88.50** | **86.89** | **79.52** | **70.16** | **69.06** |
+| Subject | Paper (Table IV) | Authors' 2022 runs: best | Authors' 2022 runs: mean ± SD | 2022 code, ours: best | 2022 code, ours: mean ± SD | `main_TrainTest.py`: best | `main_TrainTest.py`: mean ± SD | `main_TrainValTest.py`: mean ± SD | LOSO: best of 3 | LOSO: mean ± SD | LOSO, `main_TrainValTest.py`: mean ± SD |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | 88.5 | 88.54 | 86.29 ± 1.31 | 88.54 | 85.80 ± 1.51 | 92.36 | 90.97 ± 1.29 | 84.51 ± 2.26 | 76.74 | 75.98 ± 0.70 | 66.61 ± 1.60 |
+| 2 | 70.5 | 70.49 | 64.48 ± 3.44 | 68.40 | 63.30 ± 2.11 | 75.69 | 74.44 ± 1.17 | 62.92 ± 4.11 | 54.34 | 52.89 ± 1.81 | 45.02 ± 3.16 |
+| 3 | 97.6 | 97.57 | 94.10 ± 1.51 | 96.18 | 94.17 ± 0.99 | 97.57 | 96.49 ± 0.89 | 90.21 ± 3.27 | 84.38 | 83.91 ± 0.44 | 73.21 ± 2.65 |
+| 4 | 81.0 | 80.90 | 76.77 ± 2.72 | 77.78 | 75.31 ± 1.24 | 88.89 | 86.46 ± 1.69 | 79.79 ± 1.60 | 63.37 | 62.38 ± 0.89 | 54.92 ± 6.31 |
+| 5 | 83.0 | 82.99 | 80.17 ± 1.50 | 82.29 | 79.51 ± 1.48 | 82.29 | 79.55 ± 1.56 | 71.08 ± 4.67 | 62.67 | 61.23 ± 1.26 | 48.84 ± 4.87 |
+| 6 | 73.6 | 73.61 | 71.18 ± 1.79 | 73.96 | 70.56 ± 2.00 | 79.51 | 77.40 ± 2.03 | 68.54 ± 2.96 | 57.64 | 56.13 ± 1.57 | 43.40 ± 1.54 |
+| 7 | 93.1 | 93.06 | 89.86 ± 3.12 | 91.67 | 89.06 ± 2.69 | 97.22 | 96.11 ± 0.92 | 91.08 ± 2.15 | 77.26 | 75.00 ± 2.26 | 66.15 ± 1.84 |
+| 8 | 90.3 | 90.28 | 87.22 ± 1.41 | 89.24 | 87.57 ± 1.05 | 89.58 | 88.06 ± 0.91 | 80.52 ± 2.32 | 79.34 | 79.05 ± 0.36 | 74.13 ± 2.63 |
+| 9 | 91.0 | 90.97 | 87.78 ± 1.96 | 89.58 | 87.92 ± 1.05 | 93.40 | 92.53 ± 1.09 | 87.05 ± 1.54 | 75.69 | 74.94 ± 0.78 | 69.79 ± 1.04 |
+| **Avg** | **85.38** | **85.38** | **81.98** | **84.18** | **81.47** | **88.50** | **86.89** | **79.52** | **70.16** | **69.06** | **60.23** |
 
 The paper's Table IV is the authors' best run per subject, rounded to one decimal, except subject 4 (printed 81.0;
 the log and the saved model give 80.90).
@@ -122,20 +129,21 @@ the log and the saved model give 80.90).
 ### Per run: where the reported epoch sits
 
 Mean ± SD over runs; test accuracy in %. For `paper2022`, `traintest` and LOSO the per-epoch validation accuracy *is*
-the test accuracy; for `trainvaltest` the test accuracy was recorded after every epoch but never used.
+the test accuracy; for `trainvaltest` and LOSO with `main_TrainValTest.py` the test accuracy was recorded after every
+epoch but never used.
 
-| Quantity | 2022 code | `main_TrainTest.py` | `main_TrainValTest.py` | LOSO |
-|---|---|---|---|---|
-| test acc. of the saved checkpoint (reported) | 81.47 ± 9.66 | 86.89 ± 7.79 | 79.52 ± 9.88 | 69.06 ± 10.65 |
-| test acc. at the last epoch trained | 78.14 ± 9.78 | 83.04 ± 8.94 | 78.96 ± 9.84 | 60.23 ± 13.19 |
-| mean test acc. of the last 50 epochs | 77.91 ± 9.64 | 82.77 ± 8.73 | 78.65 ± 9.83 | 60.44 ± 13.25 |
-| highest test acc. of any epoch | 81.47 ± 9.66 | 86.89 ± 7.79 | 83.54 ± 9.14 | 69.06 ± 10.65 |
-| checkpoint − last epoch (pp) | 3.33 ± 1.76 | 3.85 ± 2.32 | 0.56 ± 3.42 | 8.83 ± 5.10 |
-| checkpoint − mean of the last 50 epochs (pp) | 3.55 ± 1.08 | 4.12 ± 1.62 | 0.87 ± 2.76 | 8.62 ± 4.15 |
-| epochs trained | 698 ± 191 | 790 ± 179 | 500 | 524 ± 192 |
-| epoch of the checkpoint | 412 ± 218 | 516 ± 214 | 444 ± 60 | 224 ± 192 |
-| training accuracy, mean of the last 50 epochs | 99.96 | 99.99 | 99.99 | 93.31 |
-| minutes per run (2 runs per Quadro M6000) | 8.6 | 10.1 | 7.2 | 72.9 |
+| Quantity | 2022 code | `main_TrainTest.py` | `main_TrainValTest.py` | LOSO | LOSO, `main_TrainValTest.py` |
+|---|---|---|---|---|---|
+| test acc. of the saved checkpoint (reported) | 81.47 ± 9.66 | 86.89 ± 7.79 | 79.52 ± 9.88 | 69.06 ± 10.65 | 60.23 ± 12.08 |
+| test acc. at the last epoch trained | 78.14 ± 9.78 | 83.04 ± 8.94 | 78.96 ± 9.84 | 60.23 ± 13.19 | 59.11 ± 12.39 |
+| mean test acc. of the last 50 epochs | 77.91 ± 9.64 | 82.77 ± 8.73 | 78.65 ± 9.83 | 60.44 ± 13.25 | 59.56 ± 12.70 |
+| highest test acc. of any epoch | 81.47 ± 9.66 | 86.89 ± 7.79 | 83.54 ± 9.14 | 69.06 ± 10.65 | 68.70 ± 10.47 |
+| checkpoint − last epoch (pp) | 3.33 ± 1.76 | 3.85 ± 2.32 | 0.56 ± 3.42 | 8.83 ± 5.10 | 1.12 ± 3.20 |
+| checkpoint − mean of the last 50 epochs (pp) | 3.55 ± 1.08 | 4.12 ± 1.62 | 0.87 ± 2.76 | 8.62 ± 4.15 | 0.67 ± 1.78 |
+| epochs trained | 698 ± 191 | 790 ± 179 | 500 | 524 ± 192 | 500 |
+| epoch of the checkpoint | 412 ± 218 | 516 ± 214 | 444 ± 60 | 224 ± 192 | 478 ± 19 |
+| training accuracy, mean of the last 50 epochs | 99.96 | 99.99 | 99.99 | 93.31 | 92.29 |
+| minutes per run (2 runs per Quadro M6000) | 8.6 | 10.1 | 7.2 | 72.9 | 64.1 |
 
 Training accuracy is ≈ 100% at the end of every subject-dependent run, so after a few hundred epochs the test curve
 only fluctuates; with the test set as validation data, the checkpoint keeps the highest fluctuation and early stopping
@@ -165,7 +173,7 @@ which it recommends instead).
 | Parameters | 115.2K | 113,732 trainable + 1,440 BatchNorm moving statistics = 115,172 | same | same | the paper counts the non-trainable statistics |
 | Seeds | not reported | none set | `tf.random.set_seed` / `np.random.seed` = run number 1–10 | run numbers 1–10 as seeds in all protocols | repeatable runs |
 | Optimizer instance | – | one `Adam` created in `train()` and reused by all 90 runs, so each run after the first starts with Adam's step counter at ≥ 1500 and (nearly) no bias correction | a new `Adam` per run | 2022 code: a new `Adam` per run with its step counter set to 100000 (bias correction off), except subject 1 / run 1 | one process per run; this reproduces the shared instance's state for 89 of the 90 runs |
-| LOSO | 70.97% / κ 0.613 (Table VI) | `load_data_LOSO` calls `load_data(sub+1, True, path)` with its arguments in the wrong order, so LOSO cannot run | works: 8 subjects × 576 trials train; the held-out subject's 576 trials are validation and test data | current `main_TrainTest.py` with `LOSO=True`, 3 seeds | the 2022 code cannot produce Table VI as uploaded |
+| LOSO | 70.97% / κ 0.613 (Table VI) | `load_data_LOSO` calls `load_data(sub+1, True, path)` with its arguments in the wrong order, so LOSO cannot run | works: 8 subjects × 576 trials train; the held-out subject's 576 trials are validation and test data (`main_TrainTest.py`); `main_TrainValTest.py` holds out 20% of the 4,608 training trials for validation instead | current `main_TrainTest.py` and `main_TrainValTest.py` with `LOSO=True`, 3 seeds each | the 2022 code cannot produce Table VI as uploaded |
 | Hardware, software | "Nvidia GTX 2070 8 GB", TensorFlow | – | README: Python 3.7, TensorFlow 2.7 | Quadro M6000 12 GB (2 runs per GPU, 5 GB cap each), Python 3.7.12, TensorFlow 2.7.0, CUDA 11.2, cuDNN 8.1 | the hardware we have; the software the README lists |
 
 Every changed line of the training loops is marked `# [MOD]` in `code/run_paper2022.py` and `code/run_released.py`.
@@ -174,9 +182,9 @@ Every changed line of the training loops is marked `# [MOD]` in `code/run_paper2
 
 | Setting | Value | Why |
 |---|---|---|
-| Runs per subject | 10 (2022 code, `main_TrainTest.py`, `main_TrainValTest.py`); 3 for LOSO | 10 is the code's `n_train` and what the paper's best-of-10 rule needs; a LOSO run trains on 16× more data (~1.5–2 h), so LOSO has 3 seeds and its "best of" is best of 3 |
+| Runs per subject | 10 (2022 code, `main_TrainTest.py`, `main_TrainValTest.py`); 3 for each LOSO protocol | 10 is the code's `n_train` and what the paper's best-of-10 rule needs; a LOSO run trains on 16× more data (~1.5–2 h), so LOSO has 3 seeds and its "best of" is best of 3 |
 | `main_TrainValTest.py` configuration | `dataset = 'BCI2a'`, 10 seeds | its `run()` is set to the High Gamma Dataset with `n_train = 1`; the README's 81.10% is BCI IV 2a with 1 seed (reported separately as "seed 1") |
-| Per-epoch test accuracy in `main_TrainValTest.py` runs | evaluated after every epoch by an extra callback, never used for selection | to compare the validation-selected epoch with the epoch the test set would have picked |
+| Per-epoch test accuracy in `main_TrainValTest.py` runs | evaluated after every epoch by an extra callback, never used for selection | to compare the validation-selected epoch with the epoch the test set would have picked. For LOSO it calls the model directly in batches: `model.predict` keeps ~8 MB of GPU memory per call in TF 2.7, which crashed the first LOSO attempts (`logs/queue.log`) |
 | GPU sharing | 2 runs per GPU, each capped at 5 GB, 2 intra-op threads | 3 runs per GPU without a cap ran out of memory |
 
 ### Run configuration
@@ -197,6 +205,7 @@ user-space libraries (580.178.04) do not match the loaded kernel module (580.173
 code/paths.py                 data and work paths; data layout the released code expects; extracts the 2022 code
 code/run_paper2022.py         one run of the 2022 code (train() of main.py at 3a318b2, one subject and run)
 code/run_released.py          one run of today's code: main_TrainTest.py (traintest, loso) or main_TrainValTest.py
+                              (trainvaltest, loso_trainvaltest)
 code/curves.py                Keras callback that records every epoch
 code/add_jobs.py              queues all runs for tools/run_queue.py
 code/eval_paper_weights.py    the paper's best-of-10 models, scored by the 2022 test()      -> results/paper_weights_log.txt
@@ -230,7 +239,7 @@ history, which `git clone --recurse-submodules` provides):
 bash env/setup_env.sh                                  # conda env atcnet-tf
 python code/eval_paper_weights.py results_rerun        # 85.38 / 0.8050 if the data match
 python code/eval_released_weights.py results_rerun     # 81.10 / 0.748
-python code/add_jobs.py                                # queue the 297 runs (see the docstring for subsets)
+python code/add_jobs.py                                # queue the 324 runs (see the docstring for subsets)
 RUN_QUEUE_DIR=~/repro-atcnet/queue python ../../../../tools/run_queue.py 0 1 2 3 4 5 6 7 0 1 2 3 4 5 6 7
 ```
 

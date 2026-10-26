@@ -17,13 +17,13 @@ r = json.load(open(os.path.join(RESULTS, 'results.json')))
 H = r['headline']
 SURFACE, INK, INK2, MUTED, GRID, BASE = '#fcfcfb', '#0b0b0b', '#52514e', '#898781', '#e1e0d9', '#c3c2b7'
 COLOR = {'authors2022': MUTED, 'paper2022': '#2a78d6', 'traintest': '#eb6834', 'trainvaltest': '#1f9e7a',
-         'loso': '#8b5cc4'}
+         'loso': '#8b5cc4', 'loso_trainvaltest': '#d55181'}
 ROWS = [('authors2022', "Authors' 2022 runs (their log)", 85.38), ('paper2022', '2022 code, our runs', 85.38),
         ('traintest', 'main_TrainTest.py (today)', 85.38), ('trainvaltest', 'main_TrainValTest.py (today)', 85.38),
-        ('loso', 'LOSO, main_TrainTest.py', 70.97)]
+        ('loso', 'LOSO, main_TrainTest.py', 70.97), ('loso_trainvaltest', 'LOSO, main_TrainValTest.py', 70.97)]
 ROWS = [row for row in ROWS if f'{row[0]}_mean' in H]
 
-fig, (ax, bx) = plt.subplots(1, 2, figsize=(11.5, 3.9), dpi=200, gridspec_kw={'width_ratios': [1, 1.15]})
+fig, (ax, bx) = plt.subplots(1, 2, figsize=(11.5, 4.2), dpi=200, gridspec_kw={'width_ratios': [1, 1.15]})
 fig.patch.set_facecolor(SURFACE)
 for a in (ax, bx):
     a.set_facecolor(SURFACE)

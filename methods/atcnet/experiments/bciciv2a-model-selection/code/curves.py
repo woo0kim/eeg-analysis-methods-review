@@ -1,4 +1,5 @@
 """Keras callback that records every epoch of a run (the released scripts keep only the history plot)."""
+import numpy as np
 import tensorflow as tf
 
 
@@ -14,6 +15,9 @@ class Curves(tf.keras.callbacks.Callback):
     def on_epoch_end(self, epoch, logs=None):
         for k in ('loss', 'accuracy', 'val_loss', 'val_accuracy'):
             self.h[k].append(float(logs[k]))
-        if self.X_test is not None:   # trainvaltest only: test accuracy per epoch, for analysis, never for selection
-            p = self.model.predict(self.X_test, batch_size=len(self.X_test), verbose=0).argmax(axis=-1)
+        if self.X_test is not None:   # *trainvaltest: test accuracy per epoch, for analysis, never for selection
+            # model() in batches, not model.predict(): in TF 2.7 every predict() call keeps ~8 MB of GPU memory,
+            # which ran the LOSO runs (576 test trials) out of their 5 GB GPU share late in training
+            p = np.concatenate([self.model(self.X_test[i:i + 96], training=False).numpy()
+                                for i in range(0, len(self.X_test), 96)]).argmax(axis=-1)
             self.h['test_acc'].append(float((p == self.y_test).mean()))

@@ -1,9 +1,9 @@
 """Queue the released-code ATCNet runs for tools/run_queue.py: 9 subjects (or LOSO folds) x seeds per protocol.
 
-  traintest, trainvaltest, loso   code/run_released.py (today's released code)
+  traintest, trainvaltest, loso, loso_trainvaltest   code/run_released.py (today's released code)
   paper2022                       code/run_paper2022.py (the 2022 code behind the paper's numbers)
 usage: python code/add_jobs.py [PROTOCOL[:SEEDS] ...]     e.g. loso:1-3
-       default: traintest trainvaltest paper2022 loso:1-3 (297 runs, as committed)
+       default: traintest trainvaltest paper2022 loso:1-3 loso_trainvaltest:1-3 (324 runs, as committed)
 
 Paths (defaults = the mcl-server layout of the committed runs):
   ATCNET_WORK      outputs: released/<protocol>/{saved models,curves}, released/logs   (default ~/repro-atcnet)
@@ -19,8 +19,9 @@ WORK = os.path.expanduser(os.environ.get('ATCNET_WORK', '~/repro-atcnet'))
 QUEUE = os.path.expanduser(os.environ.get('ATCNET_QUEUE', '~/repro-atcnet/queue'))
 ENV = os.path.expanduser(os.environ.get('ATCNET_TF_ENV', '~/miniforge3/envs/atcnet-tf'))
 NVML = os.path.expanduser(os.environ.get('ATCNET_NVML_LIB', '~/repro-braindecode/nvml-580.173.02/lib'))
-PRIO = {'traintest': '1_k', 'paper2022': '1_l', 'loso': '1_m', 'trainvaltest': '2_k'}   # queue order (braindecode: 3_*)
-DEFAULT = ['traintest', 'trainvaltest', 'paper2022', 'loso:1-3']   # n_train = 10; LOSO runs take ~1.5 h, so 3 seeds
+PRIO = {'traintest': '1_k', 'paper2022': '1_l', 'loso': '1_m', 'trainvaltest': '2_k',   # queue order (braindecode: 3_*)
+        'loso_trainvaltest': '2_l'}
+DEFAULT = ['traintest', 'trainvaltest', 'paper2022', 'loso:1-3', 'loso_trainvaltest:1-3']   # LOSO: ~1.5 h, 3 seeds
 LOGS = os.path.join(WORK, 'released', 'logs')
 for d in (os.path.join(QUEUE, 'pending'), LOGS):
     os.makedirs(d, exist_ok=True)

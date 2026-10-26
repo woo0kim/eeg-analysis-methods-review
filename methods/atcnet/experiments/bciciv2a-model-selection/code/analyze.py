@@ -25,7 +25,9 @@ PROTOCOLS = {
     'paper2022': '2022 code (paper): session E is the validation data; lr 0.0009, no schedule, no weight decay',
     'traintest': 'main_TrainTest.py (today): session E is the validation data; lr 0.001, ReduceLROnPlateau, L2',
     'trainvaltest': 'main_TrainValTest.py (today): 20% of session T is the validation data; 500 epochs',
-    'loso': 'main_TrainTest.py with LOSO=True: the held-out subject is the validation data'}
+    'loso': 'main_TrainTest.py with LOSO=True: the held-out subject is the validation data',
+    'loso_trainvaltest': 'main_TrainValTest.py with LOSO=True: 20% of the 8 training subjects is the validation data'}
+VALSPLIT = ('trainvaltest', 'loso_trainvaltest')    # test set used once: no best-of-runs rule
 
 
 def load(protocol):
@@ -97,7 +99,7 @@ def add(key, label, p, a, k, seed_means=None, paper=PAPER_MEAN):
     if seed_means is not None and len(seed_means) > 1:
         rec['seed_means'] = np.round(seed_means, 2).tolist()
         rec['sd_over_seed_means'] = round(float(np.std(seed_means, ddof=1)), 2)
-    if p != 'loso':
+    if not p.startswith('loso'):
         rec['wilcoxon_p_vs_paper'] = round(wilcoxon(a, PAPER_ACC), 4)
     out['headline'][key] = rec
     rows.append(rec)
@@ -116,6 +118,10 @@ if N['trainvaltest']:
         acc['trainvaltest'].mean(1), kap['trainvaltest'].mean(1), acc['trainvaltest'].mean(0))
     add('trainvaltest_seed1', 'trainvaltest: seed 1 only (the README\'s configuration)', 'trainvaltest',
         acc['trainvaltest'][:, 0], kap['trainvaltest'][:, 0])
+if N['loso_trainvaltest']:
+    add('loso_trainvaltest_mean', f'loso_trainvaltest: mean of {N["loso_trainvaltest"]} seeds', 'loso_trainvaltest',
+        acc['loso_trainvaltest'].mean(1), kap['loso_trainvaltest'].mean(1), acc['loso_trainvaltest'].mean(0),
+        paper=PAPER_LOSO)
 
 print('\nHeadline: accuracy (%) and kappa, mean over the 9 subjects (LOSO: 9 folds)\n')
 print('| | Accuracy | κ | − paper | Wilcoxon p vs. paper (9 subjects) | SD over seed means |')
@@ -139,20 +145,20 @@ if N['trainvaltest']:
 # ------------------------------------------------------------------ per subject
 print('\nPer subject, accuracy (%): best of the runs and mean ± SD over runs\n')
 cols = [('authors2022', "Authors' 2022 runs"), ('paper2022', '2022 code, ours'), ('traintest', 'main_TrainTest.py'),
-        ('trainvaltest', 'main_TrainValTest.py'), ('loso', 'LOSO')]
+        ('trainvaltest', 'main_TrainValTest.py'), ('loso', 'LOSO'), ('loso_trainvaltest', 'LOSO, main_TrainValTest.py')]
 cols = [(p, n) for p, n in cols if N[p]]
 print('| Subject | Paper (Table IV) | ' + ' | '.join(
-    (f'{n}: best | {n}: mean ± SD' if p != 'trainvaltest' else f'{n}: mean ± SD') for p, n in cols) + ' |')
-print('|---|---|' + ''.join('---|---|' if p != 'trainvaltest' else '---|' for p, _ in cols))
-best = {p: best_of(p) for p, _ in cols if p != 'trainvaltest'}
+    (f'{n}: best | {n}: mean ± SD' if p not in VALSPLIT else f'{n}: mean ± SD') for p, n in cols) + ' |')
+print('|---|---|' + ''.join('---|---|' if p not in VALSPLIT else '---|' for p, _ in cols))
+best = {p: best_of(p) for p, _ in cols if p not in VALSPLIT}
 for i, s in enumerate(SUBJECTS):
     cells = []
     for p, _ in cols:
         ms = f'{acc[p][i].mean():.2f} ± {acc[p][i].std(ddof=1):.2f}'
-        cells.append(ms if p == 'trainvaltest' else f'{best[p][0][i]:.2f} | {ms}')
+        cells.append(ms if p in VALSPLIT else f'{best[p][0][i]:.2f} | {ms}')
     print(f'| {s} | {PAPER_ACC[i]:.1f} | ' + ' | '.join(cells) + ' |')
 print(f'| **Avg** | **{PAPER_MEAN:.2f}** | ' + ' | '.join(
-    (f'**{acc[p].mean():.2f}**' if p == 'trainvaltest' else f'**{best[p][0].mean():.2f}** | **{acc[p].mean():.2f}**')
+    (f'**{acc[p].mean():.2f}**' if p in VALSPLIT else f'**{best[p][0].mean():.2f}** | **{acc[p].mean():.2f}**')
     for p, _ in cols) + ' |')
 out['per_subject_sd_over_runs'] = {p: np.round(acc[p].std(axis=1, ddof=1), 2).tolist() for p, _ in cols}
 out['best_run_index'] = {p: best[p][2].tolist() for p in best}
@@ -165,7 +171,7 @@ print('| Runs | ' + ' | '.join(f'k = {k}' for k in ks) + ' |')
 print('|---|' + '---|' * len(ks))
 out['expected_best_of_k'] = {}
 for p, n in cols:
-    if p in ('trainvaltest', 'loso'):
+    if p in VALSPLIT + ('loso',):
         continue
     ek = [float(np.mean([expected_best_of(acc[p][i], k) for i in range(9)])) for k in ks]
     out['expected_best_of_k'][p] = dict(zip(map(str, ks), np.round(ek, 2).tolist()))
@@ -182,7 +188,7 @@ quant = {
     'checkpoint − last epoch (pp)': lambda d: d['acc'] * 100 - curve(d)[-1] * 100,
     'checkpoint − mean of the last 50 epochs (pp)': lambda d: d['acc'] * 100 - curve(d)[-50:].mean() * 100,
     'epochs trained': lambda d: float(d['epochs_run']),
-    'epoch of the checkpoint (1-based)': lambda d: float(np.argmin(d['val_loss']) + 1) if str(d['protocol']) == 'trainvaltest'
+    'epoch of the checkpoint (1-based)': lambda d: float(np.argmin(d['val_loss']) + 1) if str(d['protocol']) in VALSPLIT
     else float(np.argmax(d['val_accuracy']) + 1),
     'training accuracy, mean of the last 50 epochs': lambda d: float(np.mean(d['accuracy'][-50:]) * 100),
     'minutes per run (2 runs per Quadro M6000)': lambda d: float(d['minutes']),
@@ -210,7 +216,8 @@ print('|---|---|---|---|---|')
 comps = [('2022 code, ours − authors\' 2022 runs (mean of runs)', 'paper2022', 'authors2022'),
          ('main_TrainTest.py − 2022 code (mean of runs)', 'traintest', 'paper2022'),
          ('main_TrainTest.py − main_TrainValTest.py (mean of runs)', 'traintest', 'trainvaltest'),
-         ('2022 code − main_TrainValTest.py (mean of runs)', 'paper2022', 'trainvaltest')]
+         ('2022 code − main_TrainValTest.py (mean of runs)', 'paper2022', 'trainvaltest'),
+         ('LOSO: main_TrainTest.py − main_TrainValTest.py (mean of runs, 9 folds)', 'loso', 'loso_trainvaltest')]
 out['paired'] = {}
 for name, p1, p2 in comps:
     if not (N[p1] and N[p2]):

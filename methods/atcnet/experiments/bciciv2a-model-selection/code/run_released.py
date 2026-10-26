@@ -8,6 +8,8 @@
                 session E only for the final test. 500 epochs (its run()).
   loso          main_TrainTest.py with LOSO=True (paper, Table VI): the other 8 subjects (both sessions) train, the
                 held-out subject (both sessions) is validation and test set.
+  loso_trainvaltest  main_TrainValTest.py with LOSO=True: 20% of the other 8 subjects' trials (train_test_split,
+                random_state=42) is the validation set, the held-out subject only the final test. 500 epochs.
 
 The body of train() is copied from the upstream file of the protocol for a single (subject, seed); every changed line
 is marked # [MOD]. getModel() (models.ATCNet_ with the released hyperparameters) and get_data() are the upstream
@@ -42,6 +44,7 @@ TRAIN_CONF = {
                      'from_logits': False, 'model': 'ATCNet'},
 }
 TRAIN_CONF['loso'] = TRAIN_CONF['traintest']
+TRAIN_CONF['loso_trainvaltest'] = TRAIN_CONF['trainvaltest']
 
 
 def main():
@@ -59,7 +62,8 @@ def main():
             tf.config.set_logical_device_configuration(
                 g, [tf.config.LogicalDeviceConfiguration(memory_limit=int(os.environ['TF_GPU_MEM_MB']))])
 
-    dataset_conf = paths.dataset_conf(loso=a.protocol == 'loso')                     # [MOD] released values, our paths
+    valsplit = a.protocol.endswith('trainvaltest')                                  # [MOD] main_TrainValTest.py
+    dataset_conf = paths.dataset_conf(loso=a.protocol.startswith('loso'))           # [MOD] released values, our paths
     train_conf = dict(TRAIN_CONF[a.protocol], **({'epochs': a.epochs} if a.epochs else {}))
     results_path = os.path.join(a.out, a.protocol)                                   # [MOD]
 
@@ -78,7 +82,7 @@ def main():
     print('\nTraining on subject ', sub + 1)
     X_train, _, y_train_onehot, X_test, _, y_test_onehot = get_data(
         data_path, sub, dataset, LOSO=LOSO, isStandard=isStandard)
-    if a.protocol == 'trainvaltest':
+    if valsplit:
         # main_TrainValTest.py: divide the training data into training and validation
         X_train, X_val, y_train_onehot, y_val_onehot = train_test_split(X_train, y_train_onehot, test_size=0.2,
                                                                         random_state=42)
@@ -94,7 +98,7 @@ def main():
 
     model = main_TrainTest.getModel(model_name, dataset_conf)   # identical in both files for from_logits=False
     model.compile(loss=categorical_crossentropy, optimizer=Adam(learning_rate=lr), metrics=['accuracy'])
-    if a.protocol == 'trainvaltest':
+    if valsplit:
         callbacks = [
             ModelCheckpoint(filepath, monitor='val_loss', verbose=0,
                             save_best_only=True, save_weights_only=True, mode='min'),
@@ -109,7 +113,7 @@ def main():
             EarlyStopping(monitor='val_accuracy', verbose=1, mode='max', patience=patience)
         ]
     labels_test = y_test_onehot.argmax(axis=-1)
-    curves = Curves(X_test, labels_test) if a.protocol == 'trainvaltest' else Curves()   # [MOD]
+    curves = Curves(X_test, labels_test) if valsplit else Curves()   # [MOD]
     history = model.fit(X_train, y_train_onehot, validation_data=(X_val, y_val_onehot),
                         epochs=epochs, batch_size=batch_size, callbacks=callbacks + [curves], verbose=0)  # [MOD] +curves
 
@@ -121,7 +125,7 @@ def main():
     info = 'Subject: {}   Train no. {}   Time: {:.1f} m   '.format(sub + 1, train + 1, ((out_run - in_run) / 60))
     info = info + 'Test_acc: {:.4f}   Test_kappa: {:.4f}'.format(acc, kappa)
     extra = {}
-    if a.protocol == 'trainvaltest':                     # main_TrainValTest.py prints the validation accuracy
+    if valsplit:                                         # main_TrainValTest.py prints the validation accuracy
         y_val_pred = model.predict(X_val).argmax(axis=-1)
         extra['val_acc_at_checkpoint'] = accuracy_score(y_val_onehot.argmax(axis=-1), y_val_pred)
         info = info + '   valid_acc: {:.4f}   valid_loss: {:.3f}'.format(extra['val_acc_at_checkpoint'],

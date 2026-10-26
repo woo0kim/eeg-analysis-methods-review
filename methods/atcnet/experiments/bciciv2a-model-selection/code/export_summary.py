@@ -29,6 +29,9 @@ ROWS = [  # key in results.json headline, protocol, setting, paper (acc, kappa, 
     ('loso_mean', LOSO,
      "today's main_TrainTest.py with LOSO=True (held-out subject is the validation data); mean of {n} runs",
      (0.7097, 0.613, 'Table VI'), 0),
+    ('loso_trainvaltest_mean', LOSO,
+     "today's main_TrainValTest.py with LOSO=True (20% of the 8 training subjects' trials is the validation data, "
+     "held-out subject used once); mean of {n} seeds", (0.7097, 0.613, 'Table VI'), 1),
 ]
 rows = []
 for key, protocol, setting, (pa, pk, src), head in ROWS:
