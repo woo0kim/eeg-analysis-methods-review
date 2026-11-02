@@ -13,7 +13,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-sys.path.insert(0, os.environ.get('CBRAMOD_SRC', os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../../upstream')))
+sys.path.insert(0, os.environ.get('CBRAMOD_SRC', os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../../../cbramod/upstream')))
 from datasets import physio_dataset, bciciv2a_dataset, mumtaz_dataset, stress_dataset  # noqa: E402
 from finetune_trainer import Trainer  # noqa: E402
 

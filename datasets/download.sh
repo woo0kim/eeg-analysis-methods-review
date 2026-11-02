@@ -1,6 +1,6 @@
 #!/bin/bash
 # Download one public EEG dataset into $EEG_DATA_ROOT (default ~/data). Needs wget, curl and GNU coreutils.
-# usage: datasets/download.sh <mental|physio|bciciv2a|mumtaz|shu>
+# usage: datasets/download.sh <mental|physio|bciciv2a|mumtaz|shu|sleepedf>
 D=${EEG_DATA_ROOT:-~/data}
 S3=https://physionet-open.s3.amazonaws.com   # official PhysioNet open-data mirror (AWS)
 case "$1" in
@@ -45,5 +45,12 @@ shu)      # SHU-MI, figshare article 19228725 (mat_files.zip)
   echo "6c039cce4025b2749545949c93f7a4f1  mat_files.zip" | md5sum -c
   unzip -q -o mat_files.zip -d mat_unzip
   find mat_unzip -name "*.mat" | wc -l ;;
+sleepedf) # Sleep-EDF Expanded = PhysioNet "sleep-edfx" 1.0.0, Sleep Cassette study (78 subjects, 153 nights)
+  mkdir -p $D/sleep_edfx/sleep-cassette && cd $D/sleep_edfx
+  wget -q $S3/sleep-edfx/1.0.0/SHA256SUMS.txt -O SHA256SUMS.txt
+  grep -E " (sleep-cassette/.*\.edf|SC-subjects\.xls)$" SHA256SUMS.txt > needed.sha256
+  awk '{print $2}' needed.sha256 | xargs -P 16 -I{} wget -q -c $S3/sleep-edfx/1.0.0/{} -O {}
+  sha256sum -c --quiet needed.sha256 && echo "sha256 OK"
+  ls sleep-cassette | wc -l ;;
 esac
 echo "DONE $1"

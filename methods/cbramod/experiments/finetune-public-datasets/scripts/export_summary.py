@@ -19,7 +19,6 @@ SETTING = {
     'frozen': 'released weights, backbone frozen',
     'pt-lr5e-4-single': 'fine-tuned, lr 5e-4 without multi_lr (issue #6)',
     'pretrained@seed3407': 'fine-tuned, code-default seed 3407 only',
-    'eegnet': "our PyTorch EEGNet-8,2 through CBraMod's fine-tuning pipeline",
 }
 
 rows = []
@@ -30,12 +29,12 @@ for s in json.load(open(os.path.join(RESULTS, 'results.json')))['summary']:
         setting += ', data from the pre-A04T-fix preprocessing (v0616)'
     for i, metric in enumerate(s['metric_names']):
         paper = s.get('paper', [('', '')] * 3)[i]
-        rows.append(dict(method='EEGNet' if s['setting'] == 'eegnet' else 'CBraMod', dataset=dataset,
+        rows.append(dict(method='CBraMod', dataset=dataset,
                          protocol=protocol, setting=setting, metric=metric,
                          paper_mean=paper[0], paper_std=paper[1], paper_source=s.get('paper_table', ''),
                          ours_mean=round(s['mean'][i], 4), ours_std=round(s['std'][i], 4) if s['n'] > 1 else '',
                          n_runs=s['n'],
-                         headline=int(metric == 'balanced_acc' and s['setting'] in ('pretrained', 'eegnet')
+                         headline=int(metric == 'balanced_acc' and s['setting'] == 'pretrained'
                                       and '@' not in s['dataset'])))
 
 with open(os.path.join(RESULTS, 'summary.csv'), 'w', newline='') as f:

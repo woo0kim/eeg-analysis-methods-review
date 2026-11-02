@@ -14,7 +14,8 @@ LABRAM = 'methods/labram/experiments/finetune-cbramod-splits'
 CBRAMOD_BD = 'methods/cbramod/experiments/braindecode-public-datasets'
 LABRAM_BD = 'methods/labram/experiments/braindecode-cbramod-splits'
 EEGNET_BD = 'methods/eegnet/experiments/braindecode-cbramod-splits'
-MODELS = {'EEGNet': (CBRAMOD, 'eegnet'), 'CBraMod scratch': (CBRAMOD, 'scratch'),
+EEGNET_PT = 'methods/eegnet/experiments/pytorch-cbramod-splits'
+MODELS = {'EEGNet': (EEGNET_PT, 'eegnet'), 'CBraMod scratch': (CBRAMOD, 'scratch'),
           'CBraMod': (CBRAMOD, 'pretrained'), 'LaBraM-Base': (LABRAM, 'labram'),
           'EEGNet (bd)': (EEGNET_BD, 'eegnet-braindecode'), 'CBraMod scratch (bd)': (CBRAMOD_BD, 'scratch'),
           'CBraMod (bd)': (CBRAMOD_BD, 'pretrained'), 'LaBraM-Base (bd)': (LABRAM_BD, 'labram')}

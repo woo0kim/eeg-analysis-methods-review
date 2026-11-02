@@ -2,7 +2,7 @@
 
 Each logs/runs/<dataset>__eegnet__s<seed>/log.txt is the console output of code/run_eegnet.py, which prints CBraMod's
 released Trainer's lines. "PyTorch EEGNet" is our own EEGNet-8,2 run through the same pipeline, setting `eegnet` of
-../../../cbramod/experiments/finetune-public-datasets/results/results.json (same datasets, seeds, Trainer).
+../pytorch-cbramod-splits/results/results.json (same datasets, seeds, Trainer).
 usage: python code/collect.py [RUNS_DIR] [OUT_DIR] > OUT_DIR/results.txt
 """
 import glob, json, os, re, sys
@@ -12,7 +12,7 @@ from scipy import stats
 HERE = os.path.dirname(os.path.abspath(__file__))
 RUNS = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, '../logs/runs')
 OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, '../results')
-OURS_PT = os.path.join(HERE, '../../../../cbramod/experiments/finetune-public-datasets/results/results.json')
+OURS_PT = os.path.join(HERE, '../../pytorch-cbramod-splits/results/results.json')
 # EEGNet rows of the CBraMod paper (ICLR 2025; BIOT's code, settings not reported), in the order the code prints
 PAPER = {
     'PhysioNet-MI': ('Table 3', [(0.5814, 0.0125), (0.4468, 0.0199), (0.5796, 0.0115)]),

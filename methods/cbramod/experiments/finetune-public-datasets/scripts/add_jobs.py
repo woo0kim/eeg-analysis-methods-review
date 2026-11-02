@@ -29,11 +29,11 @@ CFG = {
 }
 # Fine-tuning settings. Only 'pretrained' / 'scratch' are compared with the paper; the others are
 # robustness checks suggested by the first author in GitHub issues (#6: lr=5e-4 with multi_lr=False).
+# The EEGNet baseline runs through the same pipeline moved to methods/eegnet/experiments/pytorch-cbramod-splits.
 SETTINGS = {
     'pretrained': '',
     'scratch': " --use_pretrained_weights ''",
     'pt-lr5e-4-single': " --lr 5e-4 --multi_lr ''",
-    'eegnet': '',
     'frozen': ' --frozen True',   # paper Table 18 "CBraMod (Fixed)"; bool('True') is True
 }
 # queue claims files in sorted order -> longest jobs first
@@ -48,15 +48,11 @@ for seed in seeds:
     name = f'{ds}__{setting}__s{seed}'
     run_dir = os.path.join(WORK, 'runs', name)
     extra = SETTINGS[setting]
-    if setting == 'eegnet':     # supplementary baseline through the same released Trainer/loaders
-        prog = f'{shlex.quote(os.path.join(HERE, "run_eegnet.py"))} --seed {seed} --cuda 0'
-        prio = 8
+    prog = f'finetune_main.py --seed {seed} --cuda 0 --num_of_classes {ncls}'
+    if '@' in ds:
+        prio = 7
     else:
-        prog = f'finetune_main.py --seed {seed} --cuda 0 --num_of_classes {ncls}'
-        if '@' in ds:
-            prio = 7
-        else:
-            prio = PRIO[ds] if setting in ('pretrained', 'scratch') else (6 if setting == 'frozen' else 9)
+        prio = PRIO[ds] if setting in ('pretrained', 'scratch') else (6 if setting == 'frozen' else 9)
     q = shlex.quote
     cmd = (f'#!/bin/bash\n# job: {name}\nmkdir -p {q(run_dir)}\ncd {q(SRC)}\n'
            f'CUDA_VISIBLE_DEVICES=$1 {q(PY)} -u {prog} '

@@ -2,7 +2,7 @@
 
 Same dataset loaders and splits, Trainer (loss, AdamW, cosine schedule, clipping, label smoothing, checkpoint on the
 best validation kappa / AUROC) and Evaluator as CBraMod's released-code runs and as our own PyTorch EEGNet-8,2 there
-(../../../cbramod/experiments/finetune-public-datasets/scripts/run_eegnet.py); only the model is braindecode's EEGNet.
+(../../pytorch-cbramod-splits/code/run_eegnet.py); only the model is braindecode's EEGNet.
 
 usage: python run_eegnet.py --downstream_dataset X --datasets_dir D --seed S --cuda 0 --model_dir M
 """

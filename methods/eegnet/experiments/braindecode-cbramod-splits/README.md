@@ -1,8 +1,8 @@
 # EEGNet (braindecode) under CBraMod's splits
 
-The CBraMod paper compares against EEGNet (Tables 3, 10, 12, 15), and CBraMod's
-[finetune-public-datasets](../../../cbramod/experiments/finetune-public-datasets) re-ran that baseline through
-CBraMod's released fine-tuning pipeline with our own PyTorch EEGNet-8,2 (`scripts/run_eegnet.py` there). This
+The CBraMod paper compares against EEGNet (Tables 3, 10, 12, 15), and
+[pytorch-cbramod-splits](../pytorch-cbramod-splits) re-ran that baseline through
+CBraMod's released fine-tuning pipeline with our own PyTorch EEGNet-8,2 (`code/run_eegnet.py` there). This
 experiment asks:
 
 > Does braindecode's `EEGNet`, trained through the same pipeline, give the same numbers as our implementation?
@@ -53,9 +53,9 @@ the same number of parameters on every dataset (2,193–4,020).
 
 ### What differs, and why
 
-| | CBraMod paper, EEGNet rows | Our PyTorch EEGNet ([finetune-public-datasets](../../../cbramod/experiments/finetune-public-datasets)) | This experiment | Why |
+| | CBraMod paper, EEGNet rows | Our PyTorch EEGNet ([pytorch-cbramod-splits](../pytorch-cbramod-splits)) | This experiment | Why |
 |---|---|---|---|---|
-| Implementation | BIOT's code, settings not reported | `scripts/run_eegnet.py` (PyTorch, written for that experiment) | braindecode 1.8.1 `EEGNet` | the question of this experiment |
+| Implementation | BIOT's code, settings not reported | `code/run_eegnet.py` (PyTorch, written for that experiment) | braindecode 1.8.1 `EEGNet` | the question of this experiment |
 | Architecture | – | EEGNet-8,2: temporal kernel 100 (0.5 s at 200 Hz), depthwise spatial, separable kernel 16, average pooling 4 and 8, dropout 0.25 | the same values | – |
 | Max-norm constraints | – | none | depthwise spatial filter max norm 1; dense classifier max norm 0.25 | EEGNet paper (Lawhern et al. 2018, Table 2); braindecode's default for the depthwise filter, and `final_layer_with_constraint=True` for the classifier, as in the within-subject braindecode runs ([bciciv2a-epoch-selection](../bciciv2a-epoch-selection)) |
 | Batch norm | – | PyTorch defaults (momentum 0.1, ε 1e-5) | braindecode defaults (momentum 0.01, ε 1e-3, the Keras values of the original code) | braindecode's implementation |

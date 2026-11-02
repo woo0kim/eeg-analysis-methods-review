@@ -1,0 +1,431 @@
+Namespace(seed=1, cuda=0, epochs=50, batch_size=64, lr=0.0001, weight_decay=0.05, optimizer='AdamW', clip_value=1, dropout=0.1, classifier='all_patch_reps', downstream_dataset='ISRUC', datasets_dir='/home/wkim/data/sleep_edfx/processed_seq20', num_of_classes=5, model_dir='/home/wkim/repro-sleepedf/runs/SleepEDF__bd-atcnet__s1', num_workers=4, label_smoothing=0.1, multi_lr=True, frozen=False, use_pretrained_weights=True, foundation_dir='', accum=1, model='bd-atcnet')
+7655 933 1054
+9642
+SeqModel(
+  (encoder): BDATCNetEncoder(
+    (m): ATCNet(
+      (ensuredims): Ensure4d()
+      (dimshuffle): Rearrange('batch C T 1 -> batch 1 T C')
+      (conv_block): _ConvBlock(
+        (conv1): Conv2d(1, 16, kernel_size=(64, 1), stride=(1, 1), padding=same, bias=False)
+        (bn1): BatchNorm2d(16, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+        (conv2): Conv2d(16, 32, kernel_size=(1, 2), stride=(1, 1), padding=valid, groups=16, bias=False)
+        (bn2): BatchNorm2d(32, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+        (activation2): ELU(alpha=1.0)
+        (pool2): AvgPool2d(kernel_size=(8, 1), stride=(8, 1), padding=0)
+        (drop2): Dropout2d(p=0.3, inplace=False)
+        (conv3): Conv2d(32, 32, kernel_size=(16, 1), stride=(1, 1), padding=same, bias=False)
+        (bn3): BatchNorm2d(32, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+        (activation3): ELU(alpha=1.0)
+        (pool3): AvgPool2d(kernel_size=(7, 1), stride=(7, 1), padding=0)
+        (drop3): Dropout2d(p=0.3, inplace=False)
+      )
+      (attention_blocks): ModuleList(
+        (0-4): 5 x _AttentionBlock(
+          (dimshuffle): Rearrange('batch C T -> batch T C')
+          (ln): LayerNorm((32,), eps=1e-06, elementwise_affine=True)
+          (mha): _MHA(
+            (fc_q): Linear(in_features=32, out_features=16, bias=True)
+            (fc_k): Linear(in_features=32, out_features=16, bias=True)
+            (fc_v): Linear(in_features=32, out_features=16, bias=True)
+            (fc_o): Linear(in_features=16, out_features=32, bias=True)
+            (dropout): Dropout(p=0.5, inplace=False)
+          )
+          (drop): Dropout(p=0.3, inplace=False)
+        )
+      )
+      (temporal_conv_nets): ModuleList(
+        (0-4): 5 x Sequential(
+          (0): _TCNResidualBlock(
+            (activation): ELU(alpha=1.0)
+            (conv1): CausalConv1d(32, 32, kernel_size=(4,), stride=(1,), padding=(3,))
+            (bn1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            (drop1): Dropout(p=0.3, inplace=False)
+            (conv2): CausalConv1d(32, 32, kernel_size=(4,), stride=(1,), padding=(3,))
+            (bn2): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            (drop2): Dropout(p=0.3, inplace=False)
+            (reshaping_conv): Identity()
+          )
+          (1): _TCNResidualBlock(
+            (activation): ELU(alpha=1.0)
+            (conv1): CausalConv1d(32, 32, kernel_size=(4,), stride=(1,), padding=(6,), dilation=(2,))
+            (bn1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            (drop1): Dropout(p=0.3, inplace=False)
+            (conv2): CausalConv1d(32, 32, kernel_size=(4,), stride=(1,), padding=(6,), dilation=(2,))
+            (bn2): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            (drop2): Dropout(p=0.3, inplace=False)
+            (reshaping_conv): Identity()
+          )
+        )
+      )
+      (final_layer): ModuleList()
+      (out_fun): Identity()
+    )
+  )
+  (head): Sequential(
+    (0): Linear(in_features=160, out_features=512, bias=True)
+    (1): GELU(approximate='none')
+  )
+  (sequence_encoder): TransformerEncoder(
+    (layers): ModuleList(
+      (0): TransformerEncoderLayer(
+        (self_attn): MultiheadAttention(
+          (out_proj): NonDynamicallyQuantizableLinear(in_features=512, out_features=512, bias=True)
+        )
+        (linear1): Linear(in_features=512, out_features=2048, bias=True)
+        (dropout): Dropout(p=0.1, inplace=False)
+        (linear2): Linear(in_features=2048, out_features=512, bias=True)
+        (norm1): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (norm2): LayerNorm((512,), eps=1e-05, elementwise_affine=True)
+        (dropout1): Dropout(p=0.1, inplace=False)
+        (dropout2): Dropout(p=0.1, inplace=False)
+      )
+    )
+  )
+  (classifier): Linear(in_features=512, out_features=5, bias=True)
+)
+parameters: backbone 0, other 3,349,813, total 3,349,813
+/home/wkim/miniforge3/envs/bd-labram/lib/python3.11/site-packages/torch/nn/modules/conv.py:456: UserWarning: Using padding='same' with even kernel lengths and odd dilation may require a zero-padded copy of the input be created (Triggered internally at ../aten/src/ATen/native/Convolution.cpp:1008.)
+  return F.conv2d(input, weight, bias, self.stride,
+/home/wkim/miniforge3/envs/bd-labram/lib/python3.11/site-packages/torch/nn/modules/conv.py:456: UserWarning: Applied workaround for CuDNN issue, install nvrtc.so (Triggered internally at ../aten/src/ATen/native/cudnn/Conv_v8.cpp:80.)
+  return F.conv2d(input, weight, bias, self.stride,
+Epoch 1 : Training Loss: 1.12062, acc: 0.41881, kappa: 0.35376, f1: 0.47631, LR: 0.00010, Time elapsed 33.01 mins
+[[4593   13   63    0  554]
+ [ 617    9  106    0 1361]
+ [ 154   12 2424    0 4338]
+ [   0    0 1099  108  148]
+ [ 558    5  108    0 2390]]
+kappa increasing....saving weights !!
+Val Evaluation: acc: 0.41881, kappa: 0.35376, f1: 0.47631
+Epoch 2 : Training Loss: 0.95675, acc: 0.56033, kappa: 0.53030, f1: 0.65314, LR: 0.00010, Time elapsed 34.74 mins
+[[4734  207  143    6  133]
+ [ 555  719  359    1  459]
+ [  80  849 4870  117 1012]
+ [   1    2  768  572   12]
+ [ 487  812  456    0 1306]]
+kappa increasing....saving weights !!
+Val Evaluation: acc: 0.56033, kappa: 0.53030, f1: 0.65314
+Epoch 3 : Training Loss: 0.91817, acc: 0.59053, kappa: 0.57161, f1: 0.68201, LR: 0.00010, Time elapsed 36.06 mins
+[[4824  183  120    6   90]
+ [ 577  612  378    2  524]
+ [  80  773 5111  141  823]
+ [   0   12  687  655    1]
+ [ 534  654  294    1 1578]]
+kappa increasing....saving weights !!
+Val Evaluation: acc: 0.59053, kappa: 0.57161, f1: 0.68201
+Epoch 4 : Training Loss: 0.86397, acc: 0.62301, kappa: 0.60236, f1: 0.70397, LR: 0.00010, Time elapsed 34.08 mins
+[[4559  492  134   25   13]
+ [ 373  909  666   24  121]
+ [  42  512 5926  350   98]
+ [   1    1  517  836    0]
+ [ 191  963  852   28 1027]]
+kappa increasing....saving weights !!
+Val Evaluation: acc: 0.62301, kappa: 0.60236, f1: 0.70397
+Epoch 5 : Training Loss: 0.84104, acc: 0.59897, kappa: 0.61636, f1: 0.70790, LR: 0.00010, Time elapsed 33.30 mins
+[[4776  217  143   15   72]
+ [ 530  508  672    6  377]
+ [  89  363 6126  132  218]
+ [   1    2  732  620    0]
+ [ 394  374  772    3 1518]]
+kappa increasing....saving weights !!
+Val Evaluation: acc: 0.59897, kappa: 0.61636, f1: 0.70790
+Epoch 6 : Training Loss: 0.83659, acc: 0.63816, kappa: 0.61378, f1: 0.70847, LR: 0.00010, Time elapsed 35.22 mins
+[[4901  182   66   43   31]
+ [ 662  649  359   63  360]
+ [ 113  754 5301  458  302]
+ [   3    4  470  878    0]
+ [ 732  306  294  109 1620]]
+Epoch 7 : Training Loss: 0.82532, acc: 0.65306, kappa: 0.61276, f1: 0.70904, LR: 0.00010, Time elapsed 37.88 mins
+[[4834  248   71   57   13]
+ [ 594  860  427   70  142]
+ [  90  743 5355  579  161]
+ [   2    0  329 1024    0]
+ [ 571  791  348  126 1225]]
+Epoch 8 : Training Loss: 0.81090, acc: 0.63826, kappa: 0.62406, f1: 0.71283, LR: 0.00009, Time elapsed 39.09 mins
+[[4976  120   95   10   22]
+ [ 791  586  489   30  197]
+ [ 220  591 5648  318  151]
+ [   2    0  450  903    0]
+ [ 693  305  543   60 1460]]
+kappa increasing....saving weights !!
+Val Evaluation: acc: 0.63826, kappa: 0.62406, f1: 0.71283
+Epoch 9 : Training Loss: 0.79400, acc: 0.63337, kappa: 0.60872, f1: 0.69550, LR: 0.00009, Time elapsed 37.20 mins
+[[4966  131   71   28   27]
+ [ 679  592  663   52  107]
+ [ 132  413 5738  561   84]
+ [   2    1  312 1040    0]
+ [ 417  525  978  108 1033]]
+Epoch 10 : Training Loss: 0.79278, acc: 0.66247, kappa: 0.64227, f1: 0.72641, LR: 0.00009, Time elapsed 35.09 mins
+[[4908  167   79   26   43]
+ [ 668  590  507   52  276]
+ [ 143  435 5606  470  274]
+ [   1    3  354  996    1]
+ [ 632  284  356  116 1673]]
+kappa increasing....saving weights !!
+Val Evaluation: acc: 0.66247, kappa: 0.64227, f1: 0.72641
+Epoch 11 : Training Loss: 0.78069, acc: 0.63274, kappa: 0.61405, f1: 0.70208, LR: 0.00009, Time elapsed 37.24 mins
+[[4921  177   64   37   24]
+ [ 636  558  628   75  196]
+ [  96  457 5720  447  208]
+ [   0    2  381  972    0]
+ [ 626  304  720  150 1261]]
+Epoch 12 : Training Loss: 0.77753, acc: 0.69244, kappa: 0.68148, f1: 0.75093, LR: 0.00009, Time elapsed 36.14 mins
+[[4857   96  114   36  120]
+ [ 596  435  544   47  471]
+ [  70  282 5700  498  378]
+ [   0    0  329 1022    4]
+ [ 222  125  334   92 2288]]
+kappa increasing....saving weights !!
+Val Evaluation: acc: 0.69244, kappa: 0.68148, f1: 0.75093
+Epoch 13 : Training Loss: 0.76639, acc: 0.65663, kappa: 0.65245, f1: 0.73017, LR: 0.00008, Time elapsed 36.86 mins
+[[4887  133  116   52   35]
+ [ 528  474  855   44  192]
+ [  81  149 6122  433  143]
+ [   0    0  353 1002    0]
+ [ 220  234 1010   73 1524]]
+Epoch 14 : Training Loss: 0.77256, acc: 0.69075, kappa: 0.68613, f1: 0.75825, LR: 0.00008, Time elapsed 36.90 mins
+[[4797  160   96   30  140]
+ [ 509  550  580   36  418]
+ [  83  234 5890  384  337]
+ [   1    0  401  953    0]
+ [ 197  140  466   57 2201]]
+kappa increasing....saving weights !!
+Val Evaluation: acc: 0.69075, kappa: 0.68613, f1: 0.75825
+Epoch 15 : Training Loss: 0.76232, acc: 0.69592, kappa: 0.67931, f1: 0.75588, LR: 0.00008, Time elapsed 32.28 mins
+[[4876  180   74    5   88]
+ [ 549  650  558   38  298]
+ [ 137  309 5738  409  335]
+ [  11    0  307 1033    4]
+ [ 297  367  340   83 1974]]
+Epoch 16 : Training Loss: 0.75903, acc: 0.65279, kappa: 0.65022, f1: 0.72690, LR: 0.00008, Time elapsed 32.68 mins
+[[4906  135  122   26   34]
+ [ 536  445  913   40  159]
+ [  87  124 6166  421  130]
+ [   2    0  351 1002    0]
+ [ 289  198 1034   63 1477]]
+Epoch 17 : Training Loss: 0.75307, acc: 0.69184, kappa: 0.68755, f1: 0.75904, LR: 0.00007, Time elapsed 32.05 mins
+[[4896  157   92   12   66]
+ [ 576  542  698   27  250]
+ [  76  231 5978  407  236]
+ [   1    0  344 1009    1]
+ [ 227  215  568   45 2006]]
+kappa increasing....saving weights !!
+Val Evaluation: acc: 0.69184, kappa: 0.68755, f1: 0.75904
+Epoch 18 : Training Loss: 0.74718, acc: 0.66740, kappa: 0.67089, f1: 0.74175, LR: 0.00007, Time elapsed 31.18 mins
+[[4979   69  106   26   43]
+ [ 695  409  710   49  230]
+ [ 152  230 5986  310  250]
+ [   1    0  405  948    1]
+ [ 351  149  559   90 1912]]
+Epoch 19 : Training Loss: 0.74900, acc: 0.67400, kappa: 0.67511, f1: 0.75321, LR: 0.00007, Time elapsed 34.20 mins
+[[4932  166   87   14   24]
+ [ 564  645  667   22  195]
+ [  72  321 6060  257  218]
+ [   2    1  427  924    1]
+ [ 223  429  653   39 1717]]
+Epoch 20 : Training Loss: 0.74547, acc: 0.70070, kappa: 0.69257, f1: 0.75992, LR: 0.00007, Time elapsed 27.72 mins
+[[4851  118  114    6  134]
+ [ 506  474  684   41  388]
+ [ 105  180 5848  413  382]
+ [   7    0  309 1035    4]
+ [ 163  139  396   97 2266]]
+kappa increasing....saving weights !!
+Val Evaluation: acc: 0.70070, kappa: 0.69257, f1: 0.75992
+Epoch 21 : Training Loss: 0.74287, acc: 0.71239, kappa: 0.69028, f1: 0.76252, LR: 0.00006, Time elapsed 25.82 mins
+[[4849  151   94   23  106]
+ [ 476  615  543   41  418]
+ [  86  339 5570  534  399]
+ [   1    0  290 1061    3]
+ [ 192  162  334   69 2304]]
+Epoch 22 : Training Loss: 0.74037, acc: 0.68624, kappa: 0.67830, f1: 0.75477, LR: 0.00006, Time elapsed 25.91 mins
+[[4938  149   81   30   25]
+ [ 566  653  644   46  184]
+ [ 100  300 5907  426  195]
+ [   1    1  361  992    0]
+ [ 294  350  535   79 1803]]
+Epoch 23 : Training Loss: 0.73285, acc: 0.68212, kappa: 0.68853, f1: 0.76441, LR: 0.00006, Time elapsed 26.79 mins
+[[4861  207  109    6   40]
+ [ 477  693  727   16  180]
+ [  59  233 6153  250  233]
+ [   2    1  479  872    1]
+ [ 183  331  625   33 1889]]
+Epoch 24 : Training Loss: 0.73149, acc: 0.69577, kappa: 0.67434, f1: 0.75101, LR: 0.00005, Time elapsed 27.99 mins
+[[4958   94   91   14   66]
+ [ 643  597  608   43  202]
+ [ 126  458 5580  559  205]
+ [   2    1  290 1060    2]
+ [ 277  241  455   78 2010]]
+Epoch 25 : Training Loss: 0.72616, acc: 0.67192, kappa: 0.67213, f1: 0.74379, LR: 0.00005, Time elapsed 28.00 mins
+[[4992   76  113   15   27]
+ [ 670  429  796   33  165]
+ [ 202  183 5985  398  160]
+ [   2    0  370  982    1]
+ [ 277  213  640   63 1868]]
+Epoch 26 : Training Loss: 0.72451, acc: 0.70308, kappa: 0.69383, f1: 0.76121, LR: 0.00005, Time elapsed 27.43 mins
+[[4949   92  111   17   54]
+ [ 568  510  641   42  332]
+ [ 107  177 5795  473  376]
+ [   0    0  312 1042    1]
+ [ 182  136  487   56 2200]]
+kappa increasing....saving weights !!
+Val Evaluation: acc: 0.70308, kappa: 0.69383, f1: 0.76121
+Epoch 27 : Training Loss: 0.72365, acc: 0.70032, kappa: 0.69528, f1: 0.76583, LR: 0.00004, Time elapsed 27.43 mins
+[[4949  115   99    6   54]
+ [ 621  601  605   21  245]
+ [ 120  315 5841  366  286]
+ [   3    6  358  978   10]
+ [ 275  213  379   45 2149]]
+kappa increasing....saving weights !!
+Val Evaluation: acc: 0.70032, kappa: 0.69528, f1: 0.76583
+Epoch 28 : Training Loss: 0.72357, acc: 0.69808, kappa: 0.69506, f1: 0.76462, LR: 0.00004, Time elapsed 27.90 mins
+[[4900  125  105   18   75]
+ [ 550  556  712   40  235]
+ [ 111  224 5964  403  226]
+ [   2    1  354  997    1]
+ [ 199  177  494   79 2112]]
+Epoch 29 : Training Loss: 0.71804, acc: 0.70107, kappa: 0.69458, f1: 0.76625, LR: 0.00004, Time elapsed 29.17 mins
+[[4919  149  105   18   32]
+ [ 549  624  694   42  184]
+ [  95  235 5962  421  215]
+ [   0    1  330 1024    0]
+ [ 235  298  483   58 1987]]
+Epoch 30 : Training Loss: 0.71275, acc: 0.70308, kappa: 0.69437, f1: 0.76723, LR: 0.00004, Time elapsed 27.61 mins
+[[4898  138  113   17   57]
+ [ 540  668  601   34  250]
+ [  78  321 5849  361  319]
+ [   0    1  365  988    1]
+ [ 197  250  459   58 2097]]
+Epoch 31 : Training Loss: 0.71271, acc: 0.69387, kappa: 0.68317, f1: 0.75631, LR: 0.00003, Time elapsed 28.11 mins
+[[4899  124  116   17   67]
+ [ 503  578  794   41  177]
+ [  86  167 5967  497  211]
+ [   2    1  290 1061    1]
+ [ 199  261  680   51 1870]]
+Epoch 32 : Training Loss: 0.71366, acc: 0.69304, kappa: 0.69243, f1: 0.76548, LR: 0.00003, Time elapsed 26.31 mins
+[[4892  143  137   19   32]
+ [ 475  638  760   31  189]
+ [  86  224 6092  320  206]
+ [   2    0  379  974    0]
+ [ 179  304  607   56 1915]]
+Epoch 33 : Training Loss: 0.71106, acc: 0.70380, kappa: 0.69426, f1: 0.76746, LR: 0.00003, Time elapsed 29.48 mins
+[[4854  157  118   17   77]
+ [ 472  665  653   33  270]
+ [  90  344 5868  367  259]
+ [   1    0  363  991    0]
+ [ 217  201  466   54 2123]]
+Epoch 34 : Training Loss: 0.71056, acc: 0.68827, kappa: 0.68748, f1: 0.76063, LR: 0.00002, Time elapsed 26.85 mins
+[[4902  120  144    6   51]
+ [ 545  573  745   28  202]
+ [ 108  298 5997  315  210]
+ [   1    1  397  955    1]
+ [ 218  232  550   45 2016]]
+Epoch 35 : Training Loss: 0.70374, acc: 0.70517, kappa: 0.69435, f1: 0.76343, LR: 0.00002, Time elapsed 26.18 mins
+[[4870  118  140   18   77]
+ [ 507  530  725   42  289]
+ [  84  244 5856  473  271]
+ [   1    1  298 1054    1]
+ [ 177  143  488   58 2195]]
+Epoch 36 : Training Loss: 0.70265, acc: 0.70308, kappa: 0.69945, f1: 0.76977, LR: 0.00002, Time elapsed 26.20 mins
+[[4883  140  125    7   68]
+ [ 502  606  708   30  247]
+ [  65  227 5995  378  263]
+ [   1    1  349 1003    1]
+ [ 158  273  490   42 2098]]
+kappa increasing....saving weights !!
+Val Evaluation: acc: 0.70308, kappa: 0.69945, f1: 0.76977
+Epoch 37 : Training Loss: 0.69912, acc: 0.69618, kappa: 0.69928, f1: 0.76543, LR: 0.00002, Time elapsed 26.00 mins
+[[4946   82  124   10   61]
+ [ 595  493  707   32  266]
+ [  93  208 6017  350  260]
+ [   1    1  372  980    1]
+ [ 193  159  494   52 2163]]
+Epoch 38 : Training Loss: 0.70128, acc: 0.69702, kappa: 0.69409, f1: 0.76364, LR: 0.00001, Time elapsed 26.48 mins
+[[4885  111  142    7   78]
+ [ 499  533  786   36  239]
+ [  74  201 5979  412  262]
+ [   1    1  353  999    1]
+ [ 165  177  533   59 2127]]
+Epoch 39 : Training Loss: 0.69754, acc: 0.70312, kappa: 0.70144, f1: 0.77058, LR: 0.00001, Time elapsed 27.08 mins
+[[4898  116  124   13   72]
+ [ 523  597  690   33  250]
+ [  78  266 5960  356  268]
+ [   1    1  378  974    1]
+ [ 183  187  456   51 2184]]
+kappa increasing....saving weights !!
+Val Evaluation: acc: 0.70312, kappa: 0.70144, f1: 0.77058
+Epoch 40 : Training Loss: 0.69548, acc: 0.70161, kappa: 0.70082, f1: 0.76960, LR: 0.00001, Time elapsed 26.31 mins
+[[4905  118  122   11   67]
+ [ 482  580  727   37  267]
+ [  78  220 6001  379  250]
+ [   2    1  368  984    0]
+ [ 152  169  531   68 2141]]
+Epoch 41 : Training Loss: 0.69492, acc: 0.70296, kappa: 0.69741, f1: 0.76810, LR: 0.00001, Time elapsed 24.65 mins
+[[4923  117  117    5   61]
+ [ 541  612  686   37  217]
+ [  96  274 5923  395  240]
+ [   1    1  346 1006    1]
+ [ 211  262  452   47 2089]]
+Epoch 42 : Training Loss: 0.69584, acc: 0.69745, kappa: 0.69549, f1: 0.76383, LR: 0.00001, Time elapsed 24.70 mins
+[[4912  101  131   10   69]
+ [ 559  514  738   37  245]
+ [  97  225 5958  390  258]
+ [   1    1  354  998    1]
+ [ 192  181  478   53 2157]]
+Epoch 43 : Training Loss: 0.69259, acc: 0.70363, kappa: 0.69963, f1: 0.76880, LR: 0.00001, Time elapsed 22.65 mins
+[[4889  125  123   12   74]
+ [ 509  572  718   36  258]
+ [  76  267 5925  401  259]
+ [   1    1  358  994    1]
+ [ 173  174  455   55 2204]]
+Epoch 44 : Training Loss: 0.68983, acc: 0.70744, kappa: 0.70063, f1: 0.76933, LR: 0.00000, Time elapsed 24.45 mins
+[[4905  119  115    9   75]
+ [ 527  582  691   36  257]
+ [  83  258 5873  422  292]
+ [   1    1  338 1014    1]
+ [ 190  181  424   50 2216]]
+Epoch 45 : Training Loss: 0.69074, acc: 0.70207, kappa: 0.70057, f1: 0.76853, LR: 0.00000, Time elapsed 24.40 mins
+[[4944   95  119    5   60]
+ [ 556  552  695   26  264]
+ [  94  280 5922  354  278]
+ [   1    1  368  984    1]
+ [ 199  177  446   38 2201]]
+Epoch 46 : Training Loss: 0.69050, acc: 0.70260, kappa: 0.69996, f1: 0.76847, LR: 0.00000, Time elapsed 23.58 mins
+[[4917  105  123    7   71]
+ [ 539  562  707   29  256]
+ [  89  265 5931  372  271]
+ [   1    1  363  989    1]
+ [ 184  175  465   42 2195]]
+Epoch 47 : Training Loss: 0.68961, acc: 0.70207, kappa: 0.69654, f1: 0.76580, LR: 0.00000, Time elapsed 23.89 mins
+[[4911  107  123   10   72]
+ [ 544  555  713   38  243]
+ [  92  261 5911  407  257]
+ [   1    1  338 1014    1]
+ [ 195  188  475   50 2153]]
+Epoch 48 : Training Loss: 0.68809, acc: 0.70125, kappa: 0.69564, f1: 0.76588, LR: 0.00000, Time elapsed 23.45 mins
+[[4949  100  118    7   49]
+ [ 562  579  692   32  228]
+ [  95  313 5873  390  257]
+ [   1    1  350 1002    1]
+ [ 219  207  458   50 2127]]
+Epoch 49 : Training Loss: 0.69036, acc: 0.70149, kappa: 0.69728, f1: 0.76719, LR: 0.00000, Time elapsed 23.05 mins
+[[4914  109  123    8   69]
+ [ 539  579  696   31  248]
+ [  89  282 5919  373  265]
+ [   1    1  358  994    1]
+ [ 190  207  470   45 2149]]
+Epoch 50 : Training Loss: 0.68715, acc: 0.70124, kappa: 0.69598, f1: 0.76552, LR: 0.00000, Time elapsed 27.66 mins
+[[4923  103  121   12   64]
+ [ 543  557  721   38  234]
+ [  90  269 5918  407  244]
+ [   1    1  337 1015    1]
+ [ 201  199  486   50 2125]]
+***************************Test************************
+***************************Test results************************
+Test Evaluation: acc: 0.73086, kappa: 0.76512, f1: 0.82442
+[[7799  198  106   11  233]
+ [ 343  534  767    5  301]
+ [  26  192 6110  180  221]
+ [   0    0  420 1138    0]
+ [  25   61  394    0 2016]]
+best epoch 39 (validation kappa 0.70144)
+Done!!!!!

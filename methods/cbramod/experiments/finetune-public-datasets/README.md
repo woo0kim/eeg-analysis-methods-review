@@ -72,17 +72,19 @@ BCIC-IV-2a and Mumtaz2016, and LaBraM-Base is better on MentalArithmetic. LaBraM
 noise of the paper's LaBraM numbers on 10 of 12 metrics, while CBraMod is significantly below its paper
 numbers on 9 of 12: the paper's LaBraM numbers hold up much better than its CBraMod numbers.
 
-### Pre-training, frozen backbone, and an EEGNet baseline (balanced accuracy)
+### Pre-training and frozen backbone, with EEGNet in the same pipeline (balanced accuracy)
 
-| Dataset | Pre-trained | From scratch | Frozen backbone | EEGNet (same pipeline) | Paper: pre-trained / scratch / frozen / EEGNet |
+| Dataset | Pre-trained | From scratch | Frozen backbone | EEGNet (same pipeline, [separate experiment](../../../eegnet/experiments/pytorch-cbramod-splits)) | Paper: pre-trained / scratch / frozen / EEGNet |
 |---|---|---|---|---|---|
 | PhysioNet-MI | 0.6265 ± 0.0054 | 0.5738 ± 0.0082 | 0.5370 ± 0.0120 | 0.5948 ± 0.0028 | 0.6417 / 0.6196 / 0.3845 / 0.5814 |
 | BCIC-IV-2a | 0.4571 ± 0.0399 | 0.4561 ± 0.0195 | – | 0.5288 ± 0.0394 | 0.5138 / – / – / 0.4482 |
 | Mumtaz2016 | 0.8933 ± 0.0101 | 0.8973 ± 0.0115 | – | 0.8828 ± 0.0295 | 0.9560 / – / – / 0.9232 |
 | MentalArithmetic | 0.5889 ± 0.0209 | 0.5924 ± 0.0403 | – | 0.5569 ± 0.0247 | 0.7256 / – / – / 0.6770 |
 
-EEGNet-8,2 (`scripts/run_eegnet.py`) is trained through CBraMod's own loaders, Trainer, schedule and
-model selection, so only the model differs. On BCIC-IV-2a it beats the reproduced CBraMod.
+The EEGNet column comes from [eegnet/pytorch-cbramod-splits](../../../eegnet/experiments/pytorch-cbramod-splits).
+That experiment trains our EEGNet-8,2 through CBraMod's own loaders, Trainer, schedule and model selection, so only
+the model differs. On BCIC-IV-2a it beats the reproduced CBraMod. Those 20 runs were part of this experiment
+(setting `eegnet`) until 2026-10-29, when each method's runs moved under that method.
 
 ### Robustness checks
 
@@ -105,7 +107,6 @@ None of these closes the gap to the paper. `results/results.txt` has every metri
 | `scratch` | `--use_pretrained_weights ''` (`False` would parse as True: `type=bool`) |
 | `frozen` | `--frozen True` (paper Table 18, "CBraMod (Fixed)") |
 | `pt-lr5e-4-single` | `--lr 5e-4 --multi_lr ''` |
-| `eegnet` | `scripts/run_eegnet.py` instead of `finetune_main.py` |
 | `pretrained@seed3407` | `pretrained` with the code's default seed |
 | `BCIC-IV-2a@v0616` | `pretrained` on data made by `scripts/preprocessing_bciciv2a_0616.py` |
 
@@ -141,7 +142,6 @@ is what the authors published as runnable; the disagreements are listed so they 
 |---|---|---|
 | Seeds | 0, 1, 2, 3, 4 (+ a single run at the code default 3407) | the paper reports 5 seeds without naming them |
 | Datasets | PhysioNet-MI, BCIC-IV-2a, Mumtaz2016, MentalArithmetic | the 4 of 13 that are public and fit one week of compute (see [Datasets](#datasets)) |
-| EEGNet baseline | EEGNet-8,2: F1 = 8, D = 2, F2 = 16, temporal kernel 100 samples (0.5 s at 200 Hz, i.e. the original 64 at 128 Hz), dropout 0.25; trained through CBraMod's Trainer with every Table 6 setting; with no `backbone` parameters the whole model gets the head learning rate 5e-4 | the paper's EEGNet rows come from BIOT's code with unreported settings; running EEGNet through the identical pipeline isolates the model |
 | Robustness checks | lr 5e-4 without `multi_lr` (the first author's suggestion in issue #6), seed 3407, `@v0616` data | the explanations offered for low reproduced numbers |
 
 ### Run configuration
@@ -161,12 +161,11 @@ env/setup_env.sh                       conda env: Python 3.11.7 + PyTorch 2.1.2 
 env/pip_freeze.txt                     exact package versions of the runs
 scripts/make_preproc.py                copies the released preprocessing, changing only paths and LMDB map_size
 scripts/preprocessing_bciciv2a_0616.py released BCIC-IV-2a preprocessing at 0ff6be9 (before the A04T fix)
-scripts/add_jobs.py                    queues finetune_main.py / run_eegnet.py jobs for tools/run_queue.py
-scripts/run_eegnet.py                  EEGNet-8,2 through the released Trainer and loaders
+scripts/add_jobs.py                    queues finetune_main.py jobs for tools/run_queue.py
 scripts/collect.py                     parses run logs -> results.txt / results.json, with Welch tests vs. the paper
 scripts/export_summary.py              results.json -> results/summary.csv (feeds the repo-wide RESULTS.md)
 results/                               results.txt, results.json, summary.csv, fig_balanced_accuracy.png
-logs/runs/<dataset>__<setting>__s<seed>/log.txt   full log of each of the 76 runs (CLI args on line 1)
+logs/runs/<dataset>__<setting>__s<seed>/log.txt   full log of each of the 56 runs (CLI args on line 1)
 logs/prep_*.log                        preprocessing logs
 logs/queue.log                         start / end time of every job
 ```
@@ -187,7 +186,7 @@ diff results_rerun/results.txt results/results.txt     # identical; results.json
 python scripts/export_summary.py results               # results/summary.csv from results/results.json
 ```
 
-Re-running the training takes about 3 h on 8 M6000s (76 jobs; PhysioNet-MI pre-trained or from
+Re-running the training takes about 3 h on 8 M6000s (56 jobs; PhysioNet-MI pre-trained or from
 scratch is the longest at ~68 min each). On a Linux GPU server:
 
 ```bash
@@ -207,9 +206,9 @@ for s in physio bciciv2a mumtaz stress; do python preprocessing_$s.py; done   # 
 cd -
 python scripts/preprocessing_bciciv2a_0616.py     # only for the @v0616 check
 
-# 3. Queue the 76 runs and start one worker per GPU
+# 3. Queue the 56 runs and start one worker per GPU
 for ds in PhysioNet-MI BCIC-IV-2a Mumtaz2016 MentalArithmetic; do
-  for st in pretrained scratch eegnet; do python scripts/add_jobs.py $ds $st 0 1 2 3 4; done
+  for st in pretrained scratch; do python scripts/add_jobs.py $ds $st 0 1 2 3 4; done
 done
 python scripts/add_jobs.py PhysioNet-MI frozen 0 1 2 3 4
 python scripts/add_jobs.py MentalArithmetic pt-lr5e-4-single 0 1 2 3 4
@@ -228,7 +227,7 @@ Paths come from environment variables whose defaults are the layout the logged r
 move `CBRAMOD_WORK`.
 
 Checkpoints (~6 GB) are not in the repo; they were left on mcl-server under `~/repro/runs/*/ckpt`.
-In `logs/queue.log`, 10 jobs at the start failed within seconds and were re-run; all 76 final runs exited 0.
+In `logs/queue.log`, 10 jobs at the start failed within seconds and were re-run; all 76 final runs (these 56 and the 20 EEGNet runs) exited 0.
 
 ## Provenance
 
