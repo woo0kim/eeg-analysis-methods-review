@@ -32,6 +32,7 @@ MODELS = [  # (key, label, implementation)
     ('bd-eegnet', 'EEGNet', 'braindecode'), ('bd-conformer', 'EEG Conformer', 'braindecode'),
     ('bd-labram', 'LaBraM-Base', 'braindecode'), ('bd-cbramod', 'CBraMod', 'braindecode'),
     ('bd-deepsleepnet', 'DeepSleepNet', 'braindecode'),
+    ('dgcnn', 'DGCNN', 'ours (PyTorch), DE input'), ('bd-dgcnn', 'DGCNN', 'braindecode, raw input'),
 ]
 STAGES = ['W', 'N1', 'N2', 'N3', 'REM']
 METRICS = ['balanced_acc', 'kappa', 'weighted_f1']

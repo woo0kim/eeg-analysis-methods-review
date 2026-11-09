@@ -1,0 +1,985 @@
+| distributed init (rank 0): env://, gpu 0
+Namespace(batch_size=64, epochs=50, update_freq=1, save_ckpt_freq=5, robust_test=None, model='labram_base_patch200_200', qkv_bias=False, rel_pos_bias=False, abs_pos_emb=True, layer_scale_init_value=0.1, input_size=200, drop=0.0, attn_drop_rate=0.0, drop_path=0.1, disable_eval_during_finetuning=False, model_ema=False, model_ema_decay=0.9999, model_ema_force_cpu=False, opt='adamw', opt_eps=1e-08, opt_betas=None, clip_grad=None, momentum=0.9, weight_decay=0.05, weight_decay_end=None, lr=0.0005, layer_decay=0.65, warmup_lr=1e-06, min_lr=1e-06, warmup_epochs=5, warmup_steps=-1, smoothing=0.1, reprob=0.25, remode='pixel', recount=1, resplit=False, finetune='', model_key='model|module', model_prefix='', model_filter_name='gzp', init_scale=0.001, use_mean_pooling=True, disable_weight_decay_on_rel_pos_bias=False, nb_classes=0, output_dir='/home/wkim/repro-seed/runs/SEED__trial555__bd-labram__s4', log_dir=None, device='cuda', seed=4, resume='', auto_resume=True, save_ckpt=False, start_epoch=0, eval=False, dist_eval=False, num_workers=10, pin_mem=True, world_size=1, local_rank=-1, dist_on_itp=False, dist_url='env://', enable_deepspeed=False, dataset='SEED', rank=0, gpu=0, distributed=True, dist_backend='nccl')
+SEED: train 49365, val 51750, test 51615, 62 channels
+Sampler_train = <torch.utils.data.distributed.DistributedSampler object at 0x7f08f457b490>
+Load braindecode/labram-pretrained@0563b6c: 221 tensors; not in the file (trained from scratch): ['fc_norm.weight', 'fc_norm.bias', 'final_layer.weight', 'final_layer.bias']; in the file but unused: ['norm.bias', 'norm.weight']
+Patch size = 200
+Model = ================================================================================================================================================================
+Layer (type (var_name):depth-idx)                            Input Shape               Output Shape              Param #                   Kernel Shape
+================================================================================================================================================================
+LabramForEngine (LabramForEngine)                            [1, 62, 200]              [1, 3]                    26,400                    --
+├─Sequential (patch_embed): 1-1                              [1, 62, 200]              [1, 62, 200]              --                        --
+│    └─_SegmentPatch (segment_patch): 2-1                    [1, 62, 200]              [1, 62, 1, 200]           --                        --
+│    └─_TemporalConv (temporal_conv): 2-2                    [1, 62, 1, 200]           [1, 62, 200]              --                        --
+│    │    └─Rearrange (channel_patch_flatten): 3-1           [1, 62, 1, 200]           [1, 1, 62, 200]           --                        --
+│    │    └─Conv2d (conv1): 3-2                              [1, 1, 62, 200]           [1, 8, 62, 25]            128                       [1, 15]
+│    │    └─GroupNorm (norm1): 3-3                           [1, 8, 62, 25]            [1, 8, 62, 25]            16                        --
+│    │    └─GELU (act_layer_1): 3-4                          [1, 8, 62, 25]            [1, 8, 62, 25]            --                        --
+│    │    └─Conv2d (conv2): 3-5                              [1, 8, 62, 25]            [1, 8, 62, 25]            200                       [1, 3]
+│    │    └─GroupNorm (norm2): 3-6                           [1, 8, 62, 25]            [1, 8, 62, 25]            16                        --
+│    │    └─GELU (act_layer_2): 3-7                          [1, 8, 62, 25]            [1, 8, 62, 25]            --                        --
+│    │    └─Conv2d (conv3): 3-8                              [1, 8, 62, 25]            [1, 8, 62, 25]            200                       [1, 3]
+│    │    └─GroupNorm (norm3): 3-9                           [1, 8, 62, 25]            [1, 8, 62, 25]            16                        --
+│    │    └─GELU (act_layer_3): 3-10                         [1, 8, 62, 25]            [1, 8, 62, 25]            --                        --
+│    │    └─Rearrange (transpose_temporal_channel): 3-11     [1, 8, 62, 25]            [1, 62, 200]              --                        --
+├─Dropout (pos_drop): 1-2                                    [1, 63, 200]              [1, 63, 200]              --                        --
+├─ModuleList (blocks): 1-3                                   --                        --                        --                        --
+│    └─_WindowsAttentionBlock (0): 2-3                       [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─LayerNorm (norm1): 3-12                          [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─_Attention (attn): 3-13                          [1, 63, 200]              [1, 63, 200]              160,280                   --
+│    │    └─Identity (drop_path): 3-14                       [1, 63, 200]              [1, 63, 200]              --                        --
+│    │    └─LayerNorm (norm2): 3-15                          [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─MLP (mlp): 3-16                                  [1, 63, 200]              [1, 63, 200]              321,000                   --
+│    │    └─Identity (drop_path): 3-17                       [1, 63, 200]              [1, 63, 200]              --                        --
+│    └─_WindowsAttentionBlock (1): 2-4                       [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─LayerNorm (norm1): 3-18                          [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─_Attention (attn): 3-19                          [1, 63, 200]              [1, 63, 200]              160,280                   --
+│    │    └─DropPath (drop_path): 3-20                       [1, 63, 200]              [1, 63, 200]              --                        --
+│    │    └─LayerNorm (norm2): 3-21                          [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─MLP (mlp): 3-22                                  [1, 63, 200]              [1, 63, 200]              321,000                   --
+│    │    └─DropPath (drop_path): 3-23                       [1, 63, 200]              [1, 63, 200]              --                        --
+│    └─_WindowsAttentionBlock (2): 2-5                       [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─LayerNorm (norm1): 3-24                          [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─_Attention (attn): 3-25                          [1, 63, 200]              [1, 63, 200]              160,280                   --
+│    │    └─DropPath (drop_path): 3-26                       [1, 63, 200]              [1, 63, 200]              --                        --
+│    │    └─LayerNorm (norm2): 3-27                          [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─MLP (mlp): 3-28                                  [1, 63, 200]              [1, 63, 200]              321,000                   --
+│    │    └─DropPath (drop_path): 3-29                       [1, 63, 200]              [1, 63, 200]              --                        --
+│    └─_WindowsAttentionBlock (3): 2-6                       [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─LayerNorm (norm1): 3-30                          [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─_Attention (attn): 3-31                          [1, 63, 200]              [1, 63, 200]              160,280                   --
+│    │    └─DropPath (drop_path): 3-32                       [1, 63, 200]              [1, 63, 200]              --                        --
+│    │    └─LayerNorm (norm2): 3-33                          [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─MLP (mlp): 3-34                                  [1, 63, 200]              [1, 63, 200]              321,000                   --
+│    │    └─DropPath (drop_path): 3-35                       [1, 63, 200]              [1, 63, 200]              --                        --
+│    └─_WindowsAttentionBlock (4): 2-7                       [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─LayerNorm (norm1): 3-36                          [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─_Attention (attn): 3-37                          [1, 63, 200]              [1, 63, 200]              160,280                   --
+│    │    └─DropPath (drop_path): 3-38                       [1, 63, 200]              [1, 63, 200]              --                        --
+│    │    └─LayerNorm (norm2): 3-39                          [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─MLP (mlp): 3-40                                  [1, 63, 200]              [1, 63, 200]              321,000                   --
+│    │    └─DropPath (drop_path): 3-41                       [1, 63, 200]              [1, 63, 200]              --                        --
+│    └─_WindowsAttentionBlock (5): 2-8                       [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─LayerNorm (norm1): 3-42                          [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─_Attention (attn): 3-43                          [1, 63, 200]              [1, 63, 200]              160,280                   --
+│    │    └─DropPath (drop_path): 3-44                       [1, 63, 200]              [1, 63, 200]              --                        --
+│    │    └─LayerNorm (norm2): 3-45                          [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─MLP (mlp): 3-46                                  [1, 63, 200]              [1, 63, 200]              321,000                   --
+│    │    └─DropPath (drop_path): 3-47                       [1, 63, 200]              [1, 63, 200]              --                        --
+│    └─_WindowsAttentionBlock (6): 2-9                       [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─LayerNorm (norm1): 3-48                          [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─_Attention (attn): 3-49                          [1, 63, 200]              [1, 63, 200]              160,280                   --
+│    │    └─DropPath (drop_path): 3-50                       [1, 63, 200]              [1, 63, 200]              --                        --
+│    │    └─LayerNorm (norm2): 3-51                          [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─MLP (mlp): 3-52                                  [1, 63, 200]              [1, 63, 200]              321,000                   --
+│    │    └─DropPath (drop_path): 3-53                       [1, 63, 200]              [1, 63, 200]              --                        --
+│    └─_WindowsAttentionBlock (7): 2-10                      [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─LayerNorm (norm1): 3-54                          [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─_Attention (attn): 3-55                          [1, 63, 200]              [1, 63, 200]              160,280                   --
+│    │    └─DropPath (drop_path): 3-56                       [1, 63, 200]              [1, 63, 200]              --                        --
+│    │    └─LayerNorm (norm2): 3-57                          [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─MLP (mlp): 3-58                                  [1, 63, 200]              [1, 63, 200]              321,000                   --
+│    │    └─DropPath (drop_path): 3-59                       [1, 63, 200]              [1, 63, 200]              --                        --
+│    └─_WindowsAttentionBlock (8): 2-11                      [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─LayerNorm (norm1): 3-60                          [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─_Attention (attn): 3-61                          [1, 63, 200]              [1, 63, 200]              160,280                   --
+│    │    └─DropPath (drop_path): 3-62                       [1, 63, 200]              [1, 63, 200]              --                        --
+│    │    └─LayerNorm (norm2): 3-63                          [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─MLP (mlp): 3-64                                  [1, 63, 200]              [1, 63, 200]              321,000                   --
+│    │    └─DropPath (drop_path): 3-65                       [1, 63, 200]              [1, 63, 200]              --                        --
+│    └─_WindowsAttentionBlock (9): 2-12                      [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─LayerNorm (norm1): 3-66                          [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─_Attention (attn): 3-67                          [1, 63, 200]              [1, 63, 200]              160,280                   --
+│    │    └─DropPath (drop_path): 3-68                       [1, 63, 200]              [1, 63, 200]              --                        --
+│    │    └─LayerNorm (norm2): 3-69                          [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─MLP (mlp): 3-70                                  [1, 63, 200]              [1, 63, 200]              321,000                   --
+│    │    └─DropPath (drop_path): 3-71                       [1, 63, 200]              [1, 63, 200]              --                        --
+│    └─_WindowsAttentionBlock (10): 2-13                     [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─LayerNorm (norm1): 3-72                          [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─_Attention (attn): 3-73                          [1, 63, 200]              [1, 63, 200]              160,280                   --
+│    │    └─DropPath (drop_path): 3-74                       [1, 63, 200]              [1, 63, 200]              --                        --
+│    │    └─LayerNorm (norm2): 3-75                          [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─MLP (mlp): 3-76                                  [1, 63, 200]              [1, 63, 200]              321,000                   --
+│    │    └─DropPath (drop_path): 3-77                       [1, 63, 200]              [1, 63, 200]              --                        --
+│    └─_WindowsAttentionBlock (11): 2-14                     [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─LayerNorm (norm1): 3-78                          [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─_Attention (attn): 3-79                          [1, 63, 200]              [1, 63, 200]              160,280                   --
+│    │    └─DropPath (drop_path): 3-80                       [1, 63, 200]              [1, 63, 200]              --                        --
+│    │    └─LayerNorm (norm2): 3-81                          [1, 63, 200]              [1, 63, 200]              400                       --
+│    │    └─MLP (mlp): 3-82                                  [1, 63, 200]              [1, 63, 200]              321,000                   --
+│    │    └─DropPath (drop_path): 3-83                       [1, 63, 200]              [1, 63, 200]              --                        --
+├─Identity (norm): 1-4                                       [1, 63, 200]              [1, 63, 200]              --                        --
+├─LayerNorm (fc_norm): 1-5                                   [1, 200]                  [1, 200]                  400                       --
+├─Linear (final_layer): 1-6                                  [1, 200]                  [1, 3]                    603                       --
+================================================================================================================================================================
+Total params: 5,817,739
+Trainable params: 5,817,739
+Non-trainable params: 0
+Total mult-adds (Units.MEGABYTES): 5.16
+================================================================================================================================================================
+Input size (MB): 0.05
+Forward/backward pass size (MB): 12.69
+Params size (MB): 17.39
+Estimated Total Size (MB): 30.13
+================================================================================================================================================================
+number of params: 5817739
+LR = 0.00050000
+Batch size = 64
+Update frequent = 1
+Number of training examples = 49365
+Number of training training per epoch = 771
+Assigned values = [0.003697205891018715, 0.005688009063105715, 0.008750783174008792, 0.013462743344628911, 0.02071191283789063, 0.03186448128906251, 0.049022278906250015, 0.07541889062500001, 0.11602906250000002, 0.17850625000000003, 0.274625, 0.42250000000000004, 0.65, 1.0]
+Skip weight decay name marked in model: {'cls_token', 'temporal_embedding', 'position_embedding'}
+Param groups = {
+  "layer_0_no_decay": {
+    "weight_decay": 0.0,
+    "params": [
+      "cls_token",
+      "position_embedding",
+      "patch_embed.temporal_conv.conv1.bias",
+      "patch_embed.temporal_conv.norm1.weight",
+      "patch_embed.temporal_conv.norm1.bias",
+      "patch_embed.temporal_conv.conv2.bias",
+      "patch_embed.temporal_conv.norm2.weight",
+      "patch_embed.temporal_conv.norm2.bias",
+      "patch_embed.temporal_conv.conv3.bias",
+      "patch_embed.temporal_conv.norm3.weight",
+      "patch_embed.temporal_conv.norm3.bias"
+    ],
+    "lr_scale": 0.003697205891018715
+  },
+  "layer_13_no_decay": {
+    "weight_decay": 0.0,
+    "params": [
+      "temporal_embedding",
+      "fc_norm.weight",
+      "fc_norm.bias",
+      "final_layer.bias"
+    ],
+    "lr_scale": 1.0
+  },
+  "layer_0_decay": {
+    "weight_decay": 0.05,
+    "params": [
+      "patch_embed.temporal_conv.conv1.weight",
+      "patch_embed.temporal_conv.conv2.weight",
+      "patch_embed.temporal_conv.conv3.weight"
+    ],
+    "lr_scale": 0.003697205891018715
+  },
+  "layer_1_no_decay": {
+    "weight_decay": 0.0,
+    "params": [
+      "blocks.0.gamma_1",
+      "blocks.0.gamma_2",
+      "blocks.0.norm1.weight",
+      "blocks.0.norm1.bias",
+      "blocks.0.attn.q_norm.weight",
+      "blocks.0.attn.q_norm.bias",
+      "blocks.0.attn.k_norm.weight",
+      "blocks.0.attn.k_norm.bias",
+      "blocks.0.attn.proj.bias",
+      "blocks.0.norm2.weight",
+      "blocks.0.norm2.bias",
+      "blocks.0.mlp.0.bias",
+      "blocks.0.mlp.2.bias"
+    ],
+    "lr_scale": 0.005688009063105715
+  },
+  "layer_1_decay": {
+    "weight_decay": 0.05,
+    "params": [
+      "blocks.0.attn.qkv.weight",
+      "blocks.0.attn.proj.weight",
+      "blocks.0.mlp.0.weight",
+      "blocks.0.mlp.2.weight"
+    ],
+    "lr_scale": 0.005688009063105715
+  },
+  "layer_2_no_decay": {
+    "weight_decay": 0.0,
+    "params": [
+      "blocks.1.gamma_1",
+      "blocks.1.gamma_2",
+      "blocks.1.norm1.weight",
+      "blocks.1.norm1.bias",
+      "blocks.1.attn.q_norm.weight",
+      "blocks.1.attn.q_norm.bias",
+      "blocks.1.attn.k_norm.weight",
+      "blocks.1.attn.k_norm.bias",
+      "blocks.1.attn.proj.bias",
+      "blocks.1.norm2.weight",
+      "blocks.1.norm2.bias",
+      "blocks.1.mlp.0.bias",
+      "blocks.1.mlp.2.bias"
+    ],
+    "lr_scale": 0.008750783174008792
+  },
+  "layer_2_decay": {
+    "weight_decay": 0.05,
+    "params": [
+      "blocks.1.attn.qkv.weight",
+      "blocks.1.attn.proj.weight",
+      "blocks.1.mlp.0.weight",
+      "blocks.1.mlp.2.weight"
+    ],
+    "lr_scale": 0.008750783174008792
+  },
+  "layer_3_no_decay": {
+    "weight_decay": 0.0,
+    "params": [
+      "blocks.2.gamma_1",
+      "blocks.2.gamma_2",
+      "blocks.2.norm1.weight",
+      "blocks.2.norm1.bias",
+      "blocks.2.attn.q_norm.weight",
+      "blocks.2.attn.q_norm.bias",
+      "blocks.2.attn.k_norm.weight",
+      "blocks.2.attn.k_norm.bias",
+      "blocks.2.attn.proj.bias",
+      "blocks.2.norm2.weight",
+      "blocks.2.norm2.bias",
+      "blocks.2.mlp.0.bias",
+      "blocks.2.mlp.2.bias"
+    ],
+    "lr_scale": 0.013462743344628911
+  },
+  "layer_3_decay": {
+    "weight_decay": 0.05,
+    "params": [
+      "blocks.2.attn.qkv.weight",
+      "blocks.2.attn.proj.weight",
+      "blocks.2.mlp.0.weight",
+      "blocks.2.mlp.2.weight"
+    ],
+    "lr_scale": 0.013462743344628911
+  },
+  "layer_4_no_decay": {
+    "weight_decay": 0.0,
+    "params": [
+      "blocks.3.gamma_1",
+      "blocks.3.gamma_2",
+      "blocks.3.norm1.weight",
+      "blocks.3.norm1.bias",
+      "blocks.3.attn.q_norm.weight",
+      "blocks.3.attn.q_norm.bias",
+      "blocks.3.attn.k_norm.weight",
+      "blocks.3.attn.k_norm.bias",
+      "blocks.3.attn.proj.bias",
+      "blocks.3.norm2.weight",
+      "blocks.3.norm2.bias",
+      "blocks.3.mlp.0.bias",
+      "blocks.3.mlp.2.bias"
+    ],
+    "lr_scale": 0.02071191283789063
+  },
+  "layer_4_decay": {
+    "weight_decay": 0.05,
+    "params": [
+      "blocks.3.attn.qkv.weight",
+      "blocks.3.attn.proj.weight",
+      "blocks.3.mlp.0.weight",
+      "blocks.3.mlp.2.weight"
+    ],
+    "lr_scale": 0.02071191283789063
+  },
+  "layer_5_no_decay": {
+    "weight_decay": 0.0,
+    "params": [
+      "blocks.4.gamma_1",
+      "blocks.4.gamma_2",
+      "blocks.4.norm1.weight",
+      "blocks.4.norm1.bias",
+      "blocks.4.attn.q_norm.weight",
+      "blocks.4.attn.q_norm.bias",
+      "blocks.4.attn.k_norm.weight",
+      "blocks.4.attn.k_norm.bias",
+      "blocks.4.attn.proj.bias",
+      "blocks.4.norm2.weight",
+      "blocks.4.norm2.bias",
+      "blocks.4.mlp.0.bias",
+      "blocks.4.mlp.2.bias"
+    ],
+    "lr_scale": 0.03186448128906251
+  },
+  "layer_5_decay": {
+    "weight_decay": 0.05,
+    "params": [
+      "blocks.4.attn.qkv.weight",
+      "blocks.4.attn.proj.weight",
+      "blocks.4.mlp.0.weight",
+      "blocks.4.mlp.2.weight"
+    ],
+    "lr_scale": 0.03186448128906251
+  },
+  "layer_6_no_decay": {
+    "weight_decay": 0.0,
+    "params": [
+      "blocks.5.gamma_1",
+      "blocks.5.gamma_2",
+      "blocks.5.norm1.weight",
+      "blocks.5.norm1.bias",
+      "blocks.5.attn.q_norm.weight",
+      "blocks.5.attn.q_norm.bias",
+      "blocks.5.attn.k_norm.weight",
+      "blocks.5.attn.k_norm.bias",
+      "blocks.5.attn.proj.bias",
+      "blocks.5.norm2.weight",
+      "blocks.5.norm2.bias",
+      "blocks.5.mlp.0.bias",
+      "blocks.5.mlp.2.bias"
+    ],
+    "lr_scale": 0.049022278906250015
+  },
+  "layer_6_decay": {
+    "weight_decay": 0.05,
+    "params": [
+      "blocks.5.attn.qkv.weight",
+      "blocks.5.attn.proj.weight",
+      "blocks.5.mlp.0.weight",
+      "blocks.5.mlp.2.weight"
+    ],
+    "lr_scale": 0.049022278906250015
+  },
+  "layer_7_no_decay": {
+    "weight_decay": 0.0,
+    "params": [
+      "blocks.6.gamma_1",
+      "blocks.6.gamma_2",
+      "blocks.6.norm1.weight",
+      "blocks.6.norm1.bias",
+      "blocks.6.attn.q_norm.weight",
+      "blocks.6.attn.q_norm.bias",
+      "blocks.6.attn.k_norm.weight",
+      "blocks.6.attn.k_norm.bias",
+      "blocks.6.attn.proj.bias",
+      "blocks.6.norm2.weight",
+      "blocks.6.norm2.bias",
+      "blocks.6.mlp.0.bias",
+      "blocks.6.mlp.2.bias"
+    ],
+    "lr_scale": 0.07541889062500001
+  },
+  "layer_7_decay": {
+    "weight_decay": 0.05,
+    "params": [
+      "blocks.6.attn.qkv.weight",
+      "blocks.6.attn.proj.weight",
+      "blocks.6.mlp.0.weight",
+      "blocks.6.mlp.2.weight"
+    ],
+    "lr_scale": 0.07541889062500001
+  },
+  "layer_8_no_decay": {
+    "weight_decay": 0.0,
+    "params": [
+      "blocks.7.gamma_1",
+      "blocks.7.gamma_2",
+      "blocks.7.norm1.weight",
+      "blocks.7.norm1.bias",
+      "blocks.7.attn.q_norm.weight",
+      "blocks.7.attn.q_norm.bias",
+      "blocks.7.attn.k_norm.weight",
+      "blocks.7.attn.k_norm.bias",
+      "blocks.7.attn.proj.bias",
+      "blocks.7.norm2.weight",
+      "blocks.7.norm2.bias",
+      "blocks.7.mlp.0.bias",
+      "blocks.7.mlp.2.bias"
+    ],
+    "lr_scale": 0.11602906250000002
+  },
+  "layer_8_decay": {
+    "weight_decay": 0.05,
+    "params": [
+      "blocks.7.attn.qkv.weight",
+      "blocks.7.attn.proj.weight",
+      "blocks.7.mlp.0.weight",
+      "blocks.7.mlp.2.weight"
+    ],
+    "lr_scale": 0.11602906250000002
+  },
+  "layer_9_no_decay": {
+    "weight_decay": 0.0,
+    "params": [
+      "blocks.8.gamma_1",
+      "blocks.8.gamma_2",
+      "blocks.8.norm1.weight",
+      "blocks.8.norm1.bias",
+      "blocks.8.attn.q_norm.weight",
+      "blocks.8.attn.q_norm.bias",
+      "blocks.8.attn.k_norm.weight",
+      "blocks.8.attn.k_norm.bias",
+      "blocks.8.attn.proj.bias",
+      "blocks.8.norm2.weight",
+      "blocks.8.norm2.bias",
+      "blocks.8.mlp.0.bias",
+      "blocks.8.mlp.2.bias"
+    ],
+    "lr_scale": 0.17850625000000003
+  },
+  "layer_9_decay": {
+    "weight_decay": 0.05,
+    "params": [
+      "blocks.8.attn.qkv.weight",
+      "blocks.8.attn.proj.weight",
+      "blocks.8.mlp.0.weight",
+      "blocks.8.mlp.2.weight"
+    ],
+    "lr_scale": 0.17850625000000003
+  },
+  "layer_10_no_decay": {
+    "weight_decay": 0.0,
+    "params": [
+      "blocks.9.gamma_1",
+      "blocks.9.gamma_2",
+      "blocks.9.norm1.weight",
+      "blocks.9.norm1.bias",
+      "blocks.9.attn.q_norm.weight",
+      "blocks.9.attn.q_norm.bias",
+      "blocks.9.attn.k_norm.weight",
+      "blocks.9.attn.k_norm.bias",
+      "blocks.9.attn.proj.bias",
+      "blocks.9.norm2.weight",
+      "blocks.9.norm2.bias",
+      "blocks.9.mlp.0.bias",
+      "blocks.9.mlp.2.bias"
+    ],
+    "lr_scale": 0.274625
+  },
+  "layer_10_decay": {
+    "weight_decay": 0.05,
+    "params": [
+      "blocks.9.attn.qkv.weight",
+      "blocks.9.attn.proj.weight",
+      "blocks.9.mlp.0.weight",
+      "blocks.9.mlp.2.weight"
+    ],
+    "lr_scale": 0.274625
+  },
+  "layer_11_no_decay": {
+    "weight_decay": 0.0,
+    "params": [
+      "blocks.10.gamma_1",
+      "blocks.10.gamma_2",
+      "blocks.10.norm1.weight",
+      "blocks.10.norm1.bias",
+      "blocks.10.attn.q_norm.weight",
+      "blocks.10.attn.q_norm.bias",
+      "blocks.10.attn.k_norm.weight",
+      "blocks.10.attn.k_norm.bias",
+      "blocks.10.attn.proj.bias",
+      "blocks.10.norm2.weight",
+      "blocks.10.norm2.bias",
+      "blocks.10.mlp.0.bias",
+      "blocks.10.mlp.2.bias"
+    ],
+    "lr_scale": 0.42250000000000004
+  },
+  "layer_11_decay": {
+    "weight_decay": 0.05,
+    "params": [
+      "blocks.10.attn.qkv.weight",
+      "blocks.10.attn.proj.weight",
+      "blocks.10.mlp.0.weight",
+      "blocks.10.mlp.2.weight"
+    ],
+    "lr_scale": 0.42250000000000004
+  },
+  "layer_12_no_decay": {
+    "weight_decay": 0.0,
+    "params": [
+      "blocks.11.gamma_1",
+      "blocks.11.gamma_2",
+      "blocks.11.norm1.weight",
+      "blocks.11.norm1.bias",
+      "blocks.11.attn.q_norm.weight",
+      "blocks.11.attn.q_norm.bias",
+      "blocks.11.attn.k_norm.weight",
+      "blocks.11.attn.k_norm.bias",
+      "blocks.11.attn.proj.bias",
+      "blocks.11.norm2.weight",
+      "blocks.11.norm2.bias",
+      "blocks.11.mlp.0.bias",
+      "blocks.11.mlp.2.bias"
+    ],
+    "lr_scale": 0.65
+  },
+  "layer_12_decay": {
+    "weight_decay": 0.05,
+    "params": [
+      "blocks.11.attn.qkv.weight",
+      "blocks.11.attn.proj.weight",
+      "blocks.11.mlp.0.weight",
+      "blocks.11.mlp.2.weight"
+    ],
+    "lr_scale": 0.65
+  },
+  "layer_13_decay": {
+    "weight_decay": 0.05,
+    "params": [
+      "final_layer.weight"
+    ],
+    "lr_scale": 1.0
+  }
+}
+Optimizer config: {'lr': 0.0005, 'weight_decay': 0.0, 'eps': 1e-08}
+Use step level LR scheduler!
+Set warmup steps = 3855
+Set warmup steps = 0
+Max WD = 0.0500000, Min WD = 0.0500000
+criterion = LabelSmoothingCrossEntropy()
+Auto resume checkpoint: 
+Start training for 50 epochs
+[W reducer.cpp:1346] Warning: find_unused_parameters=True was specified in DDP constructor, but did not find any unused parameters in the forward pass. This flag results in an extra traversal of the autograd graph every iteration,  which can adversely affect performance. If your model indeed never has any unused parameters in the forward pass, consider turning this flag off. Note that this warning may be a false positive if your model has flow control causing later iterations to have unused parameters. (function operator())
+Epoch: [0] Total time: 0:00:44 (0.0572 s / it)
+Averaged stats: lr: 0.000100  min_lr: 0.000000  loss: 0.8540 (0.9739)  class_acc: 0.5938 (0.5008)  loss_scale: 2048.0000 (7857.3074)  weight_decay: 0.0500 (0.0500)  grad_norm: 31.1575 (inf)
+Val: Total time: 0:00:16 (0.0300 s / it)
+* loss 1.135
+Accuracy of the network on the 51750 val EEG: 0.48%
+Test: Total time: 0:00:16 (0.0306 s / it)
+* loss 0.949
+Accuracy of the network on the 51615 test EEG: 0.49%
+Max accuracy val: 0.48%, max accuracy test: 0.49%
+Epoch: [1] Total time: 0:00:45 (0.0586 s / it)
+Averaged stats: lr: 0.000200  min_lr: 0.000001  loss: 0.6484 (0.7638)  class_acc: 0.7812 (0.6839)  loss_scale: 1024.0000 (1644.2438)  weight_decay: 0.0500 (0.0500)  grad_norm: 38.2264 (inf)
+Val: Total time: 0:00:15 (0.0286 s / it)
+* loss 0.947
+Accuracy of the network on the 51750 val EEG: 0.62%
+Test: Total time: 0:00:16 (0.0300 s / it)
+* loss 0.974
+Accuracy of the network on the 51615 test EEG: 0.58%
+Max accuracy val: 0.62%, max accuracy test: 0.58%
+Epoch: [2] Total time: 0:00:45 (0.0586 s / it)
+Averaged stats: lr: 0.000300  min_lr: 0.000001  loss: 0.5640 (0.6125)  class_acc: 0.8281 (0.8017)  loss_scale: 512.0000 (748.4099)  weight_decay: 0.0500 (0.0500)  grad_norm: 44.2614 (nan)
+Val: Total time: 0:00:12 (0.0224 s / it)
+* loss 0.732
+Accuracy of the network on the 51750 val EEG: 0.73%
+Test: Total time: 0:00:15 (0.0297 s / it)
+* loss 0.969
+Accuracy of the network on the 51615 test EEG: 0.60%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [3] Total time: 0:00:46 (0.0600 s / it)
+Averaged stats: lr: 0.000400  min_lr: 0.000001  loss: 0.5228 (0.5318)  class_acc: 0.8594 (0.8595)  loss_scale: 512.0000 (512.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 40.9306 (45.9523)
+Val: Total time: 0:00:14 (0.0266 s / it)
+* loss 0.906
+Accuracy of the network on the 51750 val EEG: 0.68%
+Test: Total time: 0:00:13 (0.0247 s / it)
+* loss 0.993
+Accuracy of the network on the 51615 test EEG: 0.62%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [4] Total time: 0:00:48 (0.0623 s / it)
+Averaged stats: lr: 0.000500  min_lr: 0.000002  loss: 0.4778 (0.4832)  class_acc: 0.8906 (0.8903)  loss_scale: 256.0000 (472.8197)  weight_decay: 0.0500 (0.0500)  grad_norm: 38.8199 (nan)
+Val: Total time: 0:00:11 (0.0211 s / it)
+* loss 1.009
+Accuracy of the network on the 51750 val EEG: 0.62%
+Test: Total time: 0:00:12 (0.0229 s / it)
+* loss 0.990
+Accuracy of the network on the 51615 test EEG: 0.62%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [5] Total time: 0:00:48 (0.0628 s / it)
+Averaged stats: lr: 0.000499  min_lr: 0.000002  loss: 0.4544 (0.4524)  class_acc: 0.9062 (0.9090)  loss_scale: 256.0000 (256.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 42.2755 (42.6421)
+Val: Total time: 0:00:14 (0.0259 s / it)
+* loss 0.993
+Accuracy of the network on the 51750 val EEG: 0.64%
+Test: Total time: 0:00:11 (0.0221 s / it)
+* loss 0.975
+Accuracy of the network on the 51615 test EEG: 0.62%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [6] Total time: 0:00:46 (0.0604 s / it)
+Averaged stats: lr: 0.000498  min_lr: 0.000002  loss: 0.4065 (0.4255)  class_acc: 0.9375 (0.9258)  loss_scale: 256.0000 (256.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 36.3192 (41.6999)
+Val: Total time: 0:00:15 (0.0285 s / it)
+* loss 1.134
+Accuracy of the network on the 51750 val EEG: 0.60%
+Test: Total time: 0:00:11 (0.0217 s / it)
+* loss 1.057
+Accuracy of the network on the 51615 test EEG: 0.61%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [7] Total time: 0:00:46 (0.0609 s / it)
+Averaged stats: lr: 0.000495  min_lr: 0.000002  loss: 0.4019 (0.4038)  class_acc: 0.9375 (0.9378)  loss_scale: 256.0000 (280.9027)  weight_decay: 0.0500 (0.0500)  grad_norm: 45.8680 (inf)
+Val: Total time: 0:00:16 (0.0301 s / it)
+* loss 1.118
+Accuracy of the network on the 51750 val EEG: 0.61%
+Test: Total time: 0:00:14 (0.0263 s / it)
+* loss 1.026
+Accuracy of the network on the 51615 test EEG: 0.62%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [8] Total time: 0:00:44 (0.0582 s / it)
+Averaged stats: lr: 0.000490  min_lr: 0.000002  loss: 0.3906 (0.3924)  class_acc: 0.9375 (0.9438)  loss_scale: 256.0000 (256.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 37.9268 (40.9529)
+Val: Total time: 0:00:16 (0.0298 s / it)
+* loss 0.915
+Accuracy of the network on the 51750 val EEG: 0.67%
+Test: Total time: 0:00:14 (0.0274 s / it)
+* loss 1.015
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [9] Total time: 0:00:44 (0.0575 s / it)
+Averaged stats: lr: 0.000485  min_lr: 0.000002  loss: 0.3752 (0.3786)  class_acc: 0.9531 (0.9527)  loss_scale: 256.0000 (256.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 31.9581 (39.7323)
+Val: Total time: 0:00:16 (0.0300 s / it)
+* loss 1.001
+Accuracy of the network on the 51750 val EEG: 0.65%
+Test: Total time: 0:00:15 (0.0289 s / it)
+* loss 1.049
+Accuracy of the network on the 51615 test EEG: 0.62%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [10] Total time: 0:00:44 (0.0571 s / it)
+Averaged stats: lr: 0.000478  min_lr: 0.000002  loss: 0.3684 (0.3695)  class_acc: 0.9531 (0.9583)  loss_scale: 512.0000 (478.1323)  weight_decay: 0.0500 (0.0500)  grad_norm: 34.2955 (38.7757)
+Val: Total time: 0:00:16 (0.0301 s / it)
+* loss 0.982
+Accuracy of the network on the 51750 val EEG: 0.66%
+Test: Total time: 0:00:16 (0.0300 s / it)
+* loss 1.043
+Accuracy of the network on the 51615 test EEG: 0.63%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [11] Total time: 0:00:43 (0.0561 s / it)
+Averaged stats: lr: 0.000471  min_lr: 0.000002  loss: 0.3523 (0.3628)  class_acc: 0.9688 (0.9617)  loss_scale: 256.0000 (261.6446)  weight_decay: 0.0500 (0.0500)  grad_norm: 31.3737 (nan)
+Val: Total time: 0:00:16 (0.0299 s / it)
+* loss 0.920
+Accuracy of the network on the 51750 val EEG: 0.68%
+Test: Total time: 0:00:16 (0.0300 s / it)
+* loss 1.021
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [12] Total time: 0:00:44 (0.0576 s / it)
+Averaged stats: lr: 0.000462  min_lr: 0.000002  loss: 0.3480 (0.3537)  class_acc: 0.9688 (0.9668)  loss_scale: 256.0000 (256.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 36.8181 (37.6634)
+Val: Total time: 0:00:13 (0.0250 s / it)
+* loss 0.971
+Accuracy of the network on the 51750 val EEG: 0.68%
+Test: Total time: 0:00:16 (0.0300 s / it)
+* loss 1.066
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [13] Total time: 0:00:45 (0.0591 s / it)
+Averaged stats: lr: 0.000452  min_lr: 0.000002  loss: 0.3388 (0.3494)  class_acc: 0.9688 (0.9688)  loss_scale: 256.0000 (314.4384)  weight_decay: 0.0500 (0.0500)  grad_norm: 36.5140 (nan)
+Val: Total time: 0:00:10 (0.0198 s / it)
+* loss 1.208
+Accuracy of the network on the 51750 val EEG: 0.61%
+Test: Total time: 0:00:16 (0.0299 s / it)
+* loss 1.116
+Accuracy of the network on the 51615 test EEG: 0.63%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [14] Total time: 0:00:45 (0.0589 s / it)
+Averaged stats: lr: 0.000442  min_lr: 0.000002  loss: 0.3295 (0.3441)  class_acc: 0.9844 (0.9722)  loss_scale: 256.0000 (256.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 29.9618 (35.4531)
+Val: Total time: 0:00:13 (0.0255 s / it)
+* loss 1.054
+Accuracy of the network on the 51750 val EEG: 0.65%
+Test: Total time: 0:00:13 (0.0243 s / it)
+* loss 1.050
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [15] Total time: 0:00:47 (0.0613 s / it)
+Averaged stats: lr: 0.000430  min_lr: 0.000002  loss: 0.3314 (0.3390)  class_acc: 0.9688 (0.9748)  loss_scale: 256.0000 (256.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 32.2816 (35.5007)
+Val: Total time: 0:00:09 (0.0181 s / it)
+* loss 1.132
+Accuracy of the network on the 51750 val EEG: 0.63%
+Test: Total time: 0:00:11 (0.0222 s / it)
+* loss 1.096
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [16] Total time: 0:00:48 (0.0624 s / it)
+Averaged stats: lr: 0.000417  min_lr: 0.000002  loss: 0.3401 (0.3366)  class_acc: 0.9844 (0.9763)  loss_scale: 256.0000 (394.1271)  weight_decay: 0.0500 (0.0500)  grad_norm: 40.7651 (inf)
+Val: Total time: 0:00:13 (0.0255 s / it)
+* loss 1.056
+Accuracy of the network on the 51750 val EEG: 0.64%
+Test: Total time: 0:00:11 (0.0220 s / it)
+* loss 1.047
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [17] Total time: 0:00:46 (0.0601 s / it)
+Averaged stats: lr: 0.000404  min_lr: 0.000001  loss: 0.3297 (0.3314)  class_acc: 0.9688 (0.9791)  loss_scale: 256.0000 (256.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 35.3087 (33.3188)
+Val: Total time: 0:00:14 (0.0278 s / it)
+* loss 1.127
+Accuracy of the network on the 51750 val EEG: 0.62%
+Test: Total time: 0:00:09 (0.0179 s / it)
+* loss 1.073
+Accuracy of the network on the 51615 test EEG: 0.63%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [18] Total time: 0:00:46 (0.0601 s / it)
+Averaged stats: lr: 0.000390  min_lr: 0.000001  loss: 0.3352 (0.3305)  class_acc: 0.9688 (0.9794)  loss_scale: 256.0000 (256.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 38.1859 (33.1806)
+Val: Total time: 0:00:15 (0.0294 s / it)
+* loss 1.027
+Accuracy of the network on the 51750 val EEG: 0.66%
+Test: Total time: 0:00:12 (0.0233 s / it)
+* loss 1.073
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [19] Total time: 0:00:44 (0.0575 s / it)
+Averaged stats: lr: 0.000375  min_lr: 0.000001  loss: 0.3181 (0.3256)  class_acc: 0.9844 (0.9823)  loss_scale: 256.0000 (297.8366)  weight_decay: 0.0500 (0.0500)  grad_norm: nan (nan)
+Val: Total time: 0:00:15 (0.0296 s / it)
+* loss 0.978
+Accuracy of the network on the 51750 val EEG: 0.68%
+Test: Total time: 0:00:14 (0.0266 s / it)
+* loss 1.091
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [20] Total time: 0:00:42 (0.0551 s / it)
+Averaged stats: lr: 0.000360  min_lr: 0.000001  loss: 0.3014 (0.3236)  class_acc: 1.0000 (0.9833)  loss_scale: 128.0000 (128.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 16.3537 (30.8573)
+Val: Total time: 0:00:16 (0.0298 s / it)
+* loss 1.010
+Accuracy of the network on the 51750 val EEG: 0.67%
+Test: Total time: 0:00:15 (0.0286 s / it)
+* loss 1.115
+Accuracy of the network on the 51615 test EEG: 0.63%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [21] Total time: 0:00:41 (0.0532 s / it)
+Averaged stats: lr: 0.000344  min_lr: 0.000001  loss: 0.3169 (0.3190)  class_acc: 0.9844 (0.9859)  loss_scale: 128.0000 (128.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 26.5024 (28.4182)
+Val: Total time: 0:00:16 (0.0297 s / it)
+* loss 1.057
+Accuracy of the network on the 51750 val EEG: 0.65%
+Test: Total time: 0:00:15 (0.0293 s / it)
+* loss 1.098
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [22] Total time: 0:00:41 (0.0542 s / it)
+Averaged stats: lr: 0.000328  min_lr: 0.000001  loss: 0.3107 (0.3180)  class_acc: 0.9844 (0.9863)  loss_scale: 256.0000 (180.9598)  weight_decay: 0.0500 (0.0500)  grad_norm: 17.4607 (26.6890)
+Val: Total time: 0:00:13 (0.0253 s / it)
+* loss 0.953
+Accuracy of the network on the 51750 val EEG: 0.69%
+Test: Total time: 0:00:16 (0.0298 s / it)
+* loss 1.082
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [23] Total time: 0:00:44 (0.0575 s / it)
+Averaged stats: lr: 0.000311  min_lr: 0.000001  loss: 0.3125 (0.3178)  class_acc: 0.9844 (0.9863)  loss_scale: 256.0000 (256.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 20.6986 (28.3034)
+Val: Total time: 0:00:09 (0.0173 s / it)
+* loss 1.078
+Accuracy of the network on the 51750 val EEG: 0.65%
+Test: Total time: 0:00:16 (0.0299 s / it)
+* loss 1.089
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [24] Total time: 0:00:44 (0.0578 s / it)
+Averaged stats: lr: 0.000294  min_lr: 0.000001  loss: 0.3003 (0.3137)  class_acc: 1.0000 (0.9883)  loss_scale: 256.0000 (256.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 15.4312 (24.1684)
+Val: Total time: 0:00:13 (0.0241 s / it)
+* loss 1.034
+Accuracy of the network on the 51750 val EEG: 0.67%
+Test: Total time: 0:00:15 (0.0282 s / it)
+* loss 1.125
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [25] Total time: 0:00:46 (0.0601 s / it)
+Averaged stats: lr: 0.000277  min_lr: 0.000001  loss: 0.3134 (0.3117)  class_acc: 0.9844 (0.9897)  loss_scale: 128.0000 (222.1323)  weight_decay: 0.0500 (0.0500)  grad_norm: 21.2722 (nan)
+Val: Total time: 0:00:11 (0.0212 s / it)
+* loss 1.007
+Accuracy of the network on the 51750 val EEG: 0.68%
+Test: Total time: 0:00:09 (0.0180 s / it)
+* loss 1.104
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [26] Total time: 0:00:47 (0.0621 s / it)
+Averaged stats: lr: 0.000259  min_lr: 0.000001  loss: 0.3003 (0.3103)  class_acc: 1.0000 (0.9905)  loss_scale: 128.0000 (128.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 9.9995 (23.0252)
+Val: Total time: 0:00:10 (0.0203 s / it)
+* loss 1.126
+Accuracy of the network on the 51750 val EEG: 0.63%
+Test: Total time: 0:00:12 (0.0241 s / it)
+* loss 1.102
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [27] Total time: 0:00:48 (0.0624 s / it)
+Averaged stats: lr: 0.000242  min_lr: 0.000001  loss: 0.3011 (0.3086)  class_acc: 1.0000 (0.9910)  loss_scale: 128.0000 (128.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 9.0824 (22.0401)
+Val: Total time: 0:00:13 (0.0257 s / it)
+* loss 1.173
+Accuracy of the network on the 51750 val EEG: 0.63%
+Test: Total time: 0:00:11 (0.0221 s / it)
+* loss 1.114
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [28] Total time: 0:01:04 (0.0841 s / it)
+Averaged stats: lr: 0.000224  min_lr: 0.000001  loss: 0.2986 (0.3075)  class_acc: 1.0000 (0.9916)  loss_scale: 256.0000 (247.0350)  weight_decay: 0.0500 (0.0500)  grad_norm: 10.9895 (20.4850)
+Val: Total time: 0:00:20 (0.0379 s / it)
+* loss 1.034
+Accuracy of the network on the 51750 val EEG: 0.67%
+Test: Total time: 0:00:11 (0.0222 s / it)
+* loss 1.132
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [29] Total time: 0:01:04 (0.0842 s / it)
+Averaged stats: lr: 0.000207  min_lr: 0.000001  loss: 0.3010 (0.3054)  class_acc: 1.0000 (0.9931)  loss_scale: 128.0000 (172.1608)  weight_decay: 0.0500 (0.0500)  grad_norm: 13.4366 (inf)
+Val: Total time: 0:00:20 (0.0382 s / it)
+* loss 0.981
+Accuracy of the network on the 51750 val EEG: 0.68%
+Test: Total time: 0:00:12 (0.0238 s / it)
+* loss 1.106
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [30] Total time: 0:01:04 (0.0835 s / it)
+Averaged stats: lr: 0.000190  min_lr: 0.000001  loss: 0.2960 (0.3043)  class_acc: 1.0000 (0.9934)  loss_scale: 128.0000 (128.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 9.5273 (19.1607)
+Val: Total time: 0:00:21 (0.0397 s / it)
+* loss 1.040
+Accuracy of the network on the 51750 val EEG: 0.67%
+Test: Total time: 0:00:15 (0.0285 s / it)
+* loss 1.123
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [31] Total time: 0:01:02 (0.0805 s / it)
+Averaged stats: lr: 0.000173  min_lr: 0.000001  loss: 0.2983 (0.3033)  class_acc: 1.0000 (0.9943)  loss_scale: 256.0000 (135.8029)  weight_decay: 0.0500 (0.0500)  grad_norm: 12.0391 (16.6777)
+Val: Total time: 0:00:22 (0.0419 s / it)
+* loss 1.037
+Accuracy of the network on the 51750 val EEG: 0.67%
+Test: Total time: 0:00:17 (0.0329 s / it)
+* loss 1.121
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [32] Total time: 0:00:58 (0.0762 s / it)
+Averaged stats: lr: 0.000157  min_lr: 0.000001  loss: 0.2950 (0.3028)  class_acc: 1.0000 (0.9944)  loss_scale: 128.0000 (128.1660)  weight_decay: 0.0500 (0.0500)  grad_norm: 5.8932 (nan)
+Val: Total time: 0:00:15 (0.0294 s / it)
+* loss 0.944
+Accuracy of the network on the 51750 val EEG: 0.70%
+Test: Total time: 0:00:14 (0.0271 s / it)
+* loss 1.119
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [33] Total time: 0:01:14 (0.0964 s / it)
+Averaged stats: lr: 0.000141  min_lr: 0.000001  loss: 0.2935 (0.3013)  class_acc: 1.0000 (0.9951)  loss_scale: 128.0000 (128.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 3.0026 (15.4927)
+Val: Total time: 0:00:22 (0.0419 s / it)
+* loss 1.124
+Accuracy of the network on the 51750 val EEG: 0.65%
+Test: Total time: 0:00:22 (0.0419 s / it)
+* loss 1.145
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [34] Total time: 0:01:31 (0.1190 s / it)
+Averaged stats: lr: 0.000126  min_lr: 0.000000  loss: 0.2970 (0.3007)  class_acc: 1.0000 (0.9956)  loss_scale: 256.0000 (179.7977)  weight_decay: 0.0500 (0.0500)  grad_norm: 5.3489 (13.4591)
+Val: Total time: 0:00:24 (0.0446 s / it)
+* loss 1.088
+Accuracy of the network on the 51750 val EEG: 0.66%
+Test: Total time: 0:00:24 (0.0456 s / it)
+* loss 1.131
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [35] Total time: 0:01:41 (0.1316 s / it)
+Averaged stats: lr: 0.000111  min_lr: 0.000000  loss: 0.2951 (0.3001)  class_acc: 1.0000 (0.9957)  loss_scale: 256.0000 (256.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 10.5394 (13.5692)
+Val: Total time: 0:00:22 (0.0414 s / it)
+* loss 1.064
+Accuracy of the network on the 51750 val EEG: 0.67%
+Test: Total time: 0:00:22 (0.0411 s / it)
+* loss 1.137
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [36] Total time: 0:01:31 (0.1184 s / it)
+Averaged stats: lr: 0.000097  min_lr: 0.000000  loss: 0.2971 (0.2995)  class_acc: 1.0000 (0.9963)  loss_scale: 128.0000 (167.6783)  weight_decay: 0.0500 (0.0500)  grad_norm: 6.4044 (inf)
+Val: Total time: 0:00:23 (0.0442 s / it)
+* loss 1.043
+Accuracy of the network on the 51750 val EEG: 0.67%
+Test: Total time: 0:00:20 (0.0388 s / it)
+* loss 1.134
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [37] Total time: 0:02:09 (0.1678 s / it)
+Averaged stats: lr: 0.000084  min_lr: 0.000000  loss: 0.2962 (0.2984)  class_acc: 1.0000 (0.9968)  loss_scale: 128.0000 (128.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 7.1596 (10.1178)
+Val: Total time: 0:00:32 (0.0608 s / it)
+* loss 1.018
+Accuracy of the network on the 51750 val EEG: 0.68%
+Test: Total time: 0:00:28 (0.0537 s / it)
+* loss 1.118
+Accuracy of the network on the 51615 test EEG: 0.65%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [38] Total time: 0:02:23 (0.1861 s / it)
+Averaged stats: lr: 0.000071  min_lr: 0.000000  loss: 0.2922 (0.2984)  class_acc: 1.0000 (0.9968)  loss_scale: 256.0000 (140.2853)  weight_decay: 0.0500 (0.0500)  grad_norm: 1.4192 (11.1179)
+Val: Total time: 0:00:29 (0.0550 s / it)
+* loss 1.132
+Accuracy of the network on the 51750 val EEG: 0.65%
+Test: Total time: 0:00:26 (0.0498 s / it)
+* loss 1.141
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [39] Total time: 0:01:57 (0.1527 s / it)
+Averaged stats: lr: 0.000059  min_lr: 0.000000  loss: 0.2940 (0.2972)  class_acc: 1.0000 (0.9973)  loss_scale: 128.0000 (188.4306)  weight_decay: 0.0500 (0.0500)  grad_norm: 4.5371 (nan)
+Val: Total time: 0:00:29 (0.0544 s / it)
+* loss 1.098
+Accuracy of the network on the 51750 val EEG: 0.66%
+Test: Total time: 0:00:33 (0.0621 s / it)
+* loss 1.136
+Accuracy of the network on the 51615 test EEG: 0.65%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [40] Total time: 0:02:24 (0.1880 s / it)
+Averaged stats: lr: 0.000049  min_lr: 0.000000  loss: 0.2925 (0.2978)  class_acc: 1.0000 (0.9968)  loss_scale: 128.0000 (128.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 1.2902 (10.9591)
+Val: Total time: 0:00:27 (0.0509 s / it)
+* loss 1.066
+Accuracy of the network on the 51750 val EEG: 0.67%
+Test: Total time: 0:00:32 (0.0599 s / it)
+* loss 1.124
+Accuracy of the network on the 51615 test EEG: 0.65%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [41] Total time: 0:01:45 (0.1369 s / it)
+Averaged stats: lr: 0.000039  min_lr: 0.000000  loss: 0.2920 (0.2969)  class_acc: 1.0000 (0.9974)  loss_scale: 128.0000 (128.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 0.8284 (8.9581)
+Val: Total time: 0:00:22 (0.0425 s / it)
+* loss 1.027
+Accuracy of the network on the 51750 val EEG: 0.68%
+Test: Total time: 0:00:22 (0.0422 s / it)
+* loss 1.125
+Accuracy of the network on the 51615 test EEG: 0.65%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [42] Total time: 0:01:59 (0.1546 s / it)
+Averaged stats: lr: 0.000030  min_lr: 0.000000  loss: 0.2925 (0.2972)  class_acc: 1.0000 (0.9973)  loss_scale: 128.0000 (187.2685)  weight_decay: 0.0500 (0.0500)  grad_norm: 1.8760 (inf)
+Val: Total time: 0:00:29 (0.0540 s / it)
+* loss 1.089
+Accuracy of the network on the 51750 val EEG: 0.66%
+Test: Total time: 0:00:28 (0.0522 s / it)
+* loss 1.131
+Accuracy of the network on the 51615 test EEG: 0.65%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [43] Total time: 0:01:58 (0.1535 s / it)
+Averaged stats: lr: 0.000023  min_lr: 0.000000  loss: 0.2920 (0.2972)  class_acc: 1.0000 (0.9973)  loss_scale: 128.0000 (128.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 1.1367 (8.9915)
+Val: Total time: 0:00:27 (0.0505 s / it)
+* loss 1.096
+Accuracy of the network on the 51750 val EEG: 0.66%
+Test: Total time: 0:00:24 (0.0451 s / it)
+* loss 1.130
+Accuracy of the network on the 51615 test EEG: 0.65%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [44] Total time: 0:01:21 (0.1059 s / it)
+Averaged stats: lr: 0.000016  min_lr: 0.000000  loss: 0.2925 (0.2959)  class_acc: 1.0000 (0.9979)  loss_scale: 128.0000 (128.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 3.4933 (7.4336)
+Val: Total time: 0:00:22 (0.0415 s / it)
+* loss 1.087
+Accuracy of the network on the 51750 val EEG: 0.66%
+Test: Total time: 0:00:25 (0.0477 s / it)
+* loss 1.137
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [45] Total time: 0:01:21 (0.1055 s / it)
+Averaged stats: lr: 0.000011  min_lr: 0.000000  loss: 0.2919 (0.2956)  class_acc: 1.0000 (0.9980)  loss_scale: 256.0000 (240.2283)  weight_decay: 0.0500 (0.0500)  grad_norm: 0.8977 (7.2389)
+Val: Total time: 0:00:26 (0.0495 s / it)
+* loss 1.049
+Accuracy of the network on the 51750 val EEG: 0.67%
+Test: Total time: 0:00:27 (0.0510 s / it)
+* loss 1.133
+Accuracy of the network on the 51615 test EEG: 0.65%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [46] Total time: 0:01:23 (0.1085 s / it)
+Averaged stats: lr: 0.000006  min_lr: 0.000000  loss: 0.2933 (0.2957)  class_acc: 1.0000 (0.9981)  loss_scale: 128.0000 (169.8366)  weight_decay: 0.0500 (0.0500)  grad_norm: 2.6521 (nan)
+Val: Total time: 0:00:26 (0.0495 s / it)
+* loss 1.054
+Accuracy of the network on the 51750 val EEG: 0.67%
+Test: Total time: 0:00:25 (0.0473 s / it)
+* loss 1.134
+Accuracy of the network on the 51615 test EEG: 0.64%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [47] Total time: 0:01:17 (0.1005 s / it)
+Averaged stats: lr: 0.000003  min_lr: 0.000000  loss: 0.2931 (0.2961)  class_acc: 1.0000 (0.9979)  loss_scale: 128.0000 (128.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 3.0099 (7.1084)
+Val: Total time: 0:00:25 (0.0467 s / it)
+* loss 1.068
+Accuracy of the network on the 51750 val EEG: 0.67%
+Test: Total time: 0:00:24 (0.0457 s / it)
+* loss 1.136
+Accuracy of the network on the 51615 test EEG: 0.65%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [48] Total time: 0:01:15 (0.0981 s / it)
+Averaged stats: lr: 0.000002  min_lr: 0.000000  loss: 0.2924 (0.2962)  class_acc: 1.0000 (0.9979)  loss_scale: 256.0000 (138.1271)  weight_decay: 0.0500 (0.0500)  grad_norm: 2.1361 (7.2755)
+Val: Total time: 0:00:24 (0.0461 s / it)
+* loss 1.061
+Accuracy of the network on the 51750 val EEG: 0.67%
+Test: Total time: 0:00:24 (0.0464 s / it)
+* loss 1.134
+Accuracy of the network on the 51615 test EEG: 0.65%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Epoch: [49] Total time: 0:01:16 (0.0989 s / it)
+Averaged stats: lr: 0.000001  min_lr: 0.000000  loss: 0.2920 (0.2954)  class_acc: 1.0000 (0.9983)  loss_scale: 256.0000 (256.0000)  weight_decay: 0.0500 (0.0500)  grad_norm: 0.7216 (6.4157)
+Val: Total time: 0:00:25 (0.0468 s / it)
+* loss 1.062
+Accuracy of the network on the 51750 val EEG: 0.67%
+Test: Total time: 0:00:25 (0.0465 s / it)
+* loss 1.134
+Accuracy of the network on the 51615 test EEG: 0.65%
+Max accuracy val: 0.73%, max accuracy test: 0.60%
+Training time 1:41:07

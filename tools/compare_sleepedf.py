@@ -40,6 +40,8 @@ MODELS = [
     ('EEG Conformer (bd)', 'EEG Conformer', 'braindecode', 'pipeline',
      M.format('eeg-conformer', 'braindecode-sleepedf'), 'bd-conformer'),
     ('EEGNet (bd)', 'EEGNet', 'braindecode', 'pipeline', M.format('eegnet', 'braindecode-sleepedf'), 'bd-eegnet'),
+    ('DGCNN', 'DGCNN', 'ours (DE input)', 'pipeline', M.format('dgcnn', 'sleepedf-cbramod-pipeline'), 'dgcnn'),
+    ('DGCNN (bd)', 'DGCNN', 'braindecode (raw input)', 'pipeline', M.format('dgcnn', 'sleepedf-cbramod-pipeline'), 'bd-dgcnn'),
 ]
 METRICS = [('balanced_acc', 'bal. acc'), ('kappa', 'κ'), ('macro_f1', 'macro F1'), ('accuracy', 'accuracy'),
            ('weighted_f1', 'weighted F1')]
@@ -51,10 +53,10 @@ PAIRS = [  # the questions of the Sleep-EDF report
      [('L-SeqSleepNet', 'CBraMod'), ('L-SeqSleepNet', 'LaBraM-Base'), ('DeepSleepNet (bd)', 'CBraMod')]),
     ('sleep models', [('L-SeqSleepNet', 'DeepSleepNet'), ('DeepSleepNet (bd)', 'DeepSleepNet')]),
     ('task-agnostic supervised models vs. CBraMod',
-     [('CBraMod', 'ATCNet (bd)'), ('CBraMod', 'EEGNet'), ('CBraMod', 'EEG Conformer')]),
+     [('CBraMod', 'ATCNet (bd)'), ('CBraMod', 'EEGNet'), ('CBraMod', 'EEG Conformer'), ('CBraMod', 'DGCNN')]),
     ('braindecode − original implementation, same pipeline',
      [('CBraMod (bd)', 'CBraMod'), ('LaBraM-Base (bd)', 'LaBraM-Base'), ('EEG Conformer (bd)', 'EEG Conformer'),
-      ('EEGNet (bd)', 'EEGNet')]),
+      ('EEGNet (bd)', 'EEGNet'), ('DGCNN (bd)', 'DGCNN')]),
 ]
 
 

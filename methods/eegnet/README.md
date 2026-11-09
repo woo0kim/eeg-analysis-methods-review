@@ -28,9 +28,13 @@ cross-subject runs inside CBraMod's experiment used our own PyTorch implementati
 | [braindecode-cbramod-splits](experiments/braindecode-cbramod-splits) | PhysioNet-MI, BCI-IV-2a, Mumtaz2016, MentalArithmetic, cross-subject | Does braindecode's `EEGNet`, through the same CBraMod pipeline, give the same numbers as our PyTorch EEGNet? | Yes: none of the 12 metrics differs significantly (closest: PhysioNet-MI, −0.012, p = 0.053). Still the best model on BCI-IV-2a (0.5255) and tied on Mumtaz2016; 8 of 12 metrics within noise of the CBraMod paper's EEGNet rows (our PyTorch EEGNet: 6). |
 | [sleepedf-cbramod-pipeline](experiments/sleepedf-cbramod-pipeline) | Sleep-EDF-78 | How does our PyTorch EEGNet-8,2 do as the epoch encoder of CBraMod's sleep-staging pipeline, against every other model under the same conditions? | It is the weakest model, with braindecode's EEGNet: κ 0.681 on the common test set, with CBraMod 0.086 higher (p < 0.001). REM (F1 0.59) and N1 (0.31) are its weakest stages. Unlike on BCIC-IV-2a, where it beat both foundation models, it is no match for them here. |
 | [braindecode-sleepedf](experiments/braindecode-sleepedf) | Sleep-EDF-78 | Does braindecode's `EEGNet`, in the same pipeline, give our implementation's numbers? | Yes: κ 0.6808 vs. 0.6815 (p = 0.95), balanced accuracy +0.001 (p = 0.89), no stage differs significantly, despite braindecode's max-norm constraint, Keras batch-norm defaults and Glorot initialisation. |
+| [seed-cbramod-pipeline](experiments/seed-cbramod-pipeline) | SEED, SEED-V | Our EEGNet in the shared SEED pipeline | Matches its row in the CBraMod paper on SEED-V (p = 0.31); the weakest original implementation on both trial splits |
+| [braindecode-seed](experiments/braindecode-seed) | SEED, SEED-V | Does braindecode's `EEGNet` match? | Yes (p = 0.093, 0.26) |
+| [stew-cbramod-pipeline](experiments/stew-cbramod-pipeline) | STEW | Our EEGNet on STEW | The weakest model on both tasks (0.665 rest vs. task) |
+| [braindecode-stew](experiments/braindecode-stew) | STEW | Does braindecode's `EEGNet` match? | Yes on both tasks (p = 0.31, p = 0.56) |
 
 ## Not yet covered
 
 The EEGNet paper's own results (P300, ERN, MRCP and SMR, within- and cross-subject) and its own training recipe
-(128 Hz, Adam with default settings, 500 epochs, the epoch with the lowest validation loss); BCI IV 2b and SEED
-(the other EEG Conformer datasets).
+(128 Hz, Adam with default settings, 500 epochs, the epoch with the lowest validation loss); BCI IV 2b (the other EEG Conformer
+dataset).

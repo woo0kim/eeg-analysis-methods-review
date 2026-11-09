@@ -10,6 +10,7 @@ DeepSleepNet (the only DeepSleepNet that can run here), then braindecode's versi
 Paths (defaults = the mcl-server layout the logged runs used):
   EEG_DATA_ROOT     data root; the preprocessed set is $EEG_DATA_ROOT/sleep_edfx/processed_seq20 (default ~/data)
   SLEEPEDF_WORK     runs/ and queue/ are written here       (default ~/repro-sleepedf)
+  SLEEPEDF_QUEUE    queue directory                         (default $SLEEPEDF_WORK/queue)
   SLEEPEDF_PY       python with torch 2.1, braindecode 1.8.1, timm 0.4.12 (default ~/miniforge3/envs/bd-labram/bin/python)
   CBRAMOD_WEIGHTS   CBraMod's released pretrained_weights.pth (default ~/CBraMod/pretrained_weights/pretrained_weights.pth)
   NVML_FIX          LD_LIBRARY_PATH entry for the server's NVML driver mismatch (default ~/repro-braindecode/nvml-580.173.02/lib)
@@ -22,6 +23,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 D = os.path.expanduser(os.environ.get('EEG_DATA_ROOT', '~/data'))
 DATA = f'{D}/sleep_edfx/processed_seq20'
 WORK = os.path.expanduser(os.environ.get('SLEEPEDF_WORK', '~/repro-sleepedf'))
+QUEUE = os.path.expanduser(os.environ.get('SLEEPEDF_QUEUE', os.path.join(WORK, 'queue')))
 PY = os.path.expanduser(os.environ.get('SLEEPEDF_PY', '~/miniforge3/envs/bd-labram/bin/python'))
 WEIGHTS = os.path.expanduser(os.environ.get('CBRAMOD_WEIGHTS', '~/CBraMod/pretrained_weights/pretrained_weights.pth'))
 NVML = os.path.expanduser(os.environ.get('NVML_FIX', '~/repro-braindecode/nvml-580.173.02/lib'))
@@ -31,8 +33,9 @@ CFG = {
     'eegnet': (1, 6),
     'bd-deepsleepnet': (2, 7),
     'bd-conformer': (2, 27), 'bd-cbramod': (2, 28), 'bd-labram': (2, 29), 'bd-eegnet': (1, 30),
+    'dgcnn': (1, 8), 'bd-dgcnn': (1, 9),
 }
-Q = os.path.join(WORK, 'queue/pending')
+Q = os.path.join(QUEUE, 'pending')
 os.makedirs(Q, exist_ok=True)
 
 model, seeds = sys.argv[1], [int(s) for s in sys.argv[2:]]

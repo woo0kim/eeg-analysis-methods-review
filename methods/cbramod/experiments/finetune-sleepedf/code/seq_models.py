@@ -11,6 +11,8 @@ model feeds to its own classifier:
   eegnet         our PyTorch EEGNet-8,2 (methods/eegnet/experiments/pytorch-cbramod-splits), flattened block-2 output
   conformer      released EEG Conformer convolution + 6 Transformer blocks (conformer_released.py), flattened tokens
   bd-*           braindecode 1.8.1's CBraMod / Labram / EEGNet / EEGConformer / ATCNet / DeepSleepNet, the same features
+  dgcnn          our DGCNN (methods/dgcnn/code/dgcnn.py) on the 5-band DE of each of the 30 seconds, flattened graph output
+  bd-dgcnn       braindecode's DGCNN on the raw signal, the output of its 256-unit layer
 
 LaBraM's pre-trained time embedding has 16 positions (16 one-second patches), so a 30-s epoch is encoded as two 15-s
 halves whose pooled features are concatenated; the pre-trained weights are used unchanged. ATCNet's released code is
@@ -278,6 +280,40 @@ class BDDeepSleepNetEncoder(nn.Module):
         return self.m(x).flatten(1)
 
 
+class DGCNNEncoder(nn.Module):
+    """methods/dgcnn/code/dgcnn.py on DE features of consecutive 1-s segments (5 bands x 30 s = 150 values per channel),
+    the paper's 1-s windows as node features. Up to the flattened graph output, which its own FC layers would read."""
+
+    def __init__(self, n_ch):
+        super().__init__()
+        sys.path.insert(0, os.path.normpath(os.path.join(HERE, '../../../../dgcnn/code')))
+        from dgcnn import DGCNN, WithDE
+        self.m = WithDE(DGCNN(n_ch, 150, 5, encoder=True), n_ch, FS, 30)
+        self.feat_dim = self.m.net.feat_dim
+
+    def fit_norm(self, loader):
+        self.m.fit_norm(loader, n_batches=20)
+
+    def forward(self, x):
+        return self.m(x)
+
+
+class BDDGCNNEncoder(nn.Module):
+    """braindecode's DGCNN as it ships (raw samples as node features); features = its 256-unit layer."""
+
+    def __init__(self, n_ch):
+        super().__init__()
+        from braindecode.models import DGCNN
+        sys.path.insert(0, os.path.normpath(os.path.join(HERE, '../../../../dgcnn/code')))
+        from dgcnn import chs_info
+        self.m = DGCNN(n_chans=n_ch, n_outputs=5, n_times=EPOCH, chs_info=chs_info(CH_LABRAM[:n_ch]))
+        self.m.final_layer = nn.Identity()
+        self.feat_dim = 256
+
+    def forward(self, x):
+        return self.m(x)
+
+
 def build(name, n_ch=2, n_classes=5):
     """name -> SeqModel. Foundation-model encoders are the `backbone`."""
     if name == 'cbramod':
@@ -302,6 +338,10 @@ def build(name, n_ch=2, n_classes=5):
         enc, bb = BDATCNetEncoder(n_ch), False
     elif name == 'bd-deepsleepnet':
         enc, bb = BDDeepSleepNetEncoder(n_ch), False
+    elif name == 'dgcnn':
+        enc, bb = DGCNNEncoder(n_ch), False
+    elif name == 'bd-dgcnn':
+        enc, bb = BDDGCNNEncoder(n_ch), False
     else:
         raise ValueError(name)
     return SeqModel(enc, enc.feat_dim, n_classes, is_backbone=bb)

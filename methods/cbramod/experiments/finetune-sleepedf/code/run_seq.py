@@ -56,6 +56,9 @@ def main():
     torch.cuda.set_device(a.cuda)
     data_loader = sleepedf_dataset.LoadDataset(params).get_data_loader()
     model = seq_models.build(a.model)
+    encoder = getattr(model, model.enc_name)
+    if hasattr(encoder, 'fit_norm'):             # DGCNN: band statistics of the training set
+        encoder.fit_norm(data_loader['train'])
     t = Trainer(params, data_loader, model)
     t.train_for_multiclass()
     print('Done!!!!!')

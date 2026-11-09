@@ -1,0 +1,414 @@
+Namespace(seed=0, cuda=0, epochs=50, batch_size=64, lr=0.0001, weight_decay=0.05, optimizer='AdamW', clip_value=1, dropout=0.1, classifier='all_patch_reps', downstream_dataset='SEED-V', datasets_dir='/home/wkim/repro-seed/stew', num_of_classes=3, model_dir='/home/wkim/repro-seed/stew/runs/rating3__fold2__conformer__s0', num_workers=0, label_smoothing=0.1, multi_lr=True, frozen=False, use_pretrained_weights=False, foundation_dir='', accum=1, model='conformer')
+rating3 fold 2: 3136 train, 588 val, 686 test windows; x (4704, 14, 512)
+ConformerSTEW(
+  (patch): PatchEmbedding(
+    (shallownet): Sequential(
+      (0): Conv2d(1, 40, kernel_size=(1, 25), stride=(1, 1))
+      (1): Conv2d(40, 40, kernel_size=(14, 1), stride=(1, 1))
+      (2): BatchNorm2d(40, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (3): ELU(alpha=1.0)
+      (4): AvgPool2d(kernel_size=(1, 75), stride=(1, 15), padding=0)
+      (5): Dropout(p=0.5, inplace=False)
+    )
+    (projection): Sequential(
+      (0): Conv2d(40, 40, kernel_size=(1, 1), stride=(1, 1))
+      (1): Rearrange('b e (h) (w) -> b (h w) e')
+    )
+  )
+  (transformer): TransformerEncoder(
+    (0): TransformerEncoderBlock(
+      (0): ResidualAdd(
+        (fn): Sequential(
+          (0): LayerNorm((40,), eps=1e-05, elementwise_affine=True)
+          (1): MultiHeadAttention(
+            (keys): Linear(in_features=40, out_features=40, bias=True)
+            (queries): Linear(in_features=40, out_features=40, bias=True)
+            (values): Linear(in_features=40, out_features=40, bias=True)
+            (att_drop): Dropout(p=0.5, inplace=False)
+            (projection): Linear(in_features=40, out_features=40, bias=True)
+          )
+          (2): Dropout(p=0.5, inplace=False)
+        )
+      )
+      (1): ResidualAdd(
+        (fn): Sequential(
+          (0): LayerNorm((40,), eps=1e-05, elementwise_affine=True)
+          (1): FeedForwardBlock(
+            (0): Linear(in_features=40, out_features=160, bias=True)
+            (1): GELU(approximate='none')
+            (2): Dropout(p=0.5, inplace=False)
+            (3): Linear(in_features=160, out_features=40, bias=True)
+          )
+          (2): Dropout(p=0.5, inplace=False)
+        )
+      )
+    )
+    (1): TransformerEncoderBlock(
+      (0): ResidualAdd(
+        (fn): Sequential(
+          (0): LayerNorm((40,), eps=1e-05, elementwise_affine=True)
+          (1): MultiHeadAttention(
+            (keys): Linear(in_features=40, out_features=40, bias=True)
+            (queries): Linear(in_features=40, out_features=40, bias=True)
+            (values): Linear(in_features=40, out_features=40, bias=True)
+            (att_drop): Dropout(p=0.5, inplace=False)
+            (projection): Linear(in_features=40, out_features=40, bias=True)
+          )
+          (2): Dropout(p=0.5, inplace=False)
+        )
+      )
+      (1): ResidualAdd(
+        (fn): Sequential(
+          (0): LayerNorm((40,), eps=1e-05, elementwise_affine=True)
+          (1): FeedForwardBlock(
+            (0): Linear(in_features=40, out_features=160, bias=True)
+            (1): GELU(approximate='none')
+            (2): Dropout(p=0.5, inplace=False)
+            (3): Linear(in_features=160, out_features=40, bias=True)
+          )
+          (2): Dropout(p=0.5, inplace=False)
+        )
+      )
+    )
+    (2): TransformerEncoderBlock(
+      (0): ResidualAdd(
+        (fn): Sequential(
+          (0): LayerNorm((40,), eps=1e-05, elementwise_affine=True)
+          (1): MultiHeadAttention(
+            (keys): Linear(in_features=40, out_features=40, bias=True)
+            (queries): Linear(in_features=40, out_features=40, bias=True)
+            (values): Linear(in_features=40, out_features=40, bias=True)
+            (att_drop): Dropout(p=0.5, inplace=False)
+            (projection): Linear(in_features=40, out_features=40, bias=True)
+          )
+          (2): Dropout(p=0.5, inplace=False)
+        )
+      )
+      (1): ResidualAdd(
+        (fn): Sequential(
+          (0): LayerNorm((40,), eps=1e-05, elementwise_affine=True)
+          (1): FeedForwardBlock(
+            (0): Linear(in_features=40, out_features=160, bias=True)
+            (1): GELU(approximate='none')
+            (2): Dropout(p=0.5, inplace=False)
+            (3): Linear(in_features=160, out_features=40, bias=True)
+          )
+          (2): Dropout(p=0.5, inplace=False)
+        )
+      )
+    )
+    (3): TransformerEncoderBlock(
+      (0): ResidualAdd(
+        (fn): Sequential(
+          (0): LayerNorm((40,), eps=1e-05, elementwise_affine=True)
+          (1): MultiHeadAttention(
+            (keys): Linear(in_features=40, out_features=40, bias=True)
+            (queries): Linear(in_features=40, out_features=40, bias=True)
+            (values): Linear(in_features=40, out_features=40, bias=True)
+            (att_drop): Dropout(p=0.5, inplace=False)
+            (projection): Linear(in_features=40, out_features=40, bias=True)
+          )
+          (2): Dropout(p=0.5, inplace=False)
+        )
+      )
+      (1): ResidualAdd(
+        (fn): Sequential(
+          (0): LayerNorm((40,), eps=1e-05, elementwise_affine=True)
+          (1): FeedForwardBlock(
+            (0): Linear(in_features=40, out_features=160, bias=True)
+            (1): GELU(approximate='none')
+            (2): Dropout(p=0.5, inplace=False)
+            (3): Linear(in_features=160, out_features=40, bias=True)
+          )
+          (2): Dropout(p=0.5, inplace=False)
+        )
+      )
+    )
+    (4): TransformerEncoderBlock(
+      (0): ResidualAdd(
+        (fn): Sequential(
+          (0): LayerNorm((40,), eps=1e-05, elementwise_affine=True)
+          (1): MultiHeadAttention(
+            (keys): Linear(in_features=40, out_features=40, bias=True)
+            (queries): Linear(in_features=40, out_features=40, bias=True)
+            (values): Linear(in_features=40, out_features=40, bias=True)
+            (att_drop): Dropout(p=0.5, inplace=False)
+            (projection): Linear(in_features=40, out_features=40, bias=True)
+          )
+          (2): Dropout(p=0.5, inplace=False)
+        )
+      )
+      (1): ResidualAdd(
+        (fn): Sequential(
+          (0): LayerNorm((40,), eps=1e-05, elementwise_affine=True)
+          (1): FeedForwardBlock(
+            (0): Linear(in_features=40, out_features=160, bias=True)
+            (1): GELU(approximate='none')
+            (2): Dropout(p=0.5, inplace=False)
+            (3): Linear(in_features=160, out_features=40, bias=True)
+          )
+          (2): Dropout(p=0.5, inplace=False)
+        )
+      )
+    )
+    (5): TransformerEncoderBlock(
+      (0): ResidualAdd(
+        (fn): Sequential(
+          (0): LayerNorm((40,), eps=1e-05, elementwise_affine=True)
+          (1): MultiHeadAttention(
+            (keys): Linear(in_features=40, out_features=40, bias=True)
+            (queries): Linear(in_features=40, out_features=40, bias=True)
+            (values): Linear(in_features=40, out_features=40, bias=True)
+            (att_drop): Dropout(p=0.5, inplace=False)
+            (projection): Linear(in_features=40, out_features=40, bias=True)
+          )
+          (2): Dropout(p=0.5, inplace=False)
+        )
+      )
+      (1): ResidualAdd(
+        (fn): Sequential(
+          (0): LayerNorm((40,), eps=1e-05, elementwise_affine=True)
+          (1): FeedForwardBlock(
+            (0): Linear(in_features=40, out_features=160, bias=True)
+            (1): GELU(approximate='none')
+            (2): Dropout(p=0.5, inplace=False)
+            (3): Linear(in_features=160, out_features=40, bias=True)
+          )
+          (2): Dropout(p=0.5, inplace=False)
+        )
+      )
+    )
+  )
+  (fc): Sequential(
+    (0): Linear(in_features=1120, out_features=256, bias=True)
+    (1): ELU(alpha=1.0)
+    (2): Dropout(p=0.5, inplace=False)
+    (3): Linear(in_features=256, out_features=32, bias=True)
+    (4): ELU(alpha=1.0)
+    (5): Dropout(p=0.3, inplace=False)
+    (6): Linear(in_features=32, out_features=3, bias=True)
+  )
+)
+parameters: backbone 0, other 438,819, total 438,819
+Epoch 1 : Training Loss: 1.09607, acc: 0.42653, kappa: 0.20058, f1: 0.48790, LR: 0.00010, Time elapsed 0.03 mins
+[[151   3  91]
+ [ 49   1  48]
+ [ 80   5 160]]
+kappa increasing....saving weights !! 
+Val Evaluation: acc: 0.42653, kappa: 0.20058, f1: 0.48790
+Epoch 2 : Training Loss: 1.06487, acc: 0.44762, kappa: 0.24490, f1: 0.50512, LR: 0.00010, Time elapsed 0.02 mins
+[[135   0 110]
+ [ 41   0  57]
+ [ 51   0 194]]
+kappa increasing....saving weights !! 
+Val Evaluation: acc: 0.44762, kappa: 0.24490, f1: 0.50512
+Epoch 3 : Training Loss: 1.04444, acc: 0.44218, kappa: 0.23143, f1: 0.49423, LR: 0.00010, Time elapsed 0.02 mins
+[[ 98  12 135]
+ [ 29   4  65]
+ [ 16  12 217]]
+Epoch 4 : Training Loss: 1.01530, acc: 0.44898, kappa: 0.21945, f1: 0.50635, LR: 0.00010, Time elapsed 0.02 mins
+[[106  60  79]
+ [ 33  26  39]
+ [ 22  64 159]]
+Epoch 5 : Training Loss: 0.96046, acc: 0.40884, kappa: 0.16818, f1: 0.44099, LR: 0.00010, Time elapsed 0.02 mins
+[[ 64  39 142]
+ [ 22   7  69]
+ [ 11  15 219]]
+Epoch 6 : Training Loss: 0.94219, acc: 0.48095, kappa: 0.28249, f1: 0.54171, LR: 0.00010, Time elapsed 0.02 mins
+[[122  15 108]
+ [ 31  13  54]
+ [ 30  16 199]]
+kappa increasing....saving weights !! 
+Val Evaluation: acc: 0.48095, kappa: 0.28249, f1: 0.54171
+Epoch 7 : Training Loss: 0.90108, acc: 0.46463, kappa: 0.27040, f1: 0.52213, LR: 0.00010, Time elapsed 0.02 mins
+[[106  21 118]
+ [ 26   7  65]
+ [ 18   9 218]]
+Epoch 8 : Training Loss: 0.89276, acc: 0.48844, kappa: 0.28317, f1: 0.55227, LR: 0.00009, Time elapsed 0.02 mins
+[[142  19  84]
+ [ 35  22  41]
+ [ 34  49 162]]
+kappa increasing....saving weights !! 
+Val Evaluation: acc: 0.48844, kappa: 0.28317, f1: 0.55227
+Epoch 9 : Training Loss: 0.87623, acc: 0.47483, kappa: 0.28501, f1: 0.54130, LR: 0.00009, Time elapsed 0.02 mins
+[[119  17 109]
+ [ 23  10  65]
+ [ 18  22 205]]
+kappa increasing....saving weights !! 
+Val Evaluation: acc: 0.47483, kappa: 0.28501, f1: 0.54130
+Epoch 10 : Training Loss: 0.86801, acc: 0.46803, kappa: 0.27172, f1: 0.52732, LR: 0.00009, Time elapsed 0.02 mins
+[[101  36 108]
+ [ 19  12  67]
+ [ 13  19 213]]
+Epoch 11 : Training Loss: 0.85025, acc: 0.48231, kappa: 0.26926, f1: 0.53926, LR: 0.00009, Time elapsed 0.02 mins
+[[114  27 104]
+ [ 21  23  54]
+ [ 17  45 183]]
+Epoch 12 : Training Loss: 0.83201, acc: 0.41293, kappa: 0.16180, f1: 0.46924, LR: 0.00009, Time elapsed 0.02 mins
+[[ 93  42 110]
+ [ 20  21  57]
+ [ 14  73 158]]
+Epoch 13 : Training Loss: 0.82721, acc: 0.47891, kappa: 0.28710, f1: 0.55116, LR: 0.00008, Time elapsed 0.02 mins
+[[134  17  94]
+ [ 29  14  55]
+ [ 23  39 183]]
+kappa increasing....saving weights !! 
+Val Evaluation: acc: 0.47891, kappa: 0.28710, f1: 0.55116
+Epoch 14 : Training Loss: 0.82312, acc: 0.46463, kappa: 0.20815, f1: 0.49590, LR: 0.00008, Time elapsed 0.02 mins
+[[118  44  83]
+ [ 20  43  35]
+ [ 17 112 116]]
+Epoch 15 : Training Loss: 0.80199, acc: 0.49524, kappa: 0.32571, f1: 0.56250, LR: 0.00008, Time elapsed 0.02 mins
+[[131   8 106]
+ [ 26   8  64]
+ [ 20  12 213]]
+kappa increasing....saving weights !! 
+Val Evaluation: acc: 0.49524, kappa: 0.32571, f1: 0.56250
+Epoch 16 : Training Loss: 0.80523, acc: 0.47687, kappa: 0.26437, f1: 0.53815, LR: 0.00008, Time elapsed 0.02 mins
+[[118  32  95]
+ [ 22  23  53]
+ [ 18  52 175]]
+Epoch 17 : Training Loss: 0.79588, acc: 0.46871, kappa: 0.23619, f1: 0.52400, LR: 0.00007, Time elapsed 0.02 mins
+[[131  21  93]
+ [ 27  29  42]
+ [ 23  81 141]]
+Epoch 18 : Training Loss: 0.79065, acc: 0.46939, kappa: 0.22753, f1: 0.50649, LR: 0.00007, Time elapsed 0.02 mins
+[[155  27  63]
+ [ 24  40  34]
+ [ 25 130  90]]
+Epoch 19 : Training Loss: 0.78929, acc: 0.50544, kappa: 0.29635, f1: 0.56160, LR: 0.00007, Time elapsed 0.02 mins
+[[131  15  99]
+ [ 25  29  44]
+ [ 15  62 168]]
+Epoch 20 : Training Loss: 0.78749, acc: 0.47823, kappa: 0.26856, f1: 0.54554, LR: 0.00007, Time elapsed 0.02 mins
+[[143  16  86]
+ [ 32  23  43]
+ [ 23  71 151]]
+Epoch 21 : Training Loss: 0.76603, acc: 0.46259, kappa: 0.24658, f1: 0.52215, LR: 0.00006, Time elapsed 0.02 mins
+[[107  27 111]
+ [ 23  18  57]
+ [ 14  43 188]]
+Epoch 22 : Training Loss: 0.77024, acc: 0.47891, kappa: 0.25322, f1: 0.52852, LR: 0.00006, Time elapsed 0.02 mins
+[[109  23 113]
+ [ 25  26  47]
+ [ 15  52 178]]
+Epoch 23 : Training Loss: 0.74760, acc: 0.45646, kappa: 0.20207, f1: 0.49623, LR: 0.00006, Time elapsed 0.02 mins
+[[119  33  93]
+ [ 25  37  36]
+ [ 19 102 124]]
+Epoch 24 : Training Loss: 0.75362, acc: 0.48027, kappa: 0.26508, f1: 0.54202, LR: 0.00005, Time elapsed 0.03 mins
+[[127  18 100]
+ [ 24  24  50]
+ [ 18  61 166]]
+Epoch 25 : Training Loss: 0.74653, acc: 0.49592, kappa: 0.28081, f1: 0.54994, LR: 0.00005, Time elapsed 0.02 mins
+[[124  24  97]
+ [ 25  29  44]
+ [ 17  60 168]]
+Epoch 26 : Training Loss: 0.73675, acc: 0.46939, kappa: 0.25866, f1: 0.53748, LR: 0.00005, Time elapsed 0.02 mins
+[[128  23  94]
+ [ 26  20  52]
+ [ 20  58 167]]
+Epoch 27 : Training Loss: 0.73455, acc: 0.45578, kappa: 0.23744, f1: 0.51803, LR: 0.00004, Time elapsed 0.02 mins
+[[111  22 112]
+ [ 25  16  57]
+ [ 18  43 184]]
+Epoch 28 : Training Loss: 0.72971, acc: 0.45102, kappa: 0.20939, f1: 0.50174, LR: 0.00004, Time elapsed 0.02 mins
+[[105  42  98]
+ [ 20  31  47]
+ [  8  88 149]]
+Epoch 29 : Training Loss: 0.72948, acc: 0.49184, kappa: 0.29849, f1: 0.55595, LR: 0.00004, Time elapsed 0.02 mins
+[[120  26  99]
+ [ 24  19  55]
+ [ 14  37 194]]
+Epoch 30 : Training Loss: 0.72524, acc: 0.47143, kappa: 0.27248, f1: 0.54583, LR: 0.00004, Time elapsed 0.02 mins
+[[132  24  89]
+ [ 27  17  54]
+ [ 18  55 172]]
+Epoch 31 : Training Loss: 0.72602, acc: 0.49388, kappa: 0.30041, f1: 0.56208, LR: 0.00003, Time elapsed 0.02 mins
+[[135  21  89]
+ [ 26  20  52]
+ [ 22  45 178]]
+Epoch 32 : Training Loss: 0.71189, acc: 0.49048, kappa: 0.27860, f1: 0.54711, LR: 0.00003, Time elapsed 0.02 mins
+[[121  32  92]
+ [ 26  27  45]
+ [ 18  55 172]]
+Epoch 33 : Training Loss: 0.71458, acc: 0.50136, kappa: 0.30949, f1: 0.56706, LR: 0.00003, Time elapsed 0.02 mins
+[[130  17  98]
+ [ 23  21  54]
+ [ 15  44 186]]
+Epoch 34 : Training Loss: 0.71946, acc: 0.47891, kappa: 0.26075, f1: 0.53695, LR: 0.00002, Time elapsed 0.02 mins
+[[120  30  95]
+ [ 24  26  48]
+ [ 18  60 167]]
+Epoch 35 : Training Loss: 0.72220, acc: 0.47823, kappa: 0.26035, f1: 0.53616, LR: 0.00002, Time elapsed 0.02 mins
+[[118  36  91]
+ [ 24  27  47]
+ [ 16  63 166]]
+Epoch 36 : Training Loss: 0.70943, acc: 0.50884, kappa: 0.32096, f1: 0.57061, LR: 0.00002, Time elapsed 0.02 mins
+[[124  26  95]
+ [ 24  22  52]
+ [ 15  35 195]]
+Epoch 37 : Training Loss: 0.69472, acc: 0.49320, kappa: 0.28027, f1: 0.54868, LR: 0.00002, Time elapsed 0.02 mins
+[[120  33  92]
+ [ 23  29  46]
+ [ 14  61 170]]
+Epoch 38 : Training Loss: 0.70691, acc: 0.50476, kappa: 0.29953, f1: 0.56048, LR: 0.00001, Time elapsed 0.02 mins
+[[124  28  93]
+ [ 24  28  46]
+ [ 17  51 177]]
+Epoch 39 : Training Loss: 0.70167, acc: 0.49728, kappa: 0.28591, f1: 0.55331, LR: 0.00001, Time elapsed 0.02 mins
+[[127  30  88]
+ [ 25  29  44]
+ [ 20  59 166]]
+Epoch 40 : Training Loss: 0.70249, acc: 0.49252, kappa: 0.28233, f1: 0.54969, LR: 0.00001, Time elapsed 0.02 mins
+[[122  28  95]
+ [ 24  26  48]
+ [ 19  51 175]]
+Epoch 41 : Training Loss: 0.70646, acc: 0.48707, kappa: 0.28157, f1: 0.55145, LR: 0.00001, Time elapsed 0.02 mins
+[[130  27  88]
+ [ 27  24  47]
+ [ 19  58 168]]
+Epoch 42 : Training Loss: 0.69102, acc: 0.50884, kappa: 0.30283, f1: 0.56282, LR: 0.00001, Time elapsed 0.02 mins
+[[125  30  90]
+ [ 24  30  44]
+ [ 17  54 174]]
+Epoch 43 : Training Loss: 0.69657, acc: 0.50340, kappa: 0.29777, f1: 0.56110, LR: 0.00001, Time elapsed 0.02 mins
+[[131  26  88]
+ [ 26  28  44]
+ [ 21  55 169]]
+Epoch 44 : Training Loss: 0.68769, acc: 0.51293, kappa: 0.30376, f1: 0.56266, LR: 0.00000, Time elapsed 0.02 mins
+[[123  31  91]
+ [ 23  32  43]
+ [ 18  53 174]]
+Epoch 45 : Training Loss: 0.68588, acc: 0.51156, kappa: 0.31119, f1: 0.56662, LR: 0.00000, Time elapsed 0.02 mins
+[[123  30  92]
+ [ 23  28  47]
+ [ 17  45 183]]
+Epoch 46 : Training Loss: 0.68430, acc: 0.49456, kappa: 0.30255, f1: 0.56123, LR: 0.00000, Time elapsed 0.02 mins
+[[131  22  92]
+ [ 27  19  52]
+ [ 22  38 185]]
+Epoch 47 : Training Loss: 0.68933, acc: 0.51565, kappa: 0.30960, f1: 0.56536, LR: 0.00000, Time elapsed 0.02 mins
+[[119  31  95]
+ [ 22  32  44]
+ [ 11  54 180]]
+Epoch 48 : Training Loss: 0.68845, acc: 0.50748, kappa: 0.30399, f1: 0.56282, LR: 0.00000, Time elapsed 0.02 mins
+[[124  30  91]
+ [ 23  28  47]
+ [ 19  47 179]]
+Epoch 49 : Training Loss: 0.69488, acc: 0.50680, kappa: 0.29712, f1: 0.55859, LR: 0.00000, Time elapsed 0.02 mins
+[[122  33  90]
+ [ 23  31  44]
+ [ 17  55 173]]
+Epoch 50 : Training Loss: 0.67486, acc: 0.50272, kappa: 0.29144, f1: 0.55562, LR: 0.00000, Time elapsed 0.02 mins
+[[122  33  90]
+ [ 23  31  44]
+ [ 15  60 170]]
+***************************Test************************
+***************************Test results************************
+Test Evaluation: acc: 0.47465, kappa: 0.22184, f1: 0.51375
+[[202  12 129]
+ [ 50  44  53]
+ [ 56  35 105]]
+best epoch 15 (validation kappa 0.32571)
+Done!!!!!

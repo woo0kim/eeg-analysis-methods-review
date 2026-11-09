@@ -18,10 +18,12 @@ SETTING = {
     'bd-labram': ('LaBraM', "braindecode Labram with braindecode's pretrained weights as the epoch encoder, CBraMod's sleep-staging pipeline"),
     'bd-eegnet': ('EEGNet', "braindecode EEGNet-8,2 as the epoch encoder in CBraMod's sleep-staging pipeline"),
     'bd-conformer': ('EEG-Conformer', "braindecode EEGConformer as the epoch encoder in CBraMod's sleep-staging pipeline"),
+    'dgcnn': ('DGCNN', "our DGCNN on 5-band DE of each 1-s segment as the epoch encoder in CBraMod's sleep-staging pipeline"),
+    'bd-dgcnn': ('DGCNN', "braindecode DGCNN (raw input) as the epoch encoder in CBraMod's sleep-staging pipeline"),
     'bd-deepsleepnet': ('DeepSleepNet', "braindecode DeepSleepNet (single-epoch; first-layer kernels scaled to 200 Hz) as the epoch encoder in CBraMod's sleep-staging pipeline"),
 }
 METRICS = ['balanced_acc', 'kappa', 'weighted_f1', 'accuracy', 'macro_f1']
-HEADLINE = {'cbramod', 'labram', 'eegnet', 'conformer', 'bd-atcnet', 'bd-deepsleepnet'}  # one row per method in the pipeline (ATCNet, DeepSleepNet: braindecode only)
+HEADLINE = {'cbramod', 'labram', 'eegnet', 'conformer', 'bd-atcnet', 'bd-deepsleepnet', 'dgcnn'}  # one row per method in the pipeline (ATCNet, DeepSleepNet: braindecode only)
 
 rows = []
 for key, r in json.load(open(os.path.join(RESULTS, 'results.json')))['models'].items():

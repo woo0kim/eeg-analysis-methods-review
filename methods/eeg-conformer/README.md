@@ -17,6 +17,11 @@
 | [braindecode-bciciv2a](experiments/braindecode-bciciv2a) | BCI IV 2a | Does braindecode's `EEGConformer` (braindecode 1.8.1), trained by the same released loop, reproduce the released model? | Yes. Its layers match the released model's, but its attention divides by √(head dim) = 2 instead of √40; with 27 runs per protocol that changes nothing measurable: 78.56% under the released rule, 69.32% with a validation split, 67.96% at the last-100-epoch mean (all p ≥ 0.07 against the released model). Its lead over EEGNet is again significant only under the released rule. |
 | [sleepedf-cbramod-pipeline](experiments/sleepedf-cbramod-pipeline) | Sleep-EDF-78 | How does the released EEG Conformer do as the epoch encoder of CBraMod's sleep-staging pipeline, against every other model under the same conditions? | Among the original implementations it is second to last: κ 0.688 on the common test set, 0.080 below CBraMod (p < 0.001). It has the lowest balanced accuracy (0.645) and N3 F1 (0.56) of all models, and with braindecode's EEG Conformer the largest gain from test-set epoch selection (+0.034 κ; braindecode +0.037). Its paper has no sleep data. |
 | [braindecode-sleepedf](experiments/braindecode-sleepedf) | Sleep-EDF-78 | Does braindecode's `EEGConformer`, in the same pipeline, give the released model's numbers? | Within noise overall: κ 0.701 vs. 0.688 (p = 0.47), balanced accuracy +0.035 (p = 0.089). Its N3 F1 is higher (0.71 vs. 0.56, p = 0.047); its attention scaling and larger micro-batch (batch norm over 32 sequences instead of 4) both differ, and the runs do not separate them. Both implementations stay 0.07–0.08 κ below CBraMod. |
+| [seed-5fold](experiments/seed-5fold) | SEED | Does the released `conformer_seed_1s_5fold.py` reproduce 95.30%, and what does its split measure? | Yes, 98.24% (best epoch). Its folds sit inside clips: holding out whole clips drops the final epoch from 96.8% to 71.6% (p = 0.0001) |
+| [seed-cbramod-pipeline](experiments/seed-cbramod-pipeline) | SEED, SEED-V | The released SEED model in the shared pipeline | On SEED-V 0.033 below its number in the CBraMod paper (p = 0.003); behind DGCNN and the foundation models on both datasets |
+| [braindecode-seed](experiments/braindecode-seed) | SEED, SEED-V | Does braindecode's `EEGConformer` match? | Slightly lower (−0.010, p = 0.10; −0.024, p = 0.019) |
+| [stew-cbramod-pipeline](experiments/stew-cbramod-pipeline) | STEW | The released model on STEW | 0.736 on rest vs. task, behind DGCNN and the foundation models |
+| [braindecode-stew](experiments/braindecode-stew) | STEW | Does braindecode's `EEGConformer` match? | On rest vs. task (−0.004, p = 0.65); 0.022 lower on 3 levels (p = 0.018), as on SEED-V |
 
 Its EEGNet baseline (Table II) was re-run through the same training loop and epoch-selection rules in
 [methods/eegnet/experiments/bciciv2a-epoch-selection](../eegnet/experiments/bciciv2a-epoch-selection). Conformer's
@@ -26,5 +31,4 @@ last-100-epoch mean the two are level (−0.76 pp), and with a validation split 
 
 ## Not yet covered
 
-The paper also reports BCI IV 2b and SEED (`upstream/conformer_BCIIV2b.py`,
-`upstream/conformer_seed_1s_5fold.py`).
+The paper also reports BCI IV 2b (`upstream/conformer_BCIIV2b.py`).

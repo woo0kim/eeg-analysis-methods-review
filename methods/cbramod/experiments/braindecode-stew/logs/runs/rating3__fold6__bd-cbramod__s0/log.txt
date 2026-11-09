@@ -1,0 +1,266 @@
+Namespace(seed=0, cuda=0, epochs=50, batch_size=64, lr=0.0001, weight_decay=0.05, optimizer='AdamW', clip_value=1, dropout=0.1, classifier='all_patch_reps', downstream_dataset='SEED-V', datasets_dir='/home/wkim/repro-seed/stew', num_of_classes=3, model_dir='/home/wkim/repro-seed/stew/runs/rating3__fold6__bd-cbramod__s0', num_workers=0, label_smoothing=0.1, multi_lr=True, frozen=False, use_pretrained_weights=False, foundation_dir='', accum=1, model='bd-cbramod')
+rating3 fold 6: 3136 train, 686 val, 588 test windows; x (4704, 14, 800)
+BDCBraMod(
+  (head): Sequential(
+    (0): Flatten(start_dim=1, end_dim=-1)
+    (1): Linear(in_features=11200, out_features=3, bias=True)
+  )
+  (backbone): CBraMod(
+    (rearrange): Rearrange('batch n_chans (n_patch patch_size) -> batch n_chans n_patch patch_size', patch_size=200)
+    (patch_embedding): _PatchEmbedding(
+      (positional_encoding): Sequential(
+        (0): Conv2d(200, 200, kernel_size=(19, 7), stride=(1, 1), padding=(9, 3), groups=200)
+      )
+      (proj_in): Sequential(
+        (0): Conv2d(1, 25, kernel_size=(1, 49), stride=(1, 25), padding=(0, 24))
+        (1): GroupNorm(5, 25, eps=1e-05, affine=True)
+        (2): GELU(approximate='none')
+        (3): Conv2d(25, 25, kernel_size=(1, 3), stride=(1, 1), padding=(0, 1))
+        (4): GroupNorm(5, 25, eps=1e-05, affine=True)
+        (5): GELU(approximate='none')
+        (6): Conv2d(25, 25, kernel_size=(1, 3), stride=(1, 1), padding=(0, 1))
+        (7): GroupNorm(5, 25, eps=1e-05, affine=True)
+        (8): GELU(approximate='none')
+      )
+      (spectral_proj): Sequential(
+        (0): Linear(in_features=101, out_features=200, bias=True)
+        (1): Dropout(p=0.1, inplace=False)
+      )
+    )
+    (encoder): _TransformerEncoder(
+      (layers): ModuleList(
+        (0-11): 12 x CrissCrossTransformerEncoderLayer(
+          (self_attn_s): MultiheadAttention(
+            (out_proj): NonDynamicallyQuantizableLinear(in_features=100, out_features=100, bias=True)
+          )
+          (self_attn_t): MultiheadAttention(
+            (out_proj): NonDynamicallyQuantizableLinear(in_features=100, out_features=100, bias=True)
+          )
+          (linear1): Linear(in_features=200, out_features=800, bias=True)
+          (dropout): Dropout(p=0.1, inplace=False)
+          (linear2): Linear(in_features=800, out_features=200, bias=True)
+          (norm1): LayerNorm((200,), eps=1e-05, elementwise_affine=True)
+          (norm2): LayerNorm((200,), eps=1e-05, elementwise_affine=True)
+          (dropout1): Dropout(p=0.1, inplace=False)
+          (dropout2): Dropout(p=0.1, inplace=False)
+          (activation): GELU(approximate='none')
+        )
+      )
+    )
+    (proj_out): Sequential(
+      (0): Linear(in_features=200, out_features=200, bias=True)
+    )
+    (final_layer): Identity()
+  )
+)
+parameters: backbone 4,924,000, other 33,603, total 4,957,603
+Epoch 1 : Training Loss: 0.98104, acc: 0.59048, kappa: 0.36263, f1: 0.50693, LR: 0.00010, Time elapsed 0.18 mins
+[[258   3  33]
+ [110  24 111]
+ [ 24   6 117]]
+kappa increasing....saving weights !! 
+Val Evaluation: acc: 0.59048, kappa: 0.36263, f1: 0.50693
+Epoch 2 : Training Loss: 0.82149, acc: 0.52063, kappa: 0.28670, f1: 0.49022, LR: 0.00010, Time elapsed 0.15 mins
+[[246  23  25]
+ [ 87  36 122]
+ [ 44  18  85]]
+Epoch 3 : Training Loss: 0.74814, acc: 0.57415, kappa: 0.34583, f1: 0.51465, LR: 0.00010, Time elapsed 0.15 mins
+[[232  21  41]
+ [ 53  32 160]
+ [ 21   8 118]]
+Epoch 4 : Training Loss: 0.70544, acc: 0.53265, kappa: 0.31890, f1: 0.54797, LR: 0.00010, Time elapsed 0.15 mins
+[[227  40  27]
+ [ 45  69 131]
+ [  6  61  80]]
+Epoch 5 : Training Loss: 0.64261, acc: 0.56735, kappa: 0.35297, f1: 0.53589, LR: 0.00010, Time elapsed 0.16 mins
+[[248  22  24]
+ [ 60  42 143]
+ [ 19  27 101]]
+Epoch 6 : Training Loss: 0.61583, acc: 0.48141, kappa: 0.27100, f1: 0.52595, LR: 0.00010, Time elapsed 0.15 mins
+[[235  39  20]
+ [ 58  83 104]
+ [ 16  86  45]]
+Epoch 7 : Training Loss: 0.57777, acc: 0.44354, kappa: 0.19017, f1: 0.46974, LR: 0.00010, Time elapsed 0.15 mins
+[[192  66  36]
+ [ 42  56 147]
+ [  7  74  66]]
+Epoch 8 : Training Loss: 0.53719, acc: 0.48163, kappa: 0.23321, f1: 0.48865, LR: 0.00009, Time elapsed 0.15 mins
+[[206  65  23]
+ [ 55  54 136]
+ [ 13  57  77]]
+Epoch 9 : Training Loss: 0.51297, acc: 0.48073, kappa: 0.25873, f1: 0.52449, LR: 0.00009, Time elapsed 0.17 mins
+[[206  52  36]
+ [ 41  90 114]
+ [ 10  82  55]]
+Epoch 10 : Training Loss: 0.51012, acc: 0.43878, kappa: 0.18154, f1: 0.43696, LR: 0.00009, Time elapsed 0.15 mins
+[[183  34  77]
+ [ 26  30 189]
+ [ 11  52  84]]
+Epoch 11 : Training Loss: 0.50127, acc: 0.50363, kappa: 0.27846, f1: 0.52755, LR: 0.00009, Time elapsed 0.15 mins
+[[217  50  27]
+ [ 56  76 113]
+ [ 11  68  68]]
+Epoch 12 : Training Loss: 0.47322, acc: 0.51655, kappa: 0.28806, f1: 0.51976, LR: 0.00009, Time elapsed 0.15 mins
+[[214  33  47]
+ [ 47  58 140]
+ [  9  52  86]]
+Epoch 13 : Training Loss: 0.46022, acc: 0.50340, kappa: 0.25569, f1: 0.50172, LR: 0.00008, Time elapsed 0.16 mins
+[[188  66  40]
+ [ 35  60 150]
+ [  7  48  92]]
+Epoch 14 : Training Loss: 0.44740, acc: 0.47574, kappa: 0.24012, f1: 0.50876, LR: 0.00008, Time elapsed 0.16 mins
+[[192  60  42]
+ [ 32  78 135]
+ [  8  72  67]]
+Epoch 15 : Training Loss: 0.43786, acc: 0.50771, kappa: 0.26614, f1: 0.51415, LR: 0.00008, Time elapsed 0.16 mins
+[[199  72  23]
+ [ 40  64 141]
+ [  6  55  86]]
+Epoch 16 : Training Loss: 0.42513, acc: 0.49116, kappa: 0.25660, f1: 0.51613, LR: 0.00008, Time elapsed 0.15 mins
+[[198  65  31]
+ [ 35  76 134]
+ [ 12  63  72]]
+Epoch 17 : Training Loss: 0.41874, acc: 0.50930, kappa: 0.28030, f1: 0.52303, LR: 0.00007, Time elapsed 0.15 mins
+[[216  52  26]
+ [ 50  66 129]
+ [ 11  59  77]]
+Epoch 18 : Training Loss: 0.40254, acc: 0.52449, kappa: 0.29733, f1: 0.54042, LR: 0.00007, Time elapsed 0.15 mins
+[[211  67  16]
+ [ 53  83 109]
+ [ 16  55  76]]
+Epoch 19 : Training Loss: 0.39762, acc: 0.51519, kappa: 0.28222, f1: 0.52508, LR: 0.00007, Time elapsed 0.15 mins
+[[198  53  43]
+ [ 37  72 136]
+ [ 11  51  85]]
+Epoch 20 : Training Loss: 0.38721, acc: 0.50771, kappa: 0.26293, f1: 0.49372, LR: 0.00007, Time elapsed 0.17 mins
+[[207  41  46]
+ [ 59  49 137]
+ [ 17  39  91]]
+Epoch 21 : Training Loss: 0.38587, acc: 0.51134, kappa: 0.27873, f1: 0.51421, LR: 0.00006, Time elapsed 0.15 mins
+[[215  40  39]
+ [ 56  60 129]
+ [ 17  48  82]]
+Epoch 22 : Training Loss: 0.37358, acc: 0.54444, kappa: 0.31964, f1: 0.54545, LR: 0.00006, Time elapsed 0.16 mins
+[[215  54  25]
+ [ 49  71 125]
+ [ 11  46  90]]
+Epoch 23 : Training Loss: 0.36924, acc: 0.52404, kappa: 0.29679, f1: 0.54439, LR: 0.00006, Time elapsed 0.16 mins
+[[201  75  18]
+ [ 42  91 112]
+ [ 12  59  76]]
+Epoch 24 : Training Loss: 0.36773, acc: 0.51406, kappa: 0.28329, f1: 0.52246, LR: 0.00005, Time elapsed 0.15 mins
+[[213  53  28]
+ [ 48  67 130]
+ [ 21  46  80]]
+Epoch 25 : Training Loss: 0.36334, acc: 0.55465, kappa: 0.32580, f1: 0.53928, LR: 0.00005, Time elapsed 0.16 mins
+[[220  50  24]
+ [ 59  61 125]
+ [ 14  35  98]]
+Epoch 26 : Training Loss: 0.36172, acc: 0.53991, kappa: 0.31278, f1: 0.54177, LR: 0.00005, Time elapsed 0.15 mins
+[[211  55  28]
+ [ 50  76 119]
+ [ 25  35  87]]
+Epoch 27 : Training Loss: 0.35056, acc: 0.53764, kappa: 0.31972, f1: 0.55172, LR: 0.00004, Time elapsed 0.15 mins
+[[219  55  20]
+ [ 48  81 116]
+ [ 19  49  79]]
+Epoch 28 : Training Loss: 0.35065, acc: 0.52812, kappa: 0.30883, f1: 0.54601, LR: 0.00004, Time elapsed 0.15 mins
+[[217  51  26]
+ [ 48  79 118]
+ [ 11  59  77]]
+Epoch 29 : Training Loss: 0.34716, acc: 0.52200, kappa: 0.29680, f1: 0.53689, LR: 0.00004, Time elapsed 0.15 mins
+[[212  56  26]
+ [ 46  77 122]
+ [ 17  52  78]]
+Epoch 30 : Training Loss: 0.34505, acc: 0.54921, kappa: 0.32332, f1: 0.54311, LR: 0.00004, Time elapsed 0.15 mins
+[[216  48  30]
+ [ 52  67 126]
+ [ 13  40  94]]
+Epoch 31 : Training Loss: 0.34365, acc: 0.51519, kappa: 0.28385, f1: 0.52682, LR: 0.00003, Time elapsed 0.15 mins
+[[208  57  29]
+ [ 48  72 125]
+ [ 13  54  80]]
+Epoch 32 : Training Loss: 0.33824, acc: 0.53016, kappa: 0.30669, f1: 0.54480, LR: 0.00003, Time elapsed 0.15 mins
+[[206  56  32]
+ [ 40  83 122]
+ [ 17  49  81]]
+Epoch 33 : Training Loss: 0.33559, acc: 0.54014, kappa: 0.31547, f1: 0.54676, LR: 0.00003, Time elapsed 0.15 mins
+[[210  58  26]
+ [ 44  77 124]
+ [ 13  47  87]]
+Epoch 34 : Training Loss: 0.33385, acc: 0.55238, kappa: 0.32483, f1: 0.54670, LR: 0.00002, Time elapsed 0.15 mins
+[[208  57  29]
+ [ 42  71 132]
+ [ 12  38  97]]
+Epoch 35 : Training Loss: 0.33392, acc: 0.51361, kappa: 0.27772, f1: 0.51833, LR: 0.00002, Time elapsed 0.15 mins
+[[209  55  30]
+ [ 54  65 126]
+ [ 12  52  83]]
+Epoch 36 : Training Loss: 0.33099, acc: 0.54785, kappa: 0.31776, f1: 0.53858, LR: 0.00002, Time elapsed 0.15 mins
+[[210  51  33]
+ [ 49  66 130]
+ [ 12  38  97]]
+Epoch 37 : Training Loss: 0.33215, acc: 0.52494, kappa: 0.29571, f1: 0.53107, LR: 0.00002, Time elapsed 0.13 mins
+[[213  54  27]
+ [ 51  70 124]
+ [ 17  47  83]]
+Epoch 38 : Training Loss: 0.32989, acc: 0.55873, kappa: 0.33573, f1: 0.55474, LR: 0.00001, Time elapsed 0.11 mins
+[[212  54  28]
+ [ 44  74 127]
+ [ 13  38  96]]
+Epoch 39 : Training Loss: 0.32867, acc: 0.55102, kappa: 0.32559, f1: 0.54693, LR: 0.00001, Time elapsed 0.11 mins
+[[216  56  22]
+ [ 50  70 125]
+ [ 15  39  93]]
+Epoch 40 : Training Loss: 0.32665, acc: 0.54875, kappa: 0.31914, f1: 0.54492, LR: 0.00001, Time elapsed 0.13 mins
+[[202  57  35]
+ [ 42  75 128]
+ [ 12  39  96]]
+Epoch 41 : Training Loss: 0.32551, acc: 0.54376, kappa: 0.31493, f1: 0.53965, LR: 0.00001, Time elapsed 0.13 mins
+[[214  57  23]
+ [ 51  68 126]
+ [ 15  40  92]]
+Epoch 42 : Training Loss: 0.32474, acc: 0.55079, kappa: 0.32304, f1: 0.54707, LR: 0.00001, Time elapsed 0.13 mins
+[[207  58  29]
+ [ 44  74 127]
+ [ 14  38  95]]
+Epoch 43 : Training Loss: 0.32472, acc: 0.54626, kappa: 0.32109, f1: 0.54720, LR: 0.00001, Time elapsed 0.15 mins
+[[213  58  23]
+ [ 47  74 124]
+ [ 16  41  90]]
+Epoch 44 : Training Loss: 0.32588, acc: 0.55624, kappa: 0.33187, f1: 0.55211, LR: 0.00000, Time elapsed 0.13 mins
+[[213  57  24]
+ [ 46  73 126]
+ [ 14  38  95]]
+Epoch 45 : Training Loss: 0.32450, acc: 0.54762, kappa: 0.32322, f1: 0.54888, LR: 0.00000, Time elapsed 0.13 mins
+[[211  56  27]
+ [ 44  75 126]
+ [ 15  41  91]]
+Epoch 46 : Training Loss: 0.32434, acc: 0.55646, kappa: 0.33313, f1: 0.55356, LR: 0.00000, Time elapsed 0.12 mins
+[[212  55  27]
+ [ 44  74 127]
+ [ 13  39  95]]
+Epoch 47 : Training Loss: 0.32267, acc: 0.55329, kappa: 0.33114, f1: 0.55338, LR: 0.00000, Time elapsed 0.14 mins
+[[214  55  25]
+ [ 45  75 125]
+ [ 15  40  92]]
+Epoch 48 : Training Loss: 0.32328, acc: 0.55102, kappa: 0.32823, f1: 0.55213, LR: 0.00000, Time elapsed 0.12 mins
+[[212  55  27]
+ [ 43  75 127]
+ [ 13  42  92]]
+Epoch 49 : Training Loss: 0.32238, acc: 0.55420, kappa: 0.33073, f1: 0.55242, LR: 0.00000, Time elapsed 0.14 mins
+[[212  55  27]
+ [ 44  74 127]
+ [ 13  40  94]]
+Epoch 50 : Training Loss: 0.32312, acc: 0.55760, kappa: 0.33500, f1: 0.55477, LR: 0.00000, Time elapsed 0.13 mins
+[[213  55  26]
+ [ 44  74 127]
+ [ 13  39  95]]
+***************************Test************************
+***************************Test results************************
+Test Evaluation: acc: 0.40363, kappa: 0.19051, f1: 0.49813
+[[218  65  11]
+ [ 38  50 157]
+ [ 33   3  13]]
+best epoch 1 (validation kappa 0.36263)
+Done!!!!!
