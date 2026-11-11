@@ -53,7 +53,8 @@ Notes on how the reports relate to the committed code:
   `results.json` files through `tools/compare_sleepedf.py` (common test set, pairwise tests, figure). The report and
   deck were generated from the ATCNet report and deck (2026-10-22) as templates.
 - **SEED, SEED-V and STEW, 2026-11-08.** Written from the results available on Sunday afternoon, 2026-11-08, and revised
-  on 2026-11-09 with ATCNet's SEED / SEED-V subject-split runs, which finished after the meeting (section I says so). Every number comes from the committed
+  on 2026-11-09 with ATCNet's SEED / SEED-V subject-split runs, which finished after the meeting, and with the DGCNN authors'
+  own TensorFlow code, run unmodified once approved (section I says so). Every number comes from the committed
   `results.json` files through `tools/compare_seed.py`, `tools/compare_stew.py` and `tools/fig_seed_stew.py`. The report
   and deck were generated from the Sleep-EDF report and deck (2026-11-01) as templates. SEED and SEED-V are
   license-gated: neither file contains data from them, only results.

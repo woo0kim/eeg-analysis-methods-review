@@ -9,7 +9,8 @@ convolution, then fully connected layers. Paper: 90.40% subject-dependent and 79
 
 - **Authors' code:** `EEG-TAC.zip`, TensorFlow 1.x, a modified [cnn_graph](https://github.com/mdeff/cnn_graph), the `[code]` link beside
   the paper on Tengfei Song's page, now offline. `fetch_upstream.sh` reads the Wayback Machine's capture of 2022-11-22, pinned by
-  SHA-256 (15e4df18…). The archive has no license, so it is not committed and `upstream/` is ignored by git. It has not been run here.
+  SHA-256 (15e4df18…). The archive has no license, so it is not committed and `upstream/` is ignored by git. Its `eeg_DE.py`, run unmodified on SEED
+  (TensorFlow 1.15), gives the same numbers as our port: 87.59% vs. 87.69% under its own rule ([seed-paper-protocol](experiments/seed-paper-protocol)).
 - **Our implementation:** [`code/dgcnn.py`](code/dgcnn.py), PyTorch, written from that code, plus differential entropy from raw
   windows for pipelines that feed signals. The paper itself is closed access and was not read in full: paper numbers are the
   abstract's, settings the authors' code.
@@ -20,7 +21,7 @@ convolution, then fully connected layers. Paper: 90.40% subject-dependent and 79
 
 | Experiment | Question | Finding |
 |---|---|---|
-| [seed-paper-protocol](experiments/seed-paper-protocol) | Do the paper's SEED numbers reproduce, and how are they computed? | 90.40% is the peak of ~80 test evaluations over each subject's best 2 of 3 sessions. Under that rule we get 87.69%; with no test selection, 77.79%, level with a linear SVM (79.42%, p = 0.33). Across subjects the paper holds: 77.58% against its 79.95%, with no test selection, and 58.85% for the SVM. |
+| [seed-paper-protocol](experiments/seed-paper-protocol) | Do the paper's SEED numbers reproduce, and how are they computed? | 90.40% is the peak of ~80 test evaluations over each subject's best 2 of 3 sessions. Under that rule our port gets 87.69% and the authors' own code, run unmodified, 87.59%: the 2.7 pp gap is not the port; with no test selection, 77.79%, level with a linear SVM (79.42%, p = 0.33). Across subjects the paper holds: 77.58% against its 79.95%, with no test selection, and 58.85% for the SVM. |
 | [cbramod-splits](experiments/cbramod-splits) | How does it do on CBraMod's four public datasets? | Best model on Mumtaz2016 (0.96, DE input), second to LaBraM-Base on MentalArithmetic, last on both motor-imagery datasets, where raw samples beat DE by 0.09–0.11. |
 | [bciciv2a-epoch-selection](experiments/bciciv2a-epoch-selection) | BCI-IV-2a within subject, through EEG Conformer's loop | 44–50%, over 20 points below EEG Conformer and EEGNet under every epoch rule. |
 | [sleepedf-cbramod-pipeline](experiments/sleepedf-cbramod-pipeline) | Sleep-EDF-78 in the shared pipeline | κ 0.694 (DE), 0.596 (raw), level with EEG Conformer and EEGNet, below the foundation models. |

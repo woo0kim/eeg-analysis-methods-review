@@ -9,9 +9,9 @@ on SEED, and how are those numbers computed? The paper's abstract gives 90.40% s
 subject-independent (SDs 8.49 and 9.02 as other papers quote them).
 
 **What was run.** Our PyTorch implementation (`../../code/dgcnn.py`), written from the authors' TensorFlow code, with their
-settings. All 45 sessions train in about 3 minutes. **The authors' code itself has not been run**
-(`code/run_authors.sh` is ready; see [Provenance](#provenance)), so the gap between our 87.69% and the paper's 90.40% is
-open.
+settings; all 45 sessions train in about 3 minutes. Then the authors' `eeg_DE.py` itself, unmodified (TensorFlow 1.15,
+`code/run_authors.sh`), on the same features: it gives the same numbers as the port (87.59% vs. 87.69% under its own rule), so
+the gap to the paper's 90.40% is not in the port ([below](#is-the-implementation-right)).
 
 ## Results
 
@@ -30,9 +30,9 @@ Paper: 90.40 (8.49). Its number is the top-left cell's rule (below).
   highest test accuracy over about 80 evaluations during training, and then averages only each subject's two best
   sessions of three (`sorted(accuracy[i*3:3*(i+1),1])`, entries 1 and 2). With neither choice the same runs give 74.62%, or
   77.79% at a learning rate picked without the test set.
-- **Our port under their rule falls 2.7 pp short of the paper** (87.69 vs. 90.40). `../../code/dgcnn.py` matches their code
-  line by line and matches braindecode's DGCNN numerically (below), but the DE files they trained on are not in their
-  archive. Running their code on these same features would separate a port error from a data difference.
+- **The authors' own code falls 2.7 pp short of the paper too** (87.59 vs. 90.40; 86.90–88.22 over 5 runs), level with our
+  port (87.69; p = 0.75 over runs, 0.66 over the 45 sessions). The gap is therefore not in the port: it lies in what the
+  archive does not hold, most likely the DE files they trained on (their computation, smoothing or normalisation).
 - **On these features a linear SVM ties DGCNN within subject.** With nothing chosen on the test set (Wilcoxon over the 15
   subjects): DGCNN 77.79, SVM 79.42, p = 0.33. Under the authors' rule the SVM gives 87.89 (`code/svm_baseline.py`). The
   paper's advantage over SVM (its literature value, 83.99) does not appear on identical data and selection.
@@ -75,6 +75,26 @@ authors' code in ways that change the model: torcheeg's `DGCNN` uses powers of t
 polynomials of a Laplacian, with no dropout; xueyunlong12589/DGCNN and xujiayang530/DGCNN add BatchNorm
 and drop the 256-unit layer.
 
+**The authors' code, unmodified** (`code/run_authors.sh`, TensorFlow 1.15, 5 runs per feature; `code/analyze_authors.py`,
+`results/authors.txt`). Accuracy %, mean over runs (SD over the 30 or 45 session values, as `eeg_DE.py` prints it); authors'
+code − port with Welch's t-test over runs and a two-sided Wilcoxon test over the 45 sessions:
+
+| Features | Rule | Authors' code | Our port | Difference | p (runs / sessions) |
+|---|---|---|---|---|---|
+| `de_LDS` | peak on test, best 2 of 3 sessions (**the authors' rule**) | **87.59** (9.00) | 87.69 (9.06) | −0.10 | 0.75 / 0.66 |
+| | peak on test, all sessions | 82.87 (11.36) | 82.97 (11.11) | −0.10 | 0.77 / 0.66 |
+| | last step, best 2 of 3 sessions | 81.45 (11.96) | 81.39 (11.90) | +0.07 | 0.90 / 0.75 |
+| | last step, all sessions | 75.05 (15.55) | 74.62 (16.05) | +0.43 | 0.63 / 0.75 |
+| `de_movingAve` | peak on test, best 2 of 3 sessions | 80.11 (8.85) | 80.32 (8.72) | −0.22 | 0.15 / 0.018 |
+| | peak on test, all sessions | 75.62 (10.82) | 76.12 (10.65) | −0.49 | 0.065 / 0.018 |
+| | last step, best 2 of 3 sessions | 71.31 (13.94) | 74.03 (11.42) | −2.72 | 0.13 / 0.036 |
+| | last step, all sessions | 64.21 (17.43) | 67.13 (15.94) | −2.91 | 0.21 / 0.036 |
+
+On `de_LDS` the two implementations agree on every rule. On `de_movingAve` the authors' code is 0.2–0.5 lower at the peak and
+about 2.8 lower at the last step, where its runs also vary more (SD over runs 3.1–4.0 vs. 1.7–2.5): learning rate 0.07 makes
+some sessions collapse late in training, and the two frameworks' random initialisations differ. Neither implementation reaches
+90.40 on either feature; the best single authors' run gives 88.22.
+
 ## Paper vs. this reproduction
 
 The paper is closed access and IEEE refuses scripted downloads, so it was not read in full. Paper numbers here are the
@@ -84,7 +104,7 @@ abstract's; the settings are the authors' code, and the paper's equations are as
 
 | | Paper | Authors' code | This experiment | Why |
 |---|---|---|---|---|
-| Implementation | – | TensorFlow 1.x, modified cnn_graph (`EEG-TAC.zip`) | PyTorch port | the archive has no license; running it is awaiting approval |
+| Implementation | – | TensorFlow 1.x, modified cnn_graph (`EEG-TAC.zip`) | PyTorch port; the authors' code also run unmodified | the archive has no license: fetched by script, not committed |
 | Input | DE features | `DE_<i>.mat`, not in the archive | SEED's distributed `de_LDS` and `de_movingAve` (`code/prepare_de.py`) | shapes match exactly: 3,394 samples per session, 2,010 in the first 9 clips |
 | Initial graph | spatial (Eq. 1, per braindecode's quote) | random, std 0.3 off the diagonal and 0.6 on it, the spatial `adjacency()` unused | as the code | run the code; the paper and code disagree |
 | Validation set | – | the test set | as the code for the "authors' rule" rows; clips 8–9 elsewhere | to measure the effect |
@@ -107,7 +127,8 @@ abstract's; the settings are the authors' code, and the paper's equations are as
 `eeg_DE.py`: one Chebyshev layer (K = 2, 64 filters), bias + ReLU, 256-unit layer with dropout 0.5, linear output. SGD with
 momentum 0.9, lr 0.07 × 0.95 every 3 epochs (staircase), batch 100, 20 epochs, L2 5e-4 on everything but the filter bias,
 per-band normalisation 2(x − μ)/μ with training means, evaluation every 5 steps. PyTorch 2.1.2, one Quadro M6000 shared by
-2 jobs (`env/pip_freeze.txt`).
+2 jobs (`env/pip_freeze.txt`). The authors' code: TensorFlow 1.15.0, Python 3.7 (`env/authors_tf115_conda_list.txt`), one run of
+45 sessions per Quadro M6000, about 5 minutes.
 
 ## Reproducing
 
@@ -121,11 +142,20 @@ python code/add_jobs.py && python code/add_jobs.py lr && python code/add_jobs.py
 RUN_QUEUE_DIR=~/repro-seed/queue python ../../../../tools/run_queue.py 0 1 2 3
 python code/svm_baseline.py ~/repro-seed/de/de_LDS results_rerun/svm_de_LDS.json
 python code/svm_loso.py ~/repro-seed/de/de_LDS results_rerun/svm_loso.json
+# the authors' code, unmodified: fetch it (pinned SHA-256), then one run per call (TensorFlow 1.15 env)
+bash ../../fetch_upstream.sh
+bash code/run_authors.sh <gpu> de_LDS <run> ~/repro-seed/dgcnn_authors ~/repro-seed/de ../../upstream/EEG-TAC <tf1.15 python>
+python code/analyze_authors.py logs/authors logs/runs results_rerun          # from the committed accuracy.mat files
 ```
+
+`logs/authors/authors__<features>__r<k>/` holds each authors' run's `accuracy.mat` (per session: last-step and peak test
+accuracy) and a trimmed log ending in `eeg_DE.py`'s own printed summary.
 
 ## Provenance
 
 Runs: 2026-11-05 and 06 on mcl-server, `~/repro-seed/runs/port`. The authors' code is the `[code]` link beside the paper on
 Tengfei Song's page, now offline, read from the Wayback Machine's capture of 2022-11-22 (`../../fetch_upstream.sh`, pinned by
-SHA-256). `code/run_authors.sh` would run its `eeg_DE.py` unmodified on these features; it has not been run, because that
-code was downloaded rather than supplied, so running it needs the repository owner's approval.
+SHA-256). Its `eeg_DE.py` was run unmodified on 2026-11-09, with the repository owner's approval, on mcl-server
+(`~/repro-seed/dgcnn_authors`), after checking the sources: no shell, network or out-of-folder file operations; it deletes and
+rewrites only its own `summaries/` and `checkpoints/`, which is why `code/run_authors.sh` gives every run its own copy. The
+script ends in `pdb.set_trace()`, which exits on the closed input after everything is saved and printed.

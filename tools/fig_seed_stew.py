@@ -49,25 +49,29 @@ def fig_a(path):
     pick = next(x['picked'] for x in r if 'picked' in x)
     cmp_ = next(x['dgcnn_vs_svm'] for x in r if 'dgcnn_vs_svm' in x)
     conf = json.load(open(os.path.join(ROOT, 'methods/eeg-conformer/experiments/seed-5fold/results/results.json')))
+    auth = {x['rule']: x for x in json.load(open(os.path.join(ROOT, 'methods/dgcnn/experiments/seed-paper-protocol/results/authors.json')))
+            if x['feature'] == 'de_LDS'}
     fig, axs = plt.subplots(1, 3, figsize=(11, 3.1), facecolor=SURFACE, gridspec_kw=dict(width_ratios=[1.25, 1, 1.05], wspace=0.95))
     for ax in axs:
         ax.set_facecolor(SURFACE)
-    a = [('Paper (reported)', 90.40, GRAY), ("Authors' rule: test peak,\nbest 2 of 3 sessions", sd['peak on test']['best2_mean'], BLUE),
+    a = [('Paper (reported)', 90.40, GRAY),
+         ("Authors' code, their rule:\ntest peak, best 2 of 3 sessions", auth["peak on test, best 2 of 3 sessions (the authors' rule)"]['authors_mean'], BLUE),
+         ("Our port, their rule", sd['peak on test']['best2_mean'], BLUE),
          ('Test peak, all sessions', sd['peak on test']['all3_mean'], BLUE), ('Last step, all sessions', sd['last step']['all3_mean'], BLUE),
          ('Last step, lr from validation', pick['test_last'], BLUE), ('Linear SVM, C from validation', cmp_['sd']['svm'], ORANGE)]
-    bars(axs[0], [x[0] for x in a], [x[1] for x in a], [x[2] for x in a], xmax=100, fmt='{:.2f}', rows=6)
+    bars(axs[0], [x[0] for x in a], [x[1] for x in a], [x[2] for x in a], xmax=100, fmt='{:.2f}', rows=7)
     axs[0].set_title('DGCNN, SEED, within subject (%)', loc='left')
-    b = [('Paper (reported)', 79.95, GRAY), ('Ours, last step', cmp_['loso']['dgcnn'], BLUE), ('Linear SVM', cmp_['loso']['svm'], ORANGE)]
-    bars(axs[1], [x[0] for x in b], [x[1] for x in b], [x[2] for x in b], xmax=100, fmt='{:.2f}', rows=6)
+    b = [('Paper (reported)', 79.95, GRAY), ('Our port, last step', cmp_['loso']['dgcnn'], BLUE), ('Linear SVM', cmp_['loso']['svm'], ORANGE)]
+    bars(axs[1], [x[0] for x in b], [x[1] for x in b], [x[2] for x in b], xmax=100, fmt='{:.2f}', rows=7)
     axs[1].set_title('DGCNN, SEED, leave one subject out (%)', loc='left')
     k, t = conf['kfold'], conf['trial96']
     c = [('Paper (reported)', 95.30, GRAY), ('Released folds,\nbest test epoch', k['best epoch on test (released)']['mean'], BLUE),
          ('Released folds, final epoch', k['final epoch']['mean'], BLUE), ('Clips held out,\nbest test epoch', t['best epoch on test (released)']['mean'], BLUE),
          ('Clips held out, final epoch', t['final epoch']['mean'], BLUE)]
-    bars(axs[2], [x[0] for x in c], [x[1] for x in c], [x[2] for x in c], xmax=100, fmt='{:.2f}', rows=6)
+    bars(axs[2], [x[0] for x in c], [x[1] for x in c], [x[2] for x in c], xmax=100, fmt='{:.2f}', rows=7)
     axs[2].set_title('EEG Conformer, SEED, session 1 (%)', loc='left')
     h = [plt.Rectangle((0, 0), 1, 1, color=x) for x in (GRAY, BLUE, ORANGE)]
-    fig.legend(h, ['paper', 'ours', 'linear SVM baseline'], loc='lower center', ncol=3, frameon=False, fontsize=8, bbox_to_anchor=(0.5, -0.1))
+    fig.legend(h, ['paper', 'run here', 'linear SVM baseline'], loc='lower center', ncol=3, frameon=False, fontsize=8, bbox_to_anchor=(0.5, -0.1))
     fig.savefig(path, dpi=200, bbox_inches='tight', facecolor=SURFACE)
 
 

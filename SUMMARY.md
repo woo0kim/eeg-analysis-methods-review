@@ -22,7 +22,7 @@ experiments and is authoritative if the two disagree.
 | [DeepSleepNet](methods/deepsleepnet) (sleep) | Released code (TensorFlow 1.15): Sleep-EDF-20 with the paper's 20-fold CV; Sleep-EDF-78 on the shared 62 / 8 / 8 split, 3 runs | Reproduces the paper. On Sleep-EDF-78, with a training set 3.5× larger, the released final-model rule overfits | 81.81% / macro-F1 76.72 / κ 0.754 vs. 82.0 / 76.9 / 0.76, on exactly the paper's 41,950 epochs; Sleep-EDF-78: κ 0.703, the weakest sequence model |
 | [L-SeqSleepNet](methods/l-seqsleepnet) (sleep) | Released code and data: Sleep-EDF-20, leave-one-subject-out, 1 of the paper's 5 repetitions; Sleep-EDF-78 on the shared split, 3 runs | Reproduces the paper once the run scripts' test list is fixed (they score every fold on subject 0) | 86.11% / κ 0.811 / macro-F1 79.44 vs. 86.3 ± 0.2 / 0.813 / 79.3; Sleep-EDF-78: κ 0.773, tied for first |
 | All models, sleep staging (Sleep-EDF-78) | The five models as the epoch encoder of CBraMod's released sleep-staging pipeline (plus braindecode's DeepSleepNet), and the two sleep models with their own released code; one 62 / 8 / 8 split, all scored on the same 20,976 test epochs (Section 5) | No paper reports this split. Two foundation models, L-SeqSleepNet and ATCNet tie at the top; the two small supervised models trail | κ: LaBraM-Base 0.773, L-SeqSleepNet 0.773, ATCNet 0.771, CBraMod 0.768, DeepSleepNet (bd) 0.762, CBraMod without pre-training 0.745, DeepSleepNet (released) 0.703, EEG Conformer 0.688, EEGNet 0.681 |
-| [DGCNN](methods/dgcnn) | Our PyTorch port of the authors' TensorFlow code (archived; numerically identical to braindecode's `DGCNN`); SEED in the paper's two protocols, 5 runs; then every other dataset here | The paper's 90.40% is the peak of ~80 test evaluations over each subject's best 2 of 3 sessions. The across-subject result holds up | 87.69% under the paper's rule, 77.79% with nothing chosen on the test set, level with a linear SVM (79.42%, p = 0.33); leave one subject out 77.58% vs. 79.95% (SVM 58.85%) |
+| [DGCNN](methods/dgcnn) | Our PyTorch port of the authors' TensorFlow code (archived; numerically identical to braindecode's `DGCNN`); SEED in the paper's two protocols, 5 runs; then every other dataset here | The paper's 90.40% is the peak of ~80 test evaluations over each subject's best 2 of 3 sessions. The across-subject result holds up | 87.69% under the paper's rule (the authors' own code, run unmodified: 87.59%), 77.79% with nothing chosen on the test set, level with a linear SVM (79.42%, p = 0.33); leave one subject out 77.58% vs. 79.95% (SVM 58.85%) |
 | [EEG Conformer](methods/eeg-conformer) on SEED | Released `conformer_seed_1s_5fold.py`, session 1, 15 subjects × 5 folds; the same with whole clips held out, 3 seeds | Reproduces (98.24% vs. 95.30%), but its folds sit inside 4-minute clips | final epoch 96.82% inside clips, 71.59% with clips held out (p = 0.0001) |
 | All models, emotion (SEED, SEED-V) | Every model (braindecode for ATCNet and DeepSleepNet) through CBraMod's released SEED-V pipeline, seeds 0–4: its trial split and a subject split | SEED-V's trial split reproduces the CBraMod paper's numbers and ranking within noise except that LaBraM-Base beats CBraMod (p = 0.011); across subjects SEED-V is at chance for every model | SEED-V, CBraMod: κ 0.250 vs. 0.257 (p = 0.38); subject split: balanced accuracy 0.22–0.26 (chance 0.20) |
 | All models, mental workload (STEW) | Every model, 7-fold GroupKFold across subjects (folds pinned: they depend on library versions), 4-s windows, two tasks | Foundation models lead; pre-training adds 0.10 | rest vs. task: LaBraM-Base 0.818, CBraMod 0.800, DGCNN 0.775; 3 levels: at most 0.574 (majority class 0.467) |
@@ -100,8 +100,8 @@ Every model run so far, grouped by task category and dataset. "Paper" is the num
   cells of DeepSleepNet and L-SeqSleepNet are their own released training on the same split (3 runs). Every model is
   scored on the same 20,976 test epochs; tests between models are in Section 5.
 
-- ʲ DGCNN, SEED: 87.69 under the paper's own rule (peak of ~80 test evaluations, each subject's best 2 of 3 sessions), 77.79 with nothing
-  chosen on the test set ([seed-paper-protocol](methods/dgcnn/experiments/seed-paper-protocol)). No significance test: the paper gives a single mean.
+- ʲ DGCNN, SEED: 87.69 under the paper's own rule (peak of ~80 test evaluations, each subject's best 2 of 3 sessions; the authors' own code,
+  run unmodified on the same features, 87.59), 77.79 with nothing chosen on the test set ([seed-paper-protocol](methods/dgcnn/experiments/seed-paper-protocol)). No significance test: the paper gives a single mean.
 - ᵏ EEG Conformer, SEED: x / y = the released 5-fold split (best epoch) / whole clips held out (final epoch), the same model and session
   ([seed-5fold](methods/eeg-conformer/experiments/seed-5fold)).
 
@@ -628,8 +628,9 @@ imagery ([dgcnn/cbramod-splits](methods/dgcnn/experiments/cbramod-splits)).
 Found in the 2026-11-08 round:
 
 - **DGCNN (reported number):** the authors' `eeg_DE.py` validates on the test set, keeps the peak of ~80 test evaluations and averages
-  each subject's best 2 of 3 sessions; 87.69% that way against 77.79% without test selection. The archive holds no subject-independent
-  script and does not say which DE smoothing it used.
+  each subject's best 2 of 3 sessions; 87.69% that way against 77.79% without test selection. Run unmodified on SEED's distributed DE
+  features, the authors' code itself gives 87.59% (best of 5 runs 88.22%), not 90.40%: the input files it was trained on are not in the
+  archive. The archive holds no subject-independent script and does not say which DE smoothing it used.
 - **EEG Conformer (protocol):** `conformer_seed_1s_5fold.py` makes its folds inside 4-minute clips, so test windows have training
   neighbours one second away: 96.8% against 71.6% with clips held out.
 - **CBraMod (released code):** `model_for_seedv.Model.forward` flattens the features before a classifier that needs 4-D input and
@@ -656,8 +657,8 @@ the number the method's own paper reports. A per-method paper vs. re-run table, 
   much the shared loop costs it.
 - Run the remaining public CBraMod datasets (ISRUC, CHB-MIT); ISRUC is CBraMod's own sleep benchmark, which the
   Sleep-EDF pipeline is built from.
-- DGCNN: run the authors' archived TensorFlow code unmodified on SEED (`methods/dgcnn/experiments/seed-paper-protocol/code/run_authors.sh`,
-  awaiting approval) to separate a port difference from a data difference in the 2.7 pp gap; read the paper itself (closed access); DREAMER.
+- DGCNN: the authors' own code reaches 87.6%, not the paper's 90.40%, on SEED's distributed DE features; read the paper itself (closed
+  access) for how its DE features were computed, and ask the authors for the input files; DREAMER.
 - SEED: L-SeqSleepNet with sequences confined to one clip, to confirm that its subject-split score reads the clip order.
 - Sleep-EDF: L-SeqSleepNet's repetitions 2–5 on Sleep-EDF-20 (to compare with the paper's SD); DeepSleepNet on
   Sleep-EDF-78 with validation-based checkpoint selection, to confirm that the final-model rule causes its gap.
