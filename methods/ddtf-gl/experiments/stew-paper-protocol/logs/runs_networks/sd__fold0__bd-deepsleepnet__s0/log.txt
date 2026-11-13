@@ -1,0 +1,172 @@
+Namespace(seed=0, cuda=0, epochs=50, batch_size=64, lr=0.0001, weight_decay=0.05, optimizer='AdamW', clip_value=1, dropout=0.1, classifier='all_patch_reps', downstream_dataset='SEED-V', datasets_dir='/home/wkim/repro-seed/stew6', num_of_classes=2, model_dir='/home/wkim/repro-seed/stew6/runs/sd__fold0__bd-deepsleepnet__s0', num_workers=0, label_smoothing=0.1, multi_lr=True, frozen=False, use_pretrained_weights=False, foundation_dir='', accum=1, model='bd-deepsleepnet')
+STEW-6s sd fold 0 seed 0: train 3044, test 508; x (3552, 14, 768)
+Flat(
+  (m): DeepSleepNet(
+    (cnn1): _CNNPath(
+      (conv1): Sequential(
+        (0): Conv2d(1, 64, kernel_size=(1, 50), stride=(1, 6), padding=(0, 22), bias=False)
+        (1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): ReLU()
+      )
+      (pool1): MaxPool2d(kernel_size=(1, 8), stride=(1, 8), padding=(0, 2), dilation=1, ceil_mode=False)
+      (dropout): Dropout(p=0.5, inplace=False)
+      (conv2): Sequential(
+        (0): Conv2d(64, 128, kernel_size=(1, 8), stride=(1, 1), padding=same, bias=False)
+        (1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): ReLU()
+      )
+      (conv3): Sequential(
+        (0): Conv2d(128, 128, kernel_size=(1, 8), stride=(1, 1), padding=same, bias=False)
+        (1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): ReLU()
+      )
+      (conv4): Sequential(
+        (0): Conv2d(128, 128, kernel_size=(1, 8), stride=(1, 1), padding=same, bias=False)
+        (1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): ReLU()
+      )
+      (pool2): MaxPool2d(kernel_size=(1, 4), stride=(1, 4), padding=(0, 1), dilation=1, ceil_mode=False)
+    )
+    (cnn2): _CNNPath(
+      (conv1): Sequential(
+        (0): Conv2d(1, 64, kernel_size=(1, 400), stride=(1, 50), padding=(0, 175), bias=False)
+        (1): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): ELU(alpha=1.0)
+      )
+      (pool1): MaxPool2d(kernel_size=(1, 4), stride=(1, 4), padding=(0, 0), dilation=1, ceil_mode=False)
+      (dropout): Dropout(p=0.5, inplace=False)
+      (conv2): Sequential(
+        (0): Conv2d(64, 128, kernel_size=(1, 6), stride=(1, 1), padding=same, bias=False)
+        (1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): ELU(alpha=1.0)
+      )
+      (conv3): Sequential(
+        (0): Conv2d(128, 128, kernel_size=(1, 6), stride=(1, 1), padding=same, bias=False)
+        (1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): ELU(alpha=1.0)
+      )
+      (conv4): Sequential(
+        (0): Conv2d(128, 128, kernel_size=(1, 6), stride=(1, 1), padding=same, bias=False)
+        (1): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+        (2): ELU(alpha=1.0)
+      )
+      (pool2): MaxPool2d(kernel_size=(1, 2), stride=(1, 2), padding=(0, 1), dilation=1, ceil_mode=False)
+    )
+    (dropout): Dropout(p=0.5, inplace=False)
+    (bilstm): LSTM(10752, 512, num_layers=2, batch_first=True, dropout=0.5, bidirectional=True)
+    (residual_shortcut): Sequential(
+      (0): Linear(in_features=10752, out_features=1024, bias=False)
+      (1): BatchNorm1d(1024, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (2): ReLU()
+    )
+    (flatten_cnn): Rearrange('batch filters nchans ntimes -> batch (filters nchans ntimes)')
+    (add_seq_dim): Rearrange('batch features -> batch 1 features')
+    (remove_seq_dim): Rearrange('batch 1 features -> batch features')
+    (features_extractor): Identity()
+    (final_layer): Linear(in_features=1024, out_features=2, bias=True)
+  )
+)
+parameters: backbone 0, other 64,063,362, total 64,063,362
+/home/wkim/miniforge3/envs/bd-labram/lib/python3.11/site-packages/torch/nn/modules/conv.py:456: UserWarning: Using padding='same' with even kernel lengths and odd dilation may require a zero-padded copy of the input be created (Triggered internally at ../aten/src/ATen/native/Convolution.cpp:1008.)
+  return F.conv2d(input, weight, bias, self.stride,
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 161.04it/s]
+Epoch 1: training loss 0.66968, test (recorded, not used) acc 0.6614 kappa 0.3228
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 281.97it/s]
+Epoch 2: training loss 0.54179, test (recorded, not used) acc 0.7146 kappa 0.4291
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 297.13it/s]
+Epoch 3: training loss 0.49329, test (recorded, not used) acc 0.7539 kappa 0.5079
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 279.00it/s]
+Epoch 4: training loss 0.44753, test (recorded, not used) acc 0.7657 kappa 0.5315
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 296.93it/s]
+Epoch 5: training loss 0.41090, test (recorded, not used) acc 0.7323 kappa 0.4646
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 120.67it/s]
+Epoch 6: training loss 0.40148, test (recorded, not used) acc 0.7933 kappa 0.5866
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 250.06it/s]
+Epoch 7: training loss 0.37021, test (recorded, not used) acc 0.6969 kappa 0.3937
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 163.14it/s]
+Epoch 8: training loss 0.36032, test (recorded, not used) acc 0.8406 kappa 0.6811
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 266.61it/s]
+Epoch 9: training loss 0.34506, test (recorded, not used) acc 0.8937 kappa 0.7874
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 247.03it/s]
+Epoch 10: training loss 0.33299, test (recorded, not used) acc 0.7421 kappa 0.4843
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 274.67it/s]
+Epoch 11: training loss 0.31686, test (recorded, not used) acc 0.8386 kappa 0.6772
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 162.00it/s]
+Epoch 12: training loss 0.31352, test (recorded, not used) acc 0.7185 kappa 0.4370
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 113.13it/s]
+Epoch 13: training loss 0.30139, test (recorded, not used) acc 0.8681 kappa 0.7362
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 112.84it/s]
+Epoch 14: training loss 0.29334, test (recorded, not used) acc 0.9252 kappa 0.8504
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 113.25it/s]
+Epoch 15: training loss 0.28888, test (recorded, not used) acc 0.8957 kappa 0.7913
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 281.95it/s]
+Epoch 16: training loss 0.27907, test (recorded, not used) acc 0.8622 kappa 0.7244
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 237.45it/s]
+Epoch 17: training loss 0.28574, test (recorded, not used) acc 0.7972 kappa 0.5945
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 229.08it/s]
+Epoch 18: training loss 0.27353, test (recorded, not used) acc 0.8839 kappa 0.7677
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 176.90it/s]
+Epoch 19: training loss 0.26115, test (recorded, not used) acc 0.7776 kappa 0.5551
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 253.13it/s]
+Epoch 20: training loss 0.25881, test (recorded, not used) acc 0.8248 kappa 0.6496
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 279.43it/s]
+Epoch 21: training loss 0.25651, test (recorded, not used) acc 0.8976 kappa 0.7953
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 277.29it/s]
+Epoch 22: training loss 0.25218, test (recorded, not used) acc 0.8701 kappa 0.7402
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 294.03it/s]
+Epoch 23: training loss 0.24793, test (recorded, not used) acc 0.8642 kappa 0.7283
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 265.53it/s]
+Epoch 24: training loss 0.24324, test (recorded, not used) acc 0.8563 kappa 0.7126
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 278.34it/s]
+Epoch 25: training loss 0.24307, test (recorded, not used) acc 0.8465 kappa 0.6929
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 288.86it/s]
+Epoch 26: training loss 0.24122, test (recorded, not used) acc 0.8976 kappa 0.7953
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 277.95it/s]
+Epoch 27: training loss 0.23281, test (recorded, not used) acc 0.8799 kappa 0.7598
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 276.66it/s]
+Epoch 28: training loss 0.23779, test (recorded, not used) acc 0.8780 kappa 0.7559
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 272.39it/s]
+Epoch 29: training loss 0.23315, test (recorded, not used) acc 0.9016 kappa 0.8031
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 275.39it/s]
+Epoch 30: training loss 0.23053, test (recorded, not used) acc 0.8366 kappa 0.6732
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 283.55it/s]
+Epoch 31: training loss 0.23183, test (recorded, not used) acc 0.9508 kappa 0.9016
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 277.15it/s]
+Epoch 32: training loss 0.22938, test (recorded, not used) acc 0.8661 kappa 0.7323
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 245.66it/s]
+Epoch 33: training loss 0.22772, test (recorded, not used) acc 0.9252 kappa 0.8504
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 217.69it/s]
+Epoch 34: training loss 0.22478, test (recorded, not used) acc 0.9173 kappa 0.8346
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 229.54it/s]
+Epoch 35: training loss 0.22612, test (recorded, not used) acc 0.9035 kappa 0.8071
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 225.75it/s]
+Epoch 36: training loss 0.22546, test (recorded, not used) acc 0.9114 kappa 0.8228
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 249.04it/s]
+Epoch 37: training loss 0.22321, test (recorded, not used) acc 0.8780 kappa 0.7559
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 252.80it/s]
+Epoch 38: training loss 0.22428, test (recorded, not used) acc 0.8563 kappa 0.7126
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 230.50it/s]
+Epoch 39: training loss 0.22025, test (recorded, not used) acc 0.7579 kappa 0.5157
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 253.92it/s]
+Epoch 40: training loss 0.22165, test (recorded, not used) acc 0.9350 kappa 0.8701
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 239.76it/s]
+Epoch 41: training loss 0.22031, test (recorded, not used) acc 0.9154 kappa 0.8307
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 188.75it/s]
+Epoch 42: training loss 0.21787, test (recorded, not used) acc 0.8740 kappa 0.7480
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 254.96it/s]
+Epoch 43: training loss 0.21887, test (recorded, not used) acc 0.9075 kappa 0.8150
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 260.68it/s]
+Epoch 44: training loss 0.21974, test (recorded, not used) acc 0.8839 kappa 0.7677
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 272.04it/s]
+Epoch 45: training loss 0.22099, test (recorded, not used) acc 0.7776 kappa 0.5551
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 292.24it/s]
+Epoch 46: training loss 0.21922, test (recorded, not used) acc 0.8386 kappa 0.6772
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 259.89it/s]
+Epoch 47: training loss 0.21709, test (recorded, not used) acc 0.7539 kappa 0.5079
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 168.00it/s]
+Epoch 48: training loss 0.22032, test (recorded, not used) acc 0.8681 kappa 0.7362
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 186.85it/s]
+Epoch 49: training loss 0.21773, test (recorded, not used) acc 0.8937 kappa 0.7874
+  0%|          | 0/8 [00:00<?, ?it/s]100%|██████████| 8/8 [00:00<00:00, 278.07it/s]
+Epoch 50: training loss 0.21954, test (recorded, not used) acc 0.8858 kappa 0.7717
+final epoch 50: test accuracy 0.8858

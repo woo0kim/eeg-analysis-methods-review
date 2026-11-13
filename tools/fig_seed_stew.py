@@ -78,7 +78,7 @@ def fig_a(path):
 def fig_b(path):
     a, b = cs.load(), ct.load()
     models = [('LaBraM-Base', 'LaBraM-Base', BLUE), ('CBraMod', 'CBraMod', BLUE), ('CBraMod scratch', 'CBraMod, no pre-training', ORANGE),
-              ('DGCNN', 'DGCNN', ORANGE), ('DeepSleepNet (bd)', 'DeepSleepNet (bd)', ORANGE), ('ATCNet (bd)', 'ATCNet (bd)', ORANGE),
+              ('DGCNN', 'DGCNN', ORANGE), ('dDTF-GL', 'dDTF-GL', ORANGE), ('DeepSleepNet (bd)', 'DeepSleepNet (bd)', ORANGE), ('ATCNet (bd)', 'ATCNet (bd)', ORANGE),
               ('EEG Conformer', 'EEG Conformer', ORANGE), ('EEGNet', 'EEGNet', ORANGE)]
     cols = [('SEED, trial split', lambda m: cs.vals(a, 'SEED', 'trial555', m, 'balanced_acc'), 1 / 3),
             ('SEED-V, trial split', lambda m: cs.vals(a, 'SEED-V', 'trial555', m, 'balanced_acc'), 1 / 5),

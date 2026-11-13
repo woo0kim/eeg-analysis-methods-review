@@ -30,11 +30,20 @@ MODELS = [
     ('DGCNN (bd, raw)', 'braindecode, raw input', M.format('dgcnn', 'braindecode-stew'), 'bd-dgcnn'),
     ('DGCNN (bd, DE)', 'braindecode, DE input', M.format('dgcnn', 'braindecode-stew'), 'bd-dgcnn-de'),
     ('L-SeqSleepNet', 'released, off-label', M.format('l-seqsleepnet', 'stew-offlabel'), 'l-seqsleepnet'),
+    ('dDTF-GL', 'ours (dDTF maps, XGBoost; no network)', M.format('ddtf-gl', 'stew-cbramod-pipeline'), 'ddtf-gl'),
+    ('dDTF-GL, no AXB', 'ours, without the auxiliary XGBoost', M.format('ddtf-gl', 'stew-cbramod-pipeline'), 'ddtf-gl-noaxb'),
+    ('DWT-GL (bundle)', "the authors' bundle chain: DWT statistics, no AXB", M.format('ddtf-gl', 'stew-cbramod-pipeline'), 'dwt-gl'),
+    ('DWT-GL + AXB', 'DWT statistics with the auxiliary XGBoost', M.format('ddtf-gl', 'stew-cbramod-pipeline'), 'dwt-gl-axb'),
+    ('dDTF-GL, first map settings', 'ours, maps before the calibration on Safari et al.\'s', M.format('ddtf-gl', 'stew-cbramod-pipeline'), 'ddtf-gl-v0'),
 ]
 METRICS = [('accuracy', 'accuracy'), ('balanced_acc', 'bal. acc'), ('kappa', 'κ'), ('weighted_f1', 'weighted F1')]
 PAIRS = [('pre-training', [('CBraMod', 'CBraMod scratch')]), ('foundation models', [('LaBraM-Base', 'CBraMod')]),
          ('foundation models vs. supervised models', [('CBraMod', 'DGCNN'), ('CBraMod', 'EEG Conformer'), ('CBraMod', 'EEGNet'), ('LaBraM-Base', 'DGCNN')]),
          ('DGCNN vs. the other supervised models', [('DGCNN', 'EEG Conformer'), ('DGCNN', 'EEGNet'), ('DGCNN', 'ATCNet (bd)')]),
+         ('dDTF-GL against the other models', [('dDTF-GL', 'LaBraM-Base'), ('dDTF-GL', 'CBraMod'), ('dDTF-GL', 'DGCNN'), ('dDTF-GL', 'EEG Conformer'),
+                                               ('dDTF-GL', 'EEGNet')]),
+         ('dDTF-GL: input and AXB', [('dDTF-GL', 'dDTF-GL, no AXB'), ('dDTF-GL', 'dDTF-GL, first map settings'), ('dDTF-GL', 'DWT-GL (bundle)'),
+                                     ('DWT-GL + AXB', 'DWT-GL (bundle)')]),
          ('braindecode − original implementation, same pipeline',
           [('CBraMod (bd)', 'CBraMod'), ('LaBraM-Base (bd)', 'LaBraM-Base'), ('EEG Conformer (bd)', 'EEG Conformer'), ('EEGNet (bd)', 'EEGNet'),
            ('DGCNN (bd, DE)', 'DGCNN'), ('DGCNN (bd, raw)', 'DGCNN')])]

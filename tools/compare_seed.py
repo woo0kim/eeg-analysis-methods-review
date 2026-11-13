@@ -34,6 +34,7 @@ MODELS = [
     ('DGCNN (bd, raw)', 'braindecode, raw input', M.format('dgcnn', 'braindecode-seed'), 'bd-dgcnn'),
     ('DGCNN (bd, DE)', 'braindecode, DE input', M.format('dgcnn', 'braindecode-seed'), 'bd-dgcnn-de'),
     ('L-SeqSleepNet', 'released, off-label', M.format('l-seqsleepnet', 'seed-offlabel'), 'l-seqsleepnet'),
+    ('dDTF-GL', 'ours (dDTF maps, XGBoost; no network)', M.format('ddtf-gl', 'seed-cbramod-pipeline'), 'ddtf-gl'),
 ]
 METRICS = [('balanced_acc', 'bal. acc'), ('kappa', 'κ'), ('weighted_f1', 'weighted F1'), ('accuracy', 'accuracy'),
            ('clip_vote_acc', 'clip vote')]
@@ -46,6 +47,7 @@ PAIRS = [
     ('foundation models vs. supervised models',
      [('CBraMod', 'EEG Conformer'), ('CBraMod', 'EEGNet'), ('CBraMod', 'DGCNN'), ('LaBraM-Base', 'DGCNN')]),
     ('DGCNN vs. the other supervised models', [('DGCNN', 'EEGNet'), ('DGCNN', 'EEG Conformer'), ('DGCNN', 'ATCNet (bd)')]),
+    ('dDTF-GL against the other models', [('dDTF-GL', 'DGCNN'), ('dDTF-GL', 'EEGNet'), ('dDTF-GL', 'CBraMod'), ('dDTF-GL', 'LaBraM-Base')]),
     ('braindecode − original implementation, same pipeline',
      [('CBraMod (bd)', 'CBraMod'), ('LaBraM-Base (bd)', 'LaBraM-Base'), ('EEG Conformer (bd)', 'EEG Conformer'),
       ('EEGNet (bd)', 'EEGNet'), ('DGCNN (bd, DE)', 'DGCNN'), ('DGCNN (bd, raw)', 'DGCNN')]),

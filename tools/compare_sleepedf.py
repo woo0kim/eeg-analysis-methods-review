@@ -42,6 +42,7 @@ MODELS = [
     ('EEGNet (bd)', 'EEGNet', 'braindecode', 'pipeline', M.format('eegnet', 'braindecode-sleepedf'), 'bd-eegnet'),
     ('DGCNN', 'DGCNN', 'ours (DE input)', 'pipeline', M.format('dgcnn', 'sleepedf-cbramod-pipeline'), 'dgcnn'),
     ('DGCNN (bd)', 'DGCNN', 'braindecode (raw input)', 'pipeline', M.format('dgcnn', 'sleepedf-cbramod-pipeline'), 'bd-dgcnn'),
+    ('dDTF-GL', 'dDTF-GL', 'ours (dDTF maps, XGBoost)', 'features', M.format('ddtf-gl', 'sleepedf-cbramod-pipeline'), 'ddtf-gl'),
 ]
 METRICS = [('balanced_acc', 'bal. acc'), ('kappa', 'κ'), ('macro_f1', 'macro F1'), ('accuracy', 'accuracy'),
            ('weighted_f1', 'weighted F1')]
@@ -54,6 +55,7 @@ PAIRS = [  # the questions of the Sleep-EDF report
     ('sleep models', [('L-SeqSleepNet', 'DeepSleepNet'), ('DeepSleepNet (bd)', 'DeepSleepNet')]),
     ('task-agnostic supervised models vs. CBraMod',
      [('CBraMod', 'ATCNet (bd)'), ('CBraMod', 'EEGNet'), ('CBraMod', 'EEG Conformer'), ('CBraMod', 'DGCNN')]),
+    ('dDTF-GL (each epoch alone, no sequence head) vs. the pipeline models', [('EEGNet', 'dDTF-GL'), ('DGCNN', 'dDTF-GL'), ('CBraMod', 'dDTF-GL')]),
     ('braindecode − original implementation, same pipeline',
      [('CBraMod (bd)', 'CBraMod'), ('LaBraM-Base (bd)', 'LaBraM-Base'), ('EEG Conformer (bd)', 'EEG Conformer'),
       ('EEGNet (bd)', 'EEGNet'), ('DGCNN (bd)', 'DGCNN')]),
@@ -70,7 +72,7 @@ def load():
         if key not in cache[path]:
             continue
         r = cache[path][key]
-        if training == 'pipeline':     # collect.py: common_* keys next to the pipeline's own test epochs
+        if training in ('pipeline', 'features'):     # collect.py: common_* keys next to the pipeline's own test epochs
             runs = {int(s): {m: v[f'common_{m}'] for m in [k for k, _ in METRICS] + ['f1_' + s_ for s_ in STAGES]}
                     | {'n_epochs': v['common_n_epochs']} for s, v in r['per_seed'].items()}
         else:                          # split_metrics.score_run(): the 'common' entry
@@ -103,7 +105,7 @@ def tables(res, n_epochs):
     for k in order:
         r = res[k]
         cells = ' | '.join('{:.4f} ± {:.4f}'.format(*ms(vals(res, k, m))) for m, _ in METRICS)
-        training = 'CBraMod pipeline' if r['training'] == 'pipeline' else 'own released code'
+        training = {'pipeline': 'CBraMod pipeline', 'own': 'own released code', 'features': 'each epoch alone (no sequence head)'}[r['training']]
         print(f'| {r["model"]} | {r["impl"]} | {training} | {len(r["runs"])} | {cells} |')
     print('\nPer-stage F1 (mean over runs)\n')
     print('| Model | Implementation | ' + ' | '.join(STAGES) + ' |')
@@ -139,7 +141,8 @@ def figure(res, order, path):
     # validated categorical slots 1-3 (light surface); marker shape is the secondary encoding
     GROUP = {('pipeline', False): ('#2a78d6', 'o', 'released / own code, CBraMod pipeline'),
              ('pipeline', True): ('#eb6834', 's', 'braindecode, CBraMod pipeline'),
-             ('own', False): ('#1baf7a', 'D', "sleep model's released training code")}
+             ('own', False): ('#1baf7a', 'D', "sleep model's released training code"),
+             ('features', False): ('#eda100', '^', 'no network (dDTF-GL), each epoch alone')}   # slot 4; validated with slots 1-3
     rows = order[::-1]                 # best at the top
     plt.rcParams.update({'font.size': 10, 'axes.edgecolor': MUTED, 'axes.labelcolor': INK, 'xtick.color': MUTED,
                          'ytick.color': INK, 'font.family': 'DejaVu Sans'})

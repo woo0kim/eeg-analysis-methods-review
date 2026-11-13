@@ -20,6 +20,7 @@ models also train with their own released code on the same split:
 | DeepSleepNet | [deepsleepnet/braindecode-sleepedf](../../../deepsleepnet/experiments/braindecode-sleepedf) | braindecode (single-epoch) | CBraMod pipeline, 5 seeds |
 | DeepSleepNet | [deepsleepnet/sleepedf78-cbramod-split](../../../deepsleepnet/experiments/sleepedf78-cbramod-split) | released code (TF 1.15) | its own training, 3 runs |
 | L-SeqSleepNet | [l-seqsleepnet/sleepedf78-cbramod-split](../../../l-seqsleepnet/experiments/sleepedf78-cbramod-split) | released code (TF 1.15) | its own training, 3 runs |
+| dDTF-GL | [ddtf-gl/sleepedf-cbramod-pipeline](../../../ddtf-gl/experiments/sleepedf-cbramod-pipeline) | ours (no network) | each 30-s epoch alone, same epochs and split, 5 seeds |
 | CBraMod, LaBraM-Base, EEG Conformer, EEGNet | [cbramod](../braindecode-sleepedf), [labram](../../../labram/experiments/braindecode-sleepedf), [eeg-conformer](../../../eeg-conformer/experiments/braindecode-sleepedf), [eegnet](../../../eegnet/experiments/braindecode-sleepedf) `/braindecode-sleepedf` | braindecode 1.8.1 | CBraMod pipeline, 5 seeds |
 
 **CBraMod's paper reports no Sleep-EDF result.** Its sleep benchmark is ISRUC, and EEG Conformer, ATCNet, LaBraM and
@@ -61,6 +62,8 @@ pipeline models are scored over seeds 0–4, the two released sleep models over 
 (`python ../../../../tools/compare_sleepedf.py --figure results/fig_sleepedf.png`).
 
 <!-- COMMON (python tools/compare_sleepedf.py) -->
+Sleep-EDF-78 (Sleep Cassette), common test set: 20976 epochs of the 8 test subjects; mean ± SD over runs, sorted by κ
+
 | Model | Implementation | Training | Runs | bal. acc | κ | macro F1 | accuracy | weighted F1 |
 |---|---|---|---|---|---|---|---|---|
 | LaBraM-Base | braindecode | CBraMod pipeline | 5 | 0.7670 ± 0.0105 | 0.7773 ± 0.0058 | 0.7668 ± 0.0062 | 0.8411 ± 0.0043 | 0.8380 ± 0.0037 |
@@ -73,9 +76,12 @@ pipeline models are scored over seeds 0–4, the two released sleep models over 
 | CBraMod, no pre-training | released | CBraMod pipeline | 5 | 0.7316 ± 0.0155 | 0.7446 ± 0.0099 | 0.7344 ± 0.0152 | 0.8193 ± 0.0066 | 0.8130 ± 0.0095 |
 | DeepSleepNet | released (TF 1.15) | own released code | 3 | 0.7247 ± 0.0104 | 0.7030 ± 0.0103 | 0.7140 ± 0.0121 | 0.7841 ± 0.0080 | 0.7895 ± 0.0079 |
 | EEG Conformer | braindecode | CBraMod pipeline | 5 | 0.6799 ± 0.0303 | 0.7011 ± 0.0345 | 0.6917 ± 0.0326 | 0.7875 ± 0.0256 | 0.7838 ± 0.0246 |
+| DGCNN | ours (DE input) | CBraMod pipeline | 5 | 0.6983 ± 0.0100 | 0.6941 ± 0.0081 | 0.6917 ± 0.0117 | 0.7806 ± 0.0060 | 0.7782 ± 0.0075 |
 | EEG Conformer | released | CBraMod pipeline | 5 | 0.6448 ± 0.0267 | 0.6876 ± 0.0190 | 0.6585 ± 0.0235 | 0.7800 ± 0.0132 | 0.7706 ± 0.0128 |
 | EEGNet | ours (PyTorch) | CBraMod pipeline | 5 | 0.6852 ± 0.0137 | 0.6815 ± 0.0154 | 0.6785 ± 0.0073 | 0.7719 ± 0.0126 | 0.7689 ± 0.0086 |
 | EEGNet | braindecode | CBraMod pipeline | 5 | 0.6866 ± 0.0162 | 0.6808 ± 0.0157 | 0.6817 ± 0.0117 | 0.7708 ± 0.0120 | 0.7713 ± 0.0091 |
+| DGCNN | braindecode (raw input) | CBraMod pipeline | 5 | 0.6017 ± 0.0260 | 0.5956 ± 0.0192 | 0.6059 ± 0.0175 | 0.7114 ± 0.0146 | 0.7110 ± 0.0126 |
+| dDTF-GL | ours (dDTF maps, XGBoost) | each epoch alone (no sequence head) | 5 | 0.5267 ± 0.0042 | 0.5682 ± 0.0062 | 0.5281 ± 0.0037 | 0.7011 ± 0.0042 | 0.6753 ± 0.0039 |
 
 Per-stage F1 (mean over runs)
 
@@ -91,9 +97,12 @@ Per-stage F1 (mean over runs)
 | CBraMod, no pre-training | released | 0.9347 | 0.3837 | 0.8228 | 0.8123 | 0.7186 |
 | DeepSleepNet | released (TF 1.15) | 0.9308 | 0.4268 | 0.7518 | 0.6970 | 0.7638 |
 | EEG Conformer | braindecode | 0.8987 | 0.3670 | 0.8274 | 0.7064 | 0.6588 |
+| DGCNN | ours (DE input) | 0.9015 | 0.3269 | 0.8070 | 0.7803 | 0.6425 |
 | EEG Conformer | released | 0.9077 | 0.3471 | 0.8130 | 0.5616 | 0.6629 |
 | EEGNet | ours (PyTorch) | 0.8998 | 0.3108 | 0.8013 | 0.7865 | 0.5942 |
 | EEGNet | braindecode | 0.9059 | 0.3330 | 0.7944 | 0.7685 | 0.6068 |
+| DGCNN | braindecode (raw input) | 0.8599 | 0.2560 | 0.7564 | 0.6996 | 0.4577 |
+| dDTF-GL | ours (dDTF maps, XGBoost) | 0.8712 | 0.0615 | 0.7355 | 0.5525 | 0.4197 |
 
 pre-training: A − B, mean over runs, Welch p
 
@@ -130,6 +139,15 @@ task-agnostic supervised models vs. CBraMod: A − B, mean over runs, Welch p
 | CBraMod − ATCNet (bd) | +0.0107 (p = 0.076) | -0.0033 (p = 0.556) | +0.0040 (p = 0.454) |
 | CBraMod − EEGNet | +0.0684 (p < 0.001) | +0.0861 (p < 0.001) | +0.0750 (p < 0.001) |
 | CBraMod − EEG Conformer | +0.1089 (p < 0.001) | +0.0800 (p < 0.001) | +0.0951 (p < 0.001) |
+| CBraMod − DGCNN | +0.0553 (p < 0.001) | +0.0734 (p < 0.001) | +0.0619 (p < 0.001) |
+
+dDTF-GL (each epoch alone, no sequence head) vs. the pipeline models: A − B, mean over runs, Welch p
+
+| A − B | bal. acc | κ | macro F1 |
+|---|---|---|---|
+| EEGNet − dDTF-GL | +0.1586 (p < 0.001) | +0.1132 (p < 0.001) | +0.1504 (p < 0.001) |
+| DGCNN − dDTF-GL | +0.1717 (p < 0.001) | +0.1259 (p < 0.001) | +0.1636 (p < 0.001) |
+| CBraMod − dDTF-GL | +0.2270 (p < 0.001) | +0.1993 (p < 0.001) | +0.2255 (p < 0.001) |
 
 braindecode − original implementation, same pipeline: A − B, mean over runs, Welch p
 
@@ -139,6 +157,7 @@ braindecode − original implementation, same pipeline: A − B, mean over runs,
 | LaBraM-Base (bd) − LaBraM-Base | +0.0059 (p = 0.559) | +0.0046 (p = 0.356) | +0.0049 (p = 0.532) |
 | EEG Conformer (bd) − EEG Conformer | +0.0350 (p = 0.089) | +0.0135 (p = 0.470) | +0.0332 (p = 0.105) |
 | EEGNet (bd) − EEGNet | +0.0013 (p = 0.894) | -0.0007 (p = 0.947) | +0.0032 (p = 0.621) |
+| DGCNN (bd) − DGCNN | -0.0967 (p < 0.001) | -0.0985 (p < 0.001) | -0.0857 (p < 0.001) |
 <!-- /COMMON -->
 
 ![κ per model and F1 per stage on the common test set](results/fig_sleepedf.png)

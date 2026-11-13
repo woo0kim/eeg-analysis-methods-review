@@ -1,8 +1,8 @@
 """Welch tests between the models run on CBraMod's splits (same samples, subject splits, seeds 0-4,
 checkpoint rule and metric code), read from the committed results.json files. Feeds SUMMARY.md.
 
-Three tables: the released-code models against each other; each braindecode implementation against the original
-implementation of the same model; and the braindecode implementations against each other.
+Four tables: the released-code models against each other; each braindecode implementation against the original
+implementation of the same model; the braindecode implementations against each other; and dDTF-GL against the others.
 usage: python tools/compare_methods.py [metric]     # balanced_acc (default), kappa, weighted_f1, roc_auc, pr_auc
 """
 import json, os, sys
@@ -18,7 +18,8 @@ EEGNET_PT = 'methods/eegnet/experiments/pytorch-cbramod-splits'
 MODELS = {'EEGNet': (EEGNET_PT, 'eegnet'), 'CBraMod scratch': (CBRAMOD, 'scratch'),
           'CBraMod': (CBRAMOD, 'pretrained'), 'LaBraM-Base': (LABRAM, 'labram'),
           'EEGNet (bd)': (EEGNET_BD, 'eegnet-braindecode'), 'CBraMod scratch (bd)': (CBRAMOD_BD, 'scratch'),
-          'CBraMod (bd)': (CBRAMOD_BD, 'pretrained'), 'LaBraM-Base (bd)': (LABRAM_BD, 'labram')}
+          'CBraMod (bd)': (CBRAMOD_BD, 'pretrained'), 'LaBraM-Base (bd)': (LABRAM_BD, 'labram'),
+          'DGCNN': ('methods/dgcnn/experiments/cbramod-splits', 'dgcnn'), 'dDTF-GL': ('methods/ddtf-gl/experiments/cbramod-splits', 'ddtf-gl')}
 TABLES = [
     ('released code (EEGNet: our PyTorch implementation)',
      [('CBraMod', 'CBraMod scratch'), ('CBraMod', 'LaBraM-Base'), ('CBraMod', 'EEGNet'), ('LaBraM-Base', 'EEGNet')]),
@@ -28,6 +29,8 @@ TABLES = [
     ('braindecode implementations against each other',
      [('CBraMod (bd)', 'CBraMod scratch (bd)'), ('CBraMod (bd)', 'LaBraM-Base (bd)'), ('CBraMod (bd)', 'EEGNet (bd)'),
       ('LaBraM-Base (bd)', 'EEGNet (bd)')]),
+    ('dDTF-GL (dDTF maps, XGBoost) against the models above and DGCNN',
+     [('dDTF-GL', 'EEGNet'), ('dDTF-GL', 'CBraMod'), ('dDTF-GL', 'LaBraM-Base'), ('dDTF-GL', 'DGCNN')]),
 ]
 DATASETS = {'PhysioNet-MI': 'PhysioNet-MI', 'BCIC-IV-2a': 'BCI-IV-2a',  # results.json key -> RESULTS.md name
             'Mumtaz2016': 'Mumtaz2016', 'MentalArithmetic': 'MentalArithmetic'}

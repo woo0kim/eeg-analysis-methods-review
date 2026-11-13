@@ -1,7 +1,8 @@
 # Summary of results
 
-Everything validated so far, as of 2026-11-08: 5 methods (EEG Conformer, CBraMod, LaBraM, ATCNet, DGCNN), 2 sleep-staging
-methods (DeepSleepNet, L-SeqSleepNet), 1 baseline added by us (EEGNet, run inside two of those methods' pipelines),
+Everything validated so far, as of 2026-11-12: 5 methods (EEG Conformer, CBraMod, LaBraM, ATCNet, DGCNN), 2 sleep-staging
+methods (DeepSleepNet, L-SeqSleepNet), 1 method without a neural network (dDTF-GL: connectivity maps, feature selection and
+XGBoost; a USC manuscript, run on every dataset), 1 baseline added by us (EEGNet, run inside two of those methods' pipelines),
 8 datasets (Sleep-EDF, SEED, SEED-V and STEW with every model on one pipeline per dataset), braindecode's
 implementations re-run in the same pipelines (Section 7), and the weekly reports of 2026-09-24, 10-01, 10-08, 10-22,
 11-01 and 11-08. "Paper" is the number printed in the paper (cited); "ours" is a
@@ -26,6 +27,7 @@ experiments and is authoritative if the two disagree.
 | [EEG Conformer](methods/eeg-conformer) on SEED | Released `conformer_seed_1s_5fold.py`, session 1, 15 subjects × 5 folds; the same with whole clips held out, 3 seeds | Reproduces (98.24% vs. 95.30%), but its folds sit inside 4-minute clips | final epoch 96.82% inside clips, 71.59% with clips held out (p = 0.0001) |
 | All models, emotion (SEED, SEED-V) | Every model (braindecode for ATCNet and DeepSleepNet) through CBraMod's released SEED-V pipeline, seeds 0–4: its trial split and a subject split | SEED-V's trial split reproduces the CBraMod paper's numbers and ranking within noise except that LaBraM-Base beats CBraMod (p = 0.011); across subjects SEED-V is at chance for every model | SEED-V, CBraMod: κ 0.250 vs. 0.257 (p = 0.38); subject split: balanced accuracy 0.22–0.26 (chance 0.20) |
 | All models, mental workload (STEW) | Every model, 7-fold GroupKFold across subjects (folds pinned: they depend on library versions), 4-s windows, two tasks | Foundation models lead; pre-training adds 0.10 | rest vs. task: LaBraM-Base 0.818, CBraMod 0.800, DGCNN 0.775; 3 levels: at most 0.574 (majority class 0.467) |
+| [dDTF-GL](methods/ddtf-gl) (no network) | Our implementation of the paper's method (the authors' code bundle computes wavelet statistics and has no auxiliary XGBoost); STEW in the paper's two settings on Safari et al.'s released dDTF maps, the paper's input (their map code is not released), with every network of this repository on the same windows and splits; the bundle as released, with controls; then every dataset here, on maps from our generator calibrated on Safari et al.'s | Its subject-independent number reproduces exactly on Safari et al.'s maps; its subject-dependent number does not, and neither does its claim of the highest accuracy: in its own settings both foundation models, DGCNN and EEG Conformer score higher. The authors' bundle scores higher than the paper, partly from the unfiltered signal below 0.3 Hz. Elsewhere: mid-table on STEW, strong on Mumtaz2016, near chance on motor imagery, last on Sleep-EDF; on SEED and SEED-V among the supervised models (level with DGCNN on SEED, with EEG Conformer on SEED-V), behind the foundation models | subject-independent 0.774 (SD over subjects 0.147) vs. 0.766 ± 0.148; subject-dependent 0.872 vs. 0.898; same settings: LaBraM-Base 0.863, CBraMod 0.845, DGCNN 0.805, EEG Conformer 0.784; bundle 0.845, the 14 channel means alone 0.703; shared STEW 0.740; Mumtaz2016 0.919; Sleep-EDF κ 0.560 |
 
 ## 2. Results by dataset
 
@@ -37,19 +39,28 @@ Every model run so far, grouped by task category and dataset. "Paper" is the num
 | **Motor imagery classification** | **BCI-IV-2a** | 9 | 4: left hand, right hand, feet, tongue | 1,287 · 4 of 8 ᶠ | within-subject, session T → E (accuracy, %) | EEGNet | domain-specific | 74.50 ᵃ | – ᵈ | 72.62 / 67.36↓ |
 | | | | | | | EEG Conformer | domain-specific | 78.66 | 78.72 / 70.01↓ | 78.56 / 69.32↓ |
 | | | | | | | ATCNet | domain-specific | 85.38 | 84.18↓ / 79.52↓ ᵇ | 79.48↓ / 67.57↓ |
+| | | | | | | DGCNN | domain-specific | – | 50.40 / 44.42 ᵗ | – |
 | | | | | | leave-one-subject-out, 9 folds (accuracy, %) | ATCNet | domain-specific | 70.97 | 70.16 (best of 3) · 69.06 (mean) / 60.23 | 67.36 (1 run) |
 | | | | | | cross-subject, 5 / 2 / 2 subjects (balanced accuracy) | EEGNet | domain-specific | 0.4482 ᶜ | 0.5288↑ ᵈ | 0.5255↑ |
 | | | | | | | LaBraM-Base | general | 0.4869 ᶜ | 0.4477 | 0.4375 |
 | | | | | | | CBraMod | general | 0.5138 | 0.4571↓ | 0.4703↓ |
+| | | | | | | DGCNN | domain-specific | – | 0.3458 | 0.3563 (DE input) · 0.4524 (raw) |
+| | | | | | | dDTF-GL | no network ᵒ | – | 0.3276 | – |
 | | **PhysioNet-MI** | 109 | 4: left fist, right fist, both fists, both feet | 500 · 1 of 8 ᶠ | cross-subject, 70 / 19 / 20 subjects (balanced accuracy) | EEGNet | domain-specific | 0.5814 ᶜ | 0.5948 ᵈ | 0.5824 |
 | | | | | | | LaBraM-Base | general | 0.6173 ᶜ | 0.6098 | 0.6175 |
 | | | | | | | CBraMod | general | 0.6417 | 0.6265↓ | 0.6068↓ |
+| | | | | | | DGCNN | domain-specific | – | 0.4822 | 0.4914 (DE input) · 0.5781 (raw) |
+| | | | | | | dDTF-GL | no network ᵒ | – | 0.3274 | – |
 | **Mental disorder diagnosis** | **Mumtaz2016** | 64 (34 MDD, 30 healthy); 63 used ᵉ | 2: major depressive disorder, healthy | 269 · 1 of 8 ᶠ | cross-subject, 43 / 9 / 11 subjects (balanced accuracy) | EEGNet | domain-specific | 0.9232 ᶜ | 0.8828↓ ᵈ | 0.8931 |
 | | | | | | | LaBraM-Base | general | 0.9409 ᶜ | 0.8905↓ | 0.8894↓ |
 | | | | | | | CBraMod | general | 0.9560 | 0.8933↓ | 0.8827↓ |
+| | | | | | | DGCNN | domain-specific | – | 0.9619 | 0.9704 (DE input) · 0.8710 (raw) |
+| | | | | | | dDTF-GL | no network ᵒ | – | 0.9192 | – |
 | **Mental stress detection** | **MentalArithmetic** | 36 | 2: rest, mental arithmetic | 315 · 1 of 8 ᶠ | cross-subject, 28 / 4 / 4 subjects (balanced accuracy) | EEGNet | domain-specific | 0.6770 ᶜ | 0.5569↓ ᵈ | 0.5437↓ |
 | | | | | | | LaBraM-Base | general | 0.6909 ᶜ | 0.6562 | 0.6451 |
 | | | | | | | CBraMod | general | 0.7256 | 0.5889↓ | 0.6042↓ |
+| | | | | | | DGCNN | domain-specific | – | 0.6236 | 0.6368 (DE input) · 0.5590 (raw) |
+| | | | | | | dDTF-GL | no network ᵒ | – | 0.5833 | – |
 | **Sleep staging** | **Sleep-EDF** | 78 (Sleep-EDF-20: the first 20) | 5: W, N1, N2, N3, REM | 966 · 2 of 8 ᶠ | Sleep-EDF-20, 20-fold subject CV (accuracy, %) | DeepSleepNet | domain-specific | 82.0 | 81.81 ᵍ | – |
 | | | | | | Sleep-EDF-20, leave-one-subject-out (accuracy, %) | L-SeqSleepNet | domain-specific | 86.3 ± 0.2 | 86.11 ᵍ | – ʰ |
 | | | | | | Sleep-EDF-78, cross-subject, 62 / 8 / 8 subjects, common test set (κ) ⁱ | EEGNet | domain-specific | – | 0.6815 ᵈ | 0.6808 |
@@ -59,16 +70,81 @@ Every model run so far, grouped by task category and dataset. "Paper" is the num
 | | | | | | | L-SeqSleepNet | domain-specific | – | 0.7725 | – ʰ |
 | | | | | | | LaBraM-Base | general | – | 0.7727 | 0.7773 |
 | | | | | | | CBraMod | general | – | 0.7676 | 0.7677 |
+| | | | | | | DGCNN | domain-specific | – | 0.6941 | 0.5956 (raw) |
+| | | | | | | dDTF-GL | no network ᵒ | – | 0.5595 | – |
 | **Emotion recognition** | **SEED** | 15, 3 sessions each | 3: positive, neutral, negative | 2,735 · 2 of 8 ᶠ | within-subject, session by session, 9 → 6 clips (accuracy, %) | DGCNN | domain-specific | 90.40 | 87.69 ʲ / 77.79 | – |
 | | | | | | leave one subject out (accuracy, %) | DGCNN | domain-specific | 79.95 | 77.58 | – |
 | | | | | | within-subject, session 1, 5 folds inside clips (accuracy, %) | EEG Conformer | domain-specific | 95.30 | 98.24↑ / 71.59 ᵏ | – |
-| | | | | | CBraMod's SEED-V pipeline, trial split (balanced accuracy) | LaBraM-Base | general | – | 0.6300 | 0.6161 |
+| | | | | | CBraMod's SEED-V pipeline, trial split (balanced accuracy) | EEGNet | domain-specific | – | 0.4909 ᵈ | 0.4748 |
+| | | | | | | EEG Conformer | domain-specific | – | 0.5360 | 0.5259 |
+| | | | | | | ATCNet | domain-specific | – | – | 0.4892 |
+| | | | | | | DeepSleepNet | domain-specific | – | – | 0.5912 |
+| | | | | | | L-SeqSleepNet | domain-specific | – | off-label ʳ | – ʰ |
+| | | | | | | DGCNN | domain-specific | – | 0.5741 | 0.5749 (DE input) · 0.5191 (raw) |
+| | | | | | | LaBraM-Base | general | – | 0.6300 | 0.6161 |
 | | | | | | | CBraMod | general | – | 0.6162 | 0.6198 |
-| | **SEED-V** | 16, 3 sessions each | 5: happy, sad, neutral, disgust, fear | 486 · 2 of 8 ᶠ | CBraMod's trial split, 5 / 5 / 5 clips per session (balanced accuracy) | EEGNet | domain-specific | 0.2961 ᶜ | 0.2894 | 0.2809 |
+| | | | | | | dDTF-GL | no network ᵒ | – | 0.5609 | – |
+| | | | | | the same pipeline, subject split 9 / 3 / 3 (balanced accuracy) | EEGNet | domain-specific | – | 0.5227 ᵈ | – |
+| | | | | | | EEG Conformer | domain-specific | – | 0.5378 | – |
+| | | | | | | ATCNet | domain-specific | – | – | 0.5410 |
+| | | | | | | DeepSleepNet | domain-specific | – | – | 0.5034 |
+| | | | | | | L-SeqSleepNet | domain-specific | – | not valid ʳ | – ʰ |
+| | | | | | | DGCNN | domain-specific | – | 0.5215 | – |
+| | | | | | | LaBraM-Base | general | – | 0.5822 | – |
+| | | | | | | CBraMod | general | – | 0.5442 | – |
+| | | | | | | dDTF-GL | no network ᵒ | – | 0.5237 | – |
+| | **SEED-V** | 16, 3 sessions each | 5: happy, sad, neutral, disgust, fear | 486 · 2 of 8 ᶠ | CBraMod's trial split, 5 / 5 / 5 clips per session (balanced accuracy) | EEGNet | domain-specific | 0.2961 ᶜ | 0.2894 ᵈ | 0.2809 |
 | | | | | | | EEG Conformer | domain-specific | 0.3537 ᶜ | 0.3205↓ | 0.2962↓ |
+| | | | | | | ATCNet | domain-specific | – | – | 0.2701 |
+| | | | | | | DeepSleepNet | domain-specific | – | – | 0.3995 |
+| | | | | | | L-SeqSleepNet | domain-specific | – | off-label ʳ | – ʰ |
+| | | | | | | DGCNN | domain-specific | – | 0.3866 | 0.3752 (DE input) · 0.2846 (raw) |
 | | | | | | | LaBraM-Base | general | 0.3976 ᶜ | 0.4136 | 0.4106 |
 | | | | | | | CBraMod | general | 0.4091 | 0.3962↓ | 0.3786↓ |
-| **Mental workload** | **STEW** | 48 | 2: rest, multitasking test; or 3 rating levels | 219 · 0 of 8 ᶠ | 7-fold GroupKFold across subjects, rest vs. task (accuracy) | all models: Section 5 | | – | LaBraM-Base 0.818, CBraMod 0.800 | 0.815, 0.798 |
+| | | | | | | dDTF-GL | no network ᵒ | – | 0.3245 | – |
+| | | | | | the same pipeline, subject split 10 / 3 / 3 (balanced accuracy) | EEGNet | domain-specific | – | 0.2468 ᵈ | – |
+| | | | | | | EEG Conformer | domain-specific | – | 0.2366 | – |
+| | | | | | | ATCNet | domain-specific | – | – | 0.2528 |
+| | | | | | | DeepSleepNet | domain-specific | – | – | 0.2421 |
+| | | | | | | L-SeqSleepNet | domain-specific | – | not valid ʳ | – ʰ |
+| | | | | | | DGCNN | domain-specific | – | 0.2563 | – |
+| | | | | | | LaBraM-Base | general | – | 0.2214 | – |
+| | | | | | | CBraMod | general | – | 0.2223 | – |
+| | | | | | | dDTF-GL | no network ᵒ | – | 0.2315 | – |
+| **Mental workload** | **STEW** | 48 | 2: rest, multitasking test; or 3 rating levels | 219 · 0 of 8 ᶠ | 7-fold GroupKFold across subjects, rest vs. task, 48 subjects (accuracy; tests between models: Section 5) | EEGNet | domain-specific | – | 0.6648 ᵈ | 0.6521 |
+| | | | | | | EEG Conformer | domain-specific | – | 0.7364 | 0.7325 |
+| | | | | | | ATCNet | domain-specific | – | – | 0.7257 |
+| | | | | | | DeepSleepNet | domain-specific | – | – | 0.7168 |
+| | | | | | | L-SeqSleepNet | domain-specific | – | 0.7667 (off-label: 30-s windows) | – ʰ |
+| | | | | | | DGCNN | domain-specific | – | 0.7747 | 0.7833 (DE input) · 0.6691 (raw) |
+| | | | | | | LaBraM-Base | general | – | 0.8179 | 0.8153 |
+| | | | | | | CBraMod | general | – | 0.7998 | 0.7977 |
+| | | | | | | dDTF-GL | no network ᵒ | – | 0.7398 | – |
+| | | | | | 7-fold GroupKFold across subjects, 3 rating levels, 45 subjects (accuracy) | EEGNet | domain-specific | – | 0.4975 ᵈ | 0.4990 |
+| | | | | | | EEG Conformer | domain-specific | – | 0.5118 | 0.4896 |
+| | | | | | | ATCNet | domain-specific | – | – | 0.5290 |
+| | | | | | | DeepSleepNet | domain-specific | – | – | 0.5468 |
+| | | | | | | L-SeqSleepNet | domain-specific | – | 0.5407 (off-label) | – ʰ |
+| | | | | | | DGCNN | domain-specific | – | 0.5517 | 0.5532 (DE input) · 0.4876 (raw) |
+| | | | | | | LaBraM-Base | general | – | 0.5670 | 0.5739 |
+| | | | | | | CBraMod | general | – | 0.5661 | 0.5447 |
+| | | | | | | dDTF-GL | no network ᵒ | – | 0.5185 | – |
+| | | | | | the dDTF-GL paper's subject-independent setting: 7 subject folds, 6-s windows, no validation (accuracy; networks: final epoch) | EEGNet | domain-specific | 0.683 ᵘ | 0.6647 ᵈ | – |
+| | | | | | | EEG Conformer | domain-specific | – | 0.7842 | – |
+| | | | | | | ATCNet | domain-specific | – | – | 0.7675 |
+| | | | | | | DeepSleepNet | domain-specific | – | – | 0.7408 |
+| | | | | | | DGCNN | domain-specific | – | 0.8046 | – |
+| | | | | | | LaBraM-Base | general | – | 0.8626 | – |
+| | | | | | | CBraMod | general | – | 0.8451 | – |
+| | | | | | | dDTF-GL | no network ᵒ | 0.766 | 0.7744 ᵖ | – |
+| | | | | | the dDTF-GL paper's subject-dependent setting: 7 folds over all windows (accuracy) | EEGNet | domain-specific | 0.692 ᵘ | 0.6814 ᵈ | – |
+| | | | | | | EEG Conformer | domain-specific | – | 0.8926 | – |
+| | | | | | | ATCNet | domain-specific | – | – | 0.8360 |
+| | | | | | | DeepSleepNet | domain-specific | – | – | 0.8495 |
+| | | | | | | DGCNN | domain-specific | – | 0.9557 | – |
+| | | | | | | LaBraM-Base | general | – | 0.9733 | – |
+| | | | | | | CBraMod | general | – | 0.9619 | – |
+| | | | | | | dDTF-GL | no network ᵒ | 0.898 | 0.8716 ᵖ | – |
 
 - **Model type.** *Domain-specific*: a supervised model trained from scratch on the task's own data (EEGNet, EEG
   Conformer, ATCNet, and the sleep models DeepSleepNet and L-SeqSleepNet). *General*: an EEG foundation model, pre-trained on large unlabeled EEG corpora and fine-tuned for
@@ -100,8 +176,24 @@ Every model run so far, grouped by task category and dataset. "Paper" is the num
   cells of DeepSleepNet and L-SeqSleepNet are their own released training on the same split (3 runs). Every model is
   scored on the same 20,976 test epochs; tests between models are in Section 5.
 
+- ᵒ dDTF-GL: our implementation of the paper's method; the authors' code bundle computes wavelet statistics instead and has no
+  auxiliary XGBoost. Its maps: on STEW in the paper's protocol Safari et al.'s released SIFT maps (the paper's stated source, whose
+  code is not released); elsewhere our generator with the settings calibrated on those maps. It fills the "released code" column. *No network*: dDTF connectivity maps,
+  two-stage feature selection and XGBoost. Run through each dataset's shared pipeline with the same samples, splits and seeds, but
+  without epoch selection, and on Sleep-EDF with each epoch classified alone ([methods/ddtf-gl](methods/ddtf-gl)).
+  ᵖ STEW, the dDTF-GL paper's protocol ([stew-paper-protocol](methods/ddtf-gl/experiments/stew-paper-protocol)): dDTF-GL on Safari
+  et al.'s released maps, the paper's input; on our calibrated maps 0.778 (SI) and 0.913 (SD); the authors' code bundle as released
+  0.845 (SI; DWT features, 4-s windows of the raw signal); SD with whole blocks of each recording held out 0.861. Every model ran on the
+  same windows and splits; the networks with their shared STEW recipe, 50 epochs, final epoch kept. Not tested against the paper: its ±
+  is a spread over subjects (SI) or folds (SD), not over runs. ᵘ The dDTF-GL paper's own EEGNet on raw EEG (its Tables 1–2).
 - ʲ DGCNN, SEED: 87.69 under the paper's own rule (peak of ~80 test evaluations, each subject's best 2 of 3 sessions; the authors' own code,
   run unmodified on the same features, 87.59), 77.79 with nothing chosen on the test set ([seed-paper-protocol](methods/dgcnn/experiments/seed-paper-protocol)). No significance test: the paper gives a single mean.
+- ᵗ DGCNN on BCI-IV-2a within subject: our port on 5-band DE in EEG Conformer's training loop, x / y as for EEG Conformer
+  ([dgcnn/bciciv2a-epoch-selection](methods/dgcnn/experiments/bciciv2a-epoch-selection)); DGCNN's paper has no motor-imagery result.
+- ʳ L-SeqSleepNet on SEED / SEED-V is off-label: it classifies 30-s windows of three channels, so only its clip vote compares with
+  the 1-s models (trial split: SEED 0.513, SEED-V 0.358). On the subject split its sequences span clips shown to every subject in the
+  same order, so it can read a clip's identity from its position; its numbers there are not valid
+  ([l-seqsleepnet/seed-offlabel](methods/l-seqsleepnet/experiments/seed-offlabel)).
 - ᵏ EEG Conformer, SEED: x / y = the released 5-fold split (best epoch) / whole clips held out (final epoch), the same model and session
   ([seed-5fold](methods/eeg-conformer/experiments/seed-5fold)).
 
@@ -160,6 +252,7 @@ from the method READMEs.
 |---|---|---|---|
 | Model family | task-specific, trained from scratch | EEGNet, EEG Conformer, ATCNet; for sleep staging DeepSleepNet, L-SeqSleepNet | no pre-training data or released weights involved |
 | | pre-trained foundation model, fine-tuned | LaBraM, CBraMod | results depend on released weights; LaBraM-Large/-Huge cannot be checked |
+| | feature learning without a network ("green learning") | dDTF-GL | hand-defined connectivity features, feature selection and XGBoost; trains on a CPU in seconds to minutes; no epochs, so nothing is selected on validation data |
 | Evaluation protocol | within-subject (train on session T, test on session E of the same subject) | EEG Conformer, ATCNet, EEGNet (our runs in Conformer's loop) | its BCI-IV-2a numbers (0.70–0.79 accuracy) are **not comparable** with the cross-subject rows (0.45–0.53 balanced accuracy) |
 | | cross-subject (subject-independent splits) | CBraMod, LaBraM, EEGNet (our runs in CBraMod's pipeline) | directly comparable: identical samples, splits, seeds, checkpoint rule and metric code (Section 5) |
 | | sleep staging, Sleep-EDF-78, one 62 / 8 / 8 subject split | all seven: five in CBraMod's sleep-staging pipeline, DeepSleepNet and L-SeqSleepNet also with their own released code | comparable on the common test set (20,976 epochs every model scores; Section 5) |
@@ -167,7 +260,7 @@ from the method READMEs.
 | Epoch selection in released code | on the test set | EEG Conformer, ATCNet (which also keeps the best of 10 runs by test accuracy) | inflates the reported number, and Conformer's more than EEGNet's (Section 6) |
 | | on a validation set | CBraMod, LaBraM, L-SeqSleepNet | no test-set leakage |
 | | none (final model) | DeepSleepNet | no leakage, but the fixed training length overfits on a larger training set (Sleep-EDF-78) |
-| Reproduction outcome | reproduces | LaBraM-Base (10 / 12 metrics); EEG Conformer under its own rule; ATCNet under its own rule (the paper's models and the 2022 code); DeepSleepNet and L-SeqSleepNet on Sleep-EDF-20 | |
+| Reproduction outcome | reproduces | LaBraM-Base (10 / 12 metrics); EEG Conformer under its own rule; ATCNet under its own rule (the paper's models and the 2022 code); DeepSleepNet and L-SeqSleepNet on Sleep-EDF-20; dDTF-GL on STEW (our implementation; the authors' bundle is a different method and scores higher) | |
 | | does not reproduce | CBraMod (3 / 12 metrics within noise) | |
 | | mixed | EEGNet (6 / 12 within noise: above the paper on all BCI-IV-2a metrics and PhysioNet-MI weighted F1, below on MentalArithmetic and Mumtaz2016 balanced accuracy) | the paper's EEGNet came from BIOT's code with unreported settings |
 
@@ -177,48 +270,48 @@ from the method READMEs.
 
 | Category | Dataset | Task (classes) | Subjects: train / val / test | Channels | Input as run | Samples | Metrics (checkpoint metric in bold) | Run with | Paper tables |
 |---|---|---|---|---|---|---|---|---|---|
-| Motor imagery classification | BCI-IV-2a | left hand, right hand, feet, tongue (4) | cross-subject 5 / 2 / 2; within-subject: each of 9 subjects, session T → E | 22 | 4 s at 200 Hz (CBraMod pipeline); 4 s at 250 Hz (EEG Conformer's pipeline, also for EEGNet); 4.5 s at 250 Hz, unfiltered, z-scored (ATCNet) | 5,184 (CBraMod pipeline); 288 + 288 trials per subject (EEG Conformer, ATCNet) | balanced acc., **κ**, weighted F1; EEG Conformer, ATCNet: accuracy (κ) | EEG Conformer, ATCNet, CBraMod, LaBraM-Base, EEGNet | CBraMod T15; EEG Conformer T II; ATCNet T IV–VI |
-| Motor imagery classification | PhysioNet-MI | left fist, right fist, both fists, both feet (4) | 70 / 19 / 20 | 64 | 4 s at 200 Hz | 9,837 | balanced acc., **κ**, weighted F1 | CBraMod, LaBraM-Base, EEGNet | CBraMod T3, T4, T18 |
-| Mental disorder diagnosis | Mumtaz2016 | major depressive disorder vs. healthy (2) | 43 / 9 / 11 | 19 | 5 s at 200 Hz | 7,143 | balanced acc., AUC-PR, **AUROC** | CBraMod, LaBraM-Base, EEGNet | CBraMod T10 |
-| Mental stress detection | MentalArithmetic | rest vs. mental arithmetic ("mental stress") (2) | 28 / 4 / 4 | 20 (LaBraM: 19, no A2-A1) | 5 s at 200 Hz | 1,707 | balanced acc., AUC-PR, **AUROC** | CBraMod, LaBraM-Base, EEGNet | CBraMod T12 |
-| Sleep staging | Sleep-EDF (Expanded, Sleep Cassette) | W, N1, N2, N3, REM (5) | Sleep-EDF-78: 62 / 8 / 8, age-stratified; Sleep-EDF-20: 20-fold CV (DeepSleepNet), leave-one-subject-out (L-SeqSleepNet) | 2 (Fpz-Cz, Pz-Oz); the sleep models' released code: Fpz-Cz | CBraMod pipeline: 30-s epochs at 200 Hz, 0.3–35 Hz, in sequences of 20, sleep period ± 30 min; DeepSleepNet: raw 30-s epochs at 100 Hz in sequences of 25; L-SeqSleepNet: spectrograms of 30-s epochs at 100 Hz in sequences of 200 | 192,840 epochs (pipeline, Sleep-EDF-78); 41,950 (DeepSleepNet) and 46,241 (L-SeqSleepNet) test epochs on Sleep-EDF-20 | balanced acc., **κ**, weighted F1, accuracy, macro-F1 | all seven | DeepSleepNet T III–IV; L-SeqSleepNet T III |
-| Emotion recognition | SEED | positive, neutral, negative (3) | trial split: all 15, clips 1–5 / 6–10 / 11–15; subject split 9 / 3 / 3; DGCNN's protocols: each session, 9 → 6 clips, and leave one subject out | 62 | 1 s at 200 Hz, 0.3–75 Hz (CBraMod pipeline); DE features (DGCNN's protocols); 1 s, 4–47 Hz, z-scored (EEG Conformer's code) | 152,730 | balanced acc., **κ**, weighted F1, accuracy, clip vote | all eight | DGCNN abstract; EEG Conformer README |
-| Emotion recognition | SEED-V | happy, sad, neutral, disgust, fear (5) | trial split: all 16, 5 / 5 / 5 clips; subject split 10 / 3 / 3 | 62 | 1 s at 200 Hz, 0.3–75 Hz | 117,744 | balanced acc., **κ**, weighted F1 | all eight | CBraMod T2 |
-| Mental workload | STEW | rest vs. task (2); rating 1–3 / 4–6 / 7–9 (3) | 7-fold GroupKFold across subjects (48; 45 with ratings), validation = next fold | 14 | 4-s windows, 25% overlap, 128 Hz (CBraMod, LaBraM: 200 Hz) | 4,704 | accuracy, balanced acc., **κ**, weighted F1 | all eight | – |
+| Motor imagery classification | BCI-IV-2a | left hand, right hand, feet, tongue (4) | cross-subject 5 / 2 / 2; within-subject: each of 9 subjects, session T → E | 22 | 4 s at 200 Hz (CBraMod pipeline); 4 s at 250 Hz (EEG Conformer's pipeline, also for EEGNet); 4.5 s at 250 Hz, unfiltered, z-scored (ATCNet) | 5,184 (CBraMod pipeline); 288 + 288 trials per subject (EEG Conformer, ATCNet) | balanced acc., **κ**, weighted F1; EEG Conformer, ATCNet: accuracy (κ) | EEG Conformer, ATCNet, CBraMod, LaBraM-Base, EEGNet, dDTF-GL | CBraMod T15; EEG Conformer T II; ATCNet T IV–VI |
+| Motor imagery classification | PhysioNet-MI | left fist, right fist, both fists, both feet (4) | 70 / 19 / 20 | 64 | 4 s at 200 Hz | 9,837 | balanced acc., **κ**, weighted F1 | CBraMod, LaBraM-Base, EEGNet, dDTF-GL | CBraMod T3, T4, T18 |
+| Mental disorder diagnosis | Mumtaz2016 | major depressive disorder vs. healthy (2) | 43 / 9 / 11 | 19 | 5 s at 200 Hz | 7,143 | balanced acc., AUC-PR, **AUROC** | CBraMod, LaBraM-Base, EEGNet, dDTF-GL | CBraMod T10 |
+| Mental stress detection | MentalArithmetic | rest vs. mental arithmetic ("mental stress") (2) | 28 / 4 / 4 | 20 (LaBraM: 19, no A2-A1) | 5 s at 200 Hz | 1,707 | balanced acc., AUC-PR, **AUROC** | CBraMod, LaBraM-Base, EEGNet, dDTF-GL | CBraMod T12 |
+| Sleep staging | Sleep-EDF (Expanded, Sleep Cassette) | W, N1, N2, N3, REM (5) | Sleep-EDF-78: 62 / 8 / 8, age-stratified; Sleep-EDF-20: 20-fold CV (DeepSleepNet), leave-one-subject-out (L-SeqSleepNet) | 2 (Fpz-Cz, Pz-Oz); the sleep models' released code: Fpz-Cz | CBraMod pipeline: 30-s epochs at 200 Hz, 0.3–35 Hz, in sequences of 20, sleep period ± 30 min; DeepSleepNet: raw 30-s epochs at 100 Hz in sequences of 25; L-SeqSleepNet: spectrograms of 30-s epochs at 100 Hz in sequences of 200 | 192,840 epochs (pipeline, Sleep-EDF-78); 41,950 (DeepSleepNet) and 46,241 (L-SeqSleepNet) test epochs on Sleep-EDF-20 | balanced acc., **κ**, weighted F1, accuracy, macro-F1 | all seven, dDTF-GL | DeepSleepNet T III–IV; L-SeqSleepNet T III |
+| Emotion recognition | SEED | positive, neutral, negative (3) | trial split: all 15, clips 1–5 / 6–10 / 11–15; subject split 9 / 3 / 3; DGCNN's protocols: each session, 9 → 6 clips, and leave one subject out | 62 | 1 s at 200 Hz, 0.3–75 Hz (CBraMod pipeline); DE features (DGCNN's protocols); 1 s, 4–47 Hz, z-scored (EEG Conformer's code) | 152,730 | balanced acc., **κ**, weighted F1, accuracy, clip vote | all eight, dDTF-GL | DGCNN abstract; EEG Conformer README |
+| Emotion recognition | SEED-V | happy, sad, neutral, disgust, fear (5) | trial split: all 16, 5 / 5 / 5 clips; subject split 10 / 3 / 3 | 62 | 1 s at 200 Hz, 0.3–75 Hz | 117,744 | balanced acc., **κ**, weighted F1 | all eight, dDTF-GL | CBraMod T2 |
+| Mental workload | STEW | rest vs. task (2); rating 1–3 / 4–6 / 7–9 (3) | 7-fold GroupKFold across subjects (48; 45 with ratings), validation = next fold | 14 | 4-s windows, 25% overlap, 128 Hz (CBraMod, LaBraM: 200 Hz); dDTF-GL's paper protocol: 6-s windows, 4-s step | 4,704 | accuracy, balanced acc., **κ**, weighted F1 | all eight, dDTF-GL | – |
 
 ### Which datasets each method's paper evaluates on
 
 ● = the paper evaluates its own method on this dataset; ✓ = we ran this model on it (results in Section 2);
 ●✓ = both. Download and access details: [datasets/README.md](datasets/README.md).
 
-| Category | Dataset | EEGNet | EEG Conformer | ATCNet | LaBraM | CBraMod | DeepSleepNet | L-SeqSleepNet | DGCNN | Status here |
-|---|---|---|---|---|---|---|---|---|---|---|
-| **Motor imagery classification** | BCI-IV-2a | ●✓ ᵃ | ●✓ | ●✓ | ✓ | ●✓ |  |  | ✓ | run: within-subject, leave-one-subject-out, cross-subject |
-|  | BCI-IV-2b |  | ● |  |  |  |  |  |  | public, not run yet (no download key) |
-|  | PhysioNet-MI | ✓ |  |  | ✓ | ●✓ |  |  | ✓ | run: cross-subject |
-|  | SHU-MI |  |  |  |  | ● |  |  |  | not run: files are password-protected |
-| **Emotion recognition** | SEED | ✓ | ●✓ | ✓ ˡ | ✓ | ✓ | ✓ | ✓ ᵐ | ●✓ | run: all models in CBraMod's pipeline (trial and subject splits); EEG Conformer's and DGCNN's own protocols |
-|  | SEED-V | ✓ | ✓ | ✓ ˡ | ●✓ ᵇ | ●✓ | ✓ | ✓ ᵐ | ✓ | run: all models in CBraMod's pipeline (trial and subject splits) |
-|  | FACED |  |  |  |  | ● |  |  |  | not run: Synapse account |
-|  | DREAMER |  |  |  |  |  |  |  | ● | not run: access by request, not requested |
-| **Mental workload** | STEW | ✓ | ✓ | ✓ ˡ | ✓ | ✓ | ✓ | ✓ ᵐ | ✓ | run: all models, 7-fold GroupKFold across subjects |
-| **Mental disorder diagnosis** | Mumtaz2016 | ✓ |  |  | ✓ | ●✓ |  |  | ✓ | run: cross-subject |
-| **Mental stress detection** | MentalArithmetic | ✓ |  |  | ✓ | ●✓ |  |  | ✓ | run: cross-subject |
-| **Vigilance estimation** | SEED-VIG |  |  |  |  | ● |  |  |  | not run: license application |
-| **Sleep staging** | Sleep-EDF | ✓ | ✓ | ✓ | ✓ | ✓ | ●✓ ᶜ | ●✓ ᶜ | ✓ | run: Sleep-EDF-20 with the sleep papers' protocols; Sleep-EDF-78 cross-subject, all models |
-|  | MASS |  |  |  |  |  | ● |  |  | not run: access request |
-|  | SHHS |  |  |  |  |  |  | ● |  | not run: NSRR access |
-|  | ear-EEG, cEEGrid |  |  |  |  |  |  | ● |  | not run; access not checked |
-|  | ISRUC |  |  |  |  | ● |  |  |  | public, not run yet (too large for one round) |
-| **Seizure detection** | CHB-MIT |  |  |  |  | ● |  |  |  | public, not run yet (too large for one round) |
-| **Imagined speech classification** | BCIC2020-3 |  |  |  |  | ● |  |  |  | not run: test labels not public |
-| **Abnormal EEG detection** | TUAB |  |  |  | ● | ● |  |  |  | not run: TUH registration |
-| **Event type classification** | TUEV |  |  |  | ● | ● |  |  |  | not run: TUH registration |
-| **Event-related potentials** | P300 (visual evoked potentials) | ● |  |  |  |  |  |  |  | not run; access not checked |
-|  | ERN (feedback error-related negativity) | ● |  |  |  |  |  |  |  | not run; access not checked |
-|  | MRCP (movement-related cortical potentials) | ● |  |  |  |  |  |  |  | not run; access not checked |
-| **Gait prediction (regression)** | MoBI |  |  |  | ● ᵇ |  |  |  |  | not run; access not checked |
-|  | **Datasets in the paper / run here** | **4 / 1** | **3 / 2** | **1 / 1** | **4 / 1** | **13 / 5** | **2 / 1** | **4 / 1** | **2 / 1** |  |
+| Category | Dataset | EEGNet | EEG Conformer | ATCNet | LaBraM | CBraMod | DeepSleepNet | L-SeqSleepNet | DGCNN | dDTF-GL | Status here |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| **Motor imagery classification** | BCI-IV-2a | ●✓ ᵃ | ●✓ | ●✓ | ✓ | ●✓ |  |  | ✓ | ✓ | run: within-subject, leave-one-subject-out, cross-subject |
+|  | BCI-IV-2b |  | ● |  |  |  |  |  |  |  | public, not run yet (no download key) |
+|  | PhysioNet-MI | ✓ |  |  | ✓ | ●✓ |  |  | ✓ | ✓ | run: cross-subject |
+|  | SHU-MI |  |  |  |  | ● |  |  |  |  | not run: files are password-protected |
+| **Emotion recognition** | SEED | ✓ | ●✓ | ✓ ˡ | ✓ | ✓ | ✓ | ✓ ᵐ | ●✓ | ✓ | run: all models in CBraMod's pipeline (trial and subject splits); EEG Conformer's and DGCNN's own protocols |
+|  | SEED-V | ✓ | ✓ | ✓ ˡ | ●✓ ᵇ | ●✓ | ✓ | ✓ ᵐ | ✓ | ✓ | run: all models in CBraMod's pipeline (trial and subject splits) |
+|  | FACED |  |  |  |  | ● |  |  |  |  | not run: Synapse account |
+|  | DREAMER |  |  |  |  |  |  |  | ● |  | not run: access by request, not requested |
+| **Mental workload** | STEW | ✓ | ✓ | ✓ ˡ | ✓ | ✓ | ✓ | ✓ ᵐ | ✓ | ●✓ | run: all models, 7-fold GroupKFold across subjects; dDTF-GL also in its paper's two settings (6-s windows) |
+| **Mental disorder diagnosis** | Mumtaz2016 | ✓ |  |  | ✓ | ●✓ |  |  | ✓ | ✓ | run: cross-subject |
+| **Mental stress detection** | MentalArithmetic | ✓ |  |  | ✓ | ●✓ |  |  | ✓ | ✓ | run: cross-subject |
+| **Vigilance estimation** | SEED-VIG |  |  |  |  | ● |  |  |  |  | not run: license application |
+| **Sleep staging** | Sleep-EDF | ✓ | ✓ | ✓ | ✓ | ✓ | ●✓ ᶜ | ●✓ ᶜ | ✓ | ✓ | run: Sleep-EDF-20 with the sleep papers' protocols; Sleep-EDF-78 cross-subject, all models |
+|  | MASS |  |  |  |  |  | ● |  |  |  | not run: access request |
+|  | SHHS |  |  |  |  |  |  | ● |  |  | not run: NSRR access |
+|  | ear-EEG, cEEGrid |  |  |  |  |  |  | ● |  |  | not run; access not checked |
+|  | ISRUC |  |  |  |  | ● |  |  |  |  | public, not run yet (too large for one round) |
+| **Seizure detection** | CHB-MIT |  |  |  |  | ● |  |  |  |  | public, not run yet (too large for one round) |
+| **Imagined speech classification** | BCIC2020-3 |  |  |  |  | ● |  |  |  |  | not run: test labels not public |
+| **Abnormal EEG detection** | TUAB |  |  |  | ● | ● |  |  |  |  | not run: TUH registration |
+| **Event type classification** | TUEV |  |  |  | ● | ● |  |  |  |  | not run: TUH registration |
+| **Event-related potentials** | P300 (visual evoked potentials) | ● |  |  |  |  |  |  |  |  | not run; access not checked |
+|  | ERN (feedback error-related negativity) | ● |  |  |  |  |  |  |  |  | not run; access not checked |
+|  | MRCP (movement-related cortical potentials) | ● |  |  |  |  |  |  |  |  | not run; access not checked |
+| **Gait prediction (regression)** | MoBI |  |  |  | ● ᵇ |  |  |  |  |  | not run; access not checked |
+|  | **Datasets in the paper / run here** | **4 / 1** | **3 / 2** | **1 / 1** | **4 / 1** | **13 / 5** | **2 / 1** | **4 / 1** | **2 / 1** | **1 / 1** |  |
 
 - ᵃ EEGNet's paper uses BCI-IV-2a (its "SMR" dataset) with its own protocol (within-subject 4-fold block-wise
   cross-validation, and cross-subject). Here EEGNet ran only inside EEG Conformer's and CBraMod's pipelines, as their
@@ -301,6 +394,24 @@ Other CBraMod settings (PhysioNet-MI unless noted):
 
 None of the robustness checks closes the gap.
 
+### dDTF-GL on the same splits
+
+dDTF-GL (no network: dDTF connectivity maps, feature selection, XGBoost; [ddtf-gl/cbramod-splits](methods/ddtf-gl/experiments/cbramod-splits))
+on the same samples, splits, seeds and metric code, but without epoch selection. Balanced accuracy, mean ± SD over seeds 0–4, and
+dDTF-GL − each model (Welch p; `python tools/compare_methods.py`, last table):
+
+| Dataset | dDTF-GL | − EEGNet | − CBraMod | − LaBraM-Base | − DGCNN (DE) |
+|---|---|---|---|---|---|
+| PhysioNet-MI | 0.3274 ± 0.0055 | −0.2674 (p < 0.001) | −0.2991 (p < 0.001) | −0.2824 (p < 0.001) | −0.1548 (p < 0.001) |
+| BCI-IV-2a | 0.3276 ± 0.0084 | −0.2012 (p < 0.001) | −0.1295 (p = 0.001) | −0.1201 (p = 0.003) | −0.0182 (p = 0.301) |
+| Mumtaz2016 | 0.9192 ± 0.0025 | +0.0364 (p = 0.051) | +0.0258 (p = 0.004) | +0.0286 (p < 0.001) | −0.0428 (p < 0.001) |
+| MentalArithmetic | 0.5833 ± 0.0282 | +0.0264 (p = 0.155) | −0.0056 (p = 0.733) | −0.0729 (p = 0.012) | −0.0403 (p = 0.264) |
+
+- Like DGCNN's band-power input, connectivity maps averaged over a trial carry almost nothing for motor imagery (chance 0.25), and
+  are enough for depression vs. healthy (above both foundation models) and mental arithmetic (level with CBraMod and EEGNet).
+- Maps with our first settings, before the calibration on Safari et al.'s maps, scored higher on Mumtaz2016 (0.943) and
+  MentalArithmetic (0.633) and the same on motor imagery ([ddtf-gl/cbramod-splits](methods/ddtf-gl/experiments/cbramod-splits)).
+
 ### The same comparison with braindecode's implementations
 
 The four models were re-run with braindecode 1.8.1's `EEGNet`, `CBraMod` and `Labram` (braindecode's pre-trained
@@ -355,6 +466,7 @@ same split (3 runs each; the code sets no seed). Every model is scored on the sa
 | DeepSleepNet | released (TF 1.15) | its own | 0.7030 ± 0.0103 | 0.7247 ± 0.0104 | 0.7140 ± 0.0121 | 0.427 | 0.697 | 0.764 |
 | EEG Conformer | released | CBraMod pipeline | 0.6876 ± 0.0190 | 0.6448 ± 0.0267 | 0.6585 ± 0.0235 | 0.347 | 0.562 | 0.663 |
 | EEGNet | ours (PyTorch) | CBraMod pipeline | 0.6815 ± 0.0154 | 0.6852 ± 0.0137 | 0.6785 ± 0.0073 | 0.311 | 0.787 | 0.594 |
+| dDTF-GL | ours (no network) | each epoch alone | 0.5595 ± 0.0006 | 0.5219 ± 0.0012 | 0.5229 ± 0.0013 | 0.086 | 0.521 | 0.414 |
 
 Pairwise tests (A − B, mean over runs, Welch p):
 
@@ -386,6 +498,9 @@ Pairwise tests (A − B, mean over runs, Welch p):
   gains 0.060 κ and, with braindecode's LaBraM (Section 7), has the highest balanced accuracy of all models (0.767).
 - **The two small supervised models trail by 0.08–0.09 κ** (both p < 0.001). On BCI-IV-2a EEGNet beat both
   foundation models. Here EEGNet is weakest on REM and N1, and EEG Conformer on N3.
+- **dDTF-GL, without a network, is the weakest model** (κ 0.560; EEGNet − dDTF-GL = +0.122, p < 0.001). Two channels give 20 dDTF
+  values per epoch, of which its selection keeps 7, and it classifies each epoch alone where the pipeline models see 20-epoch
+  sequences; it recognises wake (F1 0.87) and almost never N1 (0.09).
 - Caveats: one split; 5 seeds or 3 runs per model; Welch tests without multiple-comparison correction; one untuned
   recipe per model. The two sleep models with their own code follow their own training and checkpoint rules.
 
@@ -408,6 +523,7 @@ every test: `python tools/compare_seed.py`, `python tools/compare_stew.py`.
 | DGCNN | 0.574 ± 0.017 | 0.521 ± 0.014 | 0.387 ± 0.005 | **0.256 ± 0.010** | 0.775 ± 0.007 | 0.552 ± 0.007 |
 | ATCNet (bd) | 0.489 ± 0.018 | 0.541 ± 0.006 | 0.270 ± 0.004 | 0.253 ± 0.007 | 0.726 ± 0.005 | 0.529 ± 0.006 |
 | DeepSleepNet (bd) | 0.591 ± 0.009 | 0.503 ± 0.029 | 0.400 ± 0.003 | 0.242 ± 0.012 | 0.717 ± 0.010 | 0.547 ± 0.009 |
+| dDTF-GL (no network) | 0.561 ± 0.001 | 0.524 ± 0.002 | 0.325 ± 0.001 | 0.232 ± 0.002 | 0.740 ± 0.004 | 0.519 ± 0.005 |
 | chance (majority class) | 0.333 | 0.333 | 0.200 | 0.200 | 0.500 | 0.467 |
 
 - **LaBraM-Base is the best model in five of the six columns.** On SEED-V, the CBraMod paper's own benchmark, it beats CBraMod by
@@ -423,6 +539,9 @@ every test: `python tools/compare_seed.py`, `python tools/compare_stew.py`.
 - **DGCNN** is the best model without pre-training on STEW and beats EEG Conformer and EEGNet on both trial splits and STEW (not on
   SEED's subject split, 0.521 against 0.538 and 0.523); braindecode's DeepSleepNet, a sleep model run off-label, is ahead of it on both
   trial splits and level with CBraMod on SEED-V's.
+- **dDTF-GL, without a network,** is level with DGCNN on SEED's trial split (0.561, p = 0.17) and with EEG Conformer on SEED-V's (p = 0.55),
+  0.06–0.09 behind the foundation models, and on STEW level with EEG Conformer (0.740, p = 0.65) and below DGCNN
+  ([ddtf-gl](methods/ddtf-gl)). Its own paper's STEW protocol, with every network on the same windows, is in Sections 1–2.
 - **ATCNet (braindecode) underfits 1-s samples:** 0.270 on SEED-V's trial split, the lowest of all models, and 0.489 on SEED's,
   level with EEGNet (p = 0.87). On SEED-V its training loss falls only from 1.60 to 1.42 in 50 epochs (chance level ln 5 = 1.61;
   EEGNet 1.41, DGCNN 0.81, CBraMod 0.40): under CBraMod's training settings the two small CNNs barely fit 1-s windows. Across
@@ -612,6 +731,7 @@ imagery ([dgcnn/cbramod-splits](methods/dgcnn/experiments/cbramod-splits)).
 | CBraMod, ablations | no pre-training (T4), frozen backbone (T18) | its own runs | both | pre-training +0.053 balanced accuracy on PhysioNet-MI (paper +0.022); frozen backbone 0.5370 (paper 0.3845) |
 | DeepSleepNet | earlier Sleep-EDF and MASS methods (hand-crafted features, CNNs) | copied from their papers (the released `summary.py` prints their confusion matrices) | no | – |
 | L-SeqSleepNet | SeqSleepNet (its main baseline) and about 20 published Sleep-EDF systems, DeepSleepNet among them (Table III) | SeqSleepNet: the authors' runs; the others copied. DeepSleepNet's per-stage F1 there (W 86.7, N1 45.5, N2 85.1, N3 83.3, REM 82.6) differ from DeepSleepNet's own Table IV (84.7, 46.6, 85.9, 84.8, 82.4) | DeepSleepNet with its released code on the same Sleep-EDF-78 split (Section 5) | L-SeqSleepNet leads the released DeepSleepNet by 0.070 κ (p = 0.003); braindecode's DeepSleepNet in CBraMod's pipeline is 0.010 κ behind it |
+| dDTF-GL | LSTM, TSception, EEGNet, ShallowFBCSPNet, Deep4Net, EEG-ITNet, each on raw EEG and on dDTF maps (Tables 1–4), and Safari et al.'s method (Table 3) | the networks: its own runs, with no settings given; Safari's row (0.895 ± 0.014) is Safari et al.'s published 89.53 ± 1.36%, copied and unmarked | the repository's seven networks in the paper's own two settings, on the same windows and splits (raw input, final epoch); EEGNet is the one model in both | our EEGNet on raw EEG matches the paper's (0.665 / 0.681 vs. 0.683 / 0.692, SI / SD); LaBraM-Base (0.863 / 0.973), CBraMod, DGCNN and EEG Conformer score above dDTF-GL (0.774 / 0.872); the paper's networks on dDTF maps not re-run |
 
 ## 9. Issues found, by type
 
@@ -640,6 +760,24 @@ Found in the 2026-11-08 round:
   the paper's 117,744 samples. `GroupKFold` folds on STEW differ between scikit-learn / numpy versions (equal group sizes): pinned.
 - **Implementations:** torcheeg's DGCNN uses powers of the adjacency matrix, not Chebyshev polynomials of a Laplacian; two GitHub
   re-implementations add BatchNorm and drop the 256-unit layer. braindecode's matches the authors' code.
+
+Found in the 2026-11-12 round (dDTF-GL):
+
+- **Released code vs. paper:** the authors' code bundle computes wavelet (DWT) statistics of the raw signal, not dDTF maps, and has no
+  auxiliary XGBoost; it scores 0.845 subject-independent on STEW, above the paper's 0.766 for the dDTF method.
+- **The paper's input:** "following [4]": Safari et al. release their SIFT dDTF maps of STEW but not the code that made them. On those
+  maps dDTF-GL reproduces the paper's subject-independent result (0.774, SD over subjects 0.147, against 0.766 ± 0.148), not its
+  subject-dependent one (0.872 vs. 0.898). Our own generator agrees with their maps only at r = 0.37 after calibration (0.13 before).
+- **The paper's claim of the highest accuracy:** in its own settings, on identical windows and splits, LaBraM-Base, CBraMod, DGCNN and
+  EEG Conformer are ahead (SI 0.863, 0.845, 0.805, 0.784); the paper's baselines are weaker models, and its raw-EEG EEGNet reproduces.
+- **STEW's raw files:** the Emotiv DC offset (about 4,300 µV) and slow drift are in them. The 14 channel means of a 4-s window alone
+  separate rest from task at 0.703 in unseen subjects; a 0.3-Hz high-pass (as in the shared STEW pipeline) costs the bundle 0.048.
+- **Protocol and spread:** neither STEW setting's split is described; the subject-independent ± is a spread over subjects; pooled
+  folds put windows sharing 2 s of signal on both sides (0.010–0.024 over holding out whole blocks). Safari et al.'s notebook averages
+  window pairs across subject boundaries.
+- **Baseline and claims:** "Safari's" row is the other paper's published number; the announced comparison of FLOPs, model size and
+  carbon is not in the manuscript. In our ablation the auxiliary XGBoost changes nothing and dDTF maps lose to the bundle's DWT
+  statistics.
 
 ## 10. Where this sits in the literature
 
@@ -672,6 +810,11 @@ the number the method's own paper reports. A per-method paper vs. re-run table, 
   `ATCNet`'s BatchNorm eps and the factor 2 in `ATCNet.source_optimizer_param_groups()` could be reported to
   braindecode (the axis fix is one argument: `dim=1`).
 
+- dDTF-GL: run deep networks on dDTF maps (the paper's Tables 1–2 claim that connectivity input beats raw EEG; its other baselines,
+  ShallowFBCSPNet, Deep4Net, TSception, EEG-ITNet, LSTM, are not in this repository); ask Safari et al. for their SIFT settings (or the
+  code) so that maps for the other datasets can match theirs, and the dDTF-GL authors for the split behind their subject-dependent
+  0.898; the GPU variant (Tables 3–4) with a CUDA build of XGBoost.
+
 ## Sources
 
 | Section | Source |
@@ -685,3 +828,4 @@ the number the method's own paper reports. A per-method paper vs. re-run table, 
 | ATCNet: paper-era code, log and weights; protocols, best-of-10 analysis | [bciciv2a-model-selection](methods/atcnet/experiments/bciciv2a-model-selection) (`code/analyze.py`, `results/authors_2022_log.txt`); upstream commit `3a318b2`; [2026-10-22 report](docs/reports/atcnet/2026-10-22_atcnet_weekly-report.docx) |
 | Sleep-EDF (Sections 1, 2, 5) | [cbramod/finetune-sleepedf](methods/cbramod/experiments/finetune-sleepedf) (shared pipeline, data, common test set) and each model's Sleep-EDF experiment; [deepsleepnet](methods/deepsleepnet), [l-seqsleepnet](methods/l-seqsleepnet) experiments; tests from `tools/compare_sleepedf.py`; citation counts from OpenAlex and Semantic Scholar (2026-11-01) |
 | LaBraM code issues, TUAB/TUEV benchmark re-runs | [2026-10-08 report](docs/reports/labram/2026-10-08_labram_weekly-report.docx), [literature note](docs/literature/review-papers-reproduction-vs-citation.md) |
+| dDTF-GL (Sections 1, 2, 5, 8, 9) | [methods/ddtf-gl](methods/ddtf-gl) and its five experiments; tests from `tools/compare_stew.py`, `compare_methods.py`, `compare_sleepedf.py`, `compare_seed.py` |

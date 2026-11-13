@@ -18,6 +18,7 @@ checkpoint rule and metric code are the same. Each model's runs sit in that mode
 | ATCNet | [atcnet/braindecode-seed](../../../atcnet/experiments/braindecode-seed) | braindecode (released code is TensorFlow) | trial, subject |
 | DeepSleepNet | [deepsleepnet/braindecode-seed](../../../deepsleepnet/experiments/braindecode-seed) | braindecode | trial, subject |
 | L-SeqSleepNet | [l-seqsleepnet/seed-offlabel](../../../l-seqsleepnet/experiments/seed-offlabel) | released code (TF 1.15), off-label: 30-s windows, 3 channels | trial, subject |
+| dDTF-GL | [ddtf-gl/seed-cbramod-pipeline](../../../ddtf-gl/experiments/seed-cbramod-pipeline) | ours (no network: dDTF maps, feature selection, XGBoost), the same 1-s samples, no epoch selection | trial, subject |
 | CBraMod, LaBraM-Base, EEG Conformer, EEGNet, DGCNN | `braindecode-seed` of each | braindecode 1.8.1 | trial |
 
 The CBraMod paper reports SEED-V (Table 2: CBraMod, LaBraM-Base, EEG Conformer, EEGNet) under the trial split, so that cell reproduces
@@ -75,6 +76,7 @@ Every model on the same samples (`python tools/compare_seed.py`). Clip vote: maj
 | CBraMod scratch | released, no pre-training | 5 | 0.5872 ± 0.0045 | 0.3630 ± 0.0080 | 0.5961 ± 0.0056 | 0.5973 ± 0.0052 | 0.6800 ± 0.0133 |
 | DGCNN (bd, DE) | braindecode, DE input | 5 | 0.5749 ± 0.0121 | 0.3412 ± 0.0256 | 0.5844 ± 0.0181 | 0.5836 ± 0.0178 | 0.6524 ± 0.0330 |
 | DGCNN | ours (PyTorch, DE input) | 5 | 0.5741 ± 0.0175 | 0.3380 ± 0.0413 | 0.5807 ± 0.0305 | 0.5801 ± 0.0303 | 0.6622 ± 0.0441 |
+| dDTF-GL | ours (dDTF maps, XGBoost; no network) | 5 | 0.5609 ± 0.0014 | 0.3206 ± 0.0022 | 0.5680 ± 0.0015 | 0.5674 ± 0.0015 | 0.6480 ± 0.0080 |
 | EEG Conformer | released | 5 | 0.5360 ± 0.0074 | 0.2640 ± 0.0146 | 0.5244 ± 0.0131 | 0.5256 ± 0.0116 | 0.5591 ± 0.0225 |
 | DGCNN (bd, raw) | braindecode, raw input | 5 | 0.5191 ± 0.0047 | 0.2510 ± 0.0106 | 0.5249 ± 0.0089 | 0.5245 ± 0.0087 | 0.6027 ± 0.0247 |
 | EEG Conformer (bd) | braindecode | 5 | 0.5259 ± 0.0095 | 0.2445 ± 0.0151 | 0.5071 ± 0.0168 | 0.5114 ± 0.0131 | 0.5547 ± 0.0158 |
@@ -114,6 +116,15 @@ DGCNN vs. the other supervised models: A − B, mean over runs, Welch p
 | DGCNN − EEG Conformer | +0.0381 (p = 0.005) | +0.0740 (p = 0.013) | +0.1031 (p = 0.004) |
 | DGCNN − ATCNet (bd) | +0.0849 (p < 0.001) | +0.1391 (p < 0.001) | +0.1547 (p < 0.001) |
 
+dDTF-GL against the other models: A − B, mean over runs, Welch p
+
+| A − B | bal. acc | κ | clip vote |
+|---|---|---|---|
+| dDTF-GL − DGCNN | -0.0132 (p = 0.166) | -0.0174 (p = 0.399) | -0.0142 (p = 0.515) |
+| dDTF-GL − EEGNet | +0.0700 (p < 0.001) | +0.1153 (p < 0.001) | +0.1182 (p < 0.001) |
+| dDTF-GL − CBraMod | -0.0553 (p < 0.001) | -0.0814 (p = 0.003) | -0.0489 (p = 0.070) |
+| dDTF-GL − LaBraM-Base | -0.0691 (p < 0.001) | -0.1054 (p < 0.001) | -0.0640 (p < 0.001) |
+
 braindecode − original implementation, same pipeline: A − B, mean over runs, Welch p
 
 | A − B | bal. acc | κ | clip vote |
@@ -133,6 +144,7 @@ braindecode − original implementation, same pipeline: A − B, mean over runs,
 | CBraMod | released | 5 | 0.5442 ± 0.0092 | 0.3211 ± 0.0143 | 0.5415 ± 0.0081 | 0.5479 ± 0.0096 | 0.5852 ± 0.0196 |
 | ATCNet (bd) | braindecode | 5 | 0.5410 ± 0.0057 | 0.3165 ± 0.0086 | 0.5186 ± 0.0083 | 0.5461 ± 0.0056 | 0.5881 ± 0.0285 |
 | EEG Conformer | released | 5 | 0.5378 ± 0.0105 | 0.3122 ± 0.0157 | 0.5134 ± 0.0112 | 0.5433 ± 0.0102 | 0.5644 ± 0.0062 |
+| dDTF-GL | ours (dDTF maps, XGBoost; no network) | 5 | 0.5237 ± 0.0015 | 0.2897 ± 0.0022 | 0.5224 ± 0.0015 | 0.5270 ± 0.0015 | 0.5407 ± 0.0091 |
 | EEGNet | ours (PyTorch) | 5 | 0.5227 ± 0.0240 | 0.2882 ± 0.0371 | 0.5157 ± 0.0219 | 0.5264 ± 0.0248 | 0.5481 ± 0.0448 |
 | DGCNN | ours (PyTorch, DE input) | 5 | 0.5215 ± 0.0139 | 0.2861 ± 0.0210 | 0.5234 ± 0.0126 | 0.5243 ± 0.0142 | 0.5393 ± 0.0379 |
 | DeepSleepNet (bd) | braindecode | 5 | 0.5034 ± 0.0293 | 0.2592 ± 0.0444 | 0.5023 ± 0.0301 | 0.5060 ± 0.0299 | 0.5363 ± 0.0580 |
@@ -163,6 +175,15 @@ DGCNN vs. the other supervised models: A − B, mean over runs, Welch p
 | DGCNN − EEG Conformer | -0.0163 (p = 0.072) | -0.0261 (p = 0.060) | -0.0252 (p = 0.213) |
 | DGCNN − ATCNet (bd) | -0.0195 (p = 0.031) | -0.0304 (p = 0.028) | -0.0489 (p = 0.053) |
 
+dDTF-GL against the other models: A − B, mean over runs, Welch p
+
+| A − B | bal. acc | κ | clip vote |
+|---|---|---|---|
+| dDTF-GL − DGCNN | +0.0022 (p = 0.741) | +0.0035 (p = 0.728) | +0.0015 (p = 0.936) |
+| dDTF-GL − EEGNet | +0.0010 (p = 0.929) | +0.0015 (p = 0.935) | -0.0074 (p = 0.734) |
+| dDTF-GL − CBraMod | -0.0205 (p = 0.007) | -0.0314 (p = 0.007) | -0.0444 (p = 0.004) |
+| dDTF-GL − LaBraM-Base | -0.0585 (p < 0.001) | -0.0891 (p < 0.001) | -0.1007 (p < 0.001) |
+
 ### SEED-V, trial split, as CBraMod on SEED-V (chance: 0.200)
 
 | Model | Implementation | Runs | bal. acc | κ | weighted F1 | accuracy | clip vote |
@@ -174,6 +195,7 @@ DGCNN vs. the other supervised models: A − B, mean over runs, Welch p
 | DGCNN | ours (PyTorch, DE input) | 5 | 0.3866 ± 0.0051 | 0.2346 ± 0.0066 | 0.3930 ± 0.0051 | 0.3909 ± 0.0052 | 0.4717 ± 0.0162 |
 | CBraMod (bd) | braindecode | 5 | 0.3786 ± 0.0096 | 0.2219 ± 0.0122 | 0.3806 ± 0.0093 | 0.3797 ± 0.0092 | 0.4775 ± 0.0303 |
 | DGCNN (bd, DE) | braindecode, DE input | 5 | 0.3752 ± 0.0039 | 0.2194 ± 0.0045 | 0.3793 ± 0.0033 | 0.3779 ± 0.0033 | 0.4742 ± 0.0215 |
+| dDTF-GL | ours (dDTF maps, XGBoost; no network) | 5 | 0.3245 ± 0.0012 | 0.1583 ± 0.0016 | 0.3332 ± 0.0012 | 0.3382 ± 0.0013 | 0.4333 ± 0.0066 |
 | EEG Conformer | released | 5 | 0.3205 ± 0.0137 | 0.1464 ± 0.0196 | 0.3135 ± 0.0229 | 0.3249 ± 0.0170 | 0.3642 ± 0.0337 |
 | EEG Conformer (bd) | braindecode | 5 | 0.2962 ± 0.0123 | 0.1134 ± 0.0147 | 0.2696 ± 0.0248 | 0.2966 ± 0.0146 | 0.3358 ± 0.0210 |
 | EEGNet | ours (PyTorch) | 5 | 0.2894 ± 0.0094 | 0.1133 ± 0.0097 | 0.2738 ± 0.0115 | 0.3080 ± 0.0064 | 0.3067 ± 0.0260 |
@@ -223,6 +245,15 @@ DGCNN vs. the other supervised models: A − B, mean over runs, Welch p
 | DGCNN − EEG Conformer | +0.0662 (p < 0.001) | +0.0881 (p < 0.001) | +0.1075 (p < 0.001) |
 | DGCNN − ATCNet (bd) | +0.1165 (p < 0.001) | +0.1485 (p < 0.001) | +0.1900 (p < 0.001) |
 
+dDTF-GL against the other models: A − B, mean over runs, Welch p
+
+| A − B | bal. acc | κ | clip vote |
+|---|---|---|---|
+| dDTF-GL − DGCNN | -0.0621 (p < 0.001) | -0.0763 (p < 0.001) | -0.0383 (p = 0.004) |
+| dDTF-GL − EEGNet | +0.0351 (p = 0.001) | +0.0450 (p < 0.001) | +0.1267 (p < 0.001) |
+| dDTF-GL − CBraMod | -0.0718 (p < 0.001) | -0.0918 (p < 0.001) | -0.0717 (p < 0.001) |
+| dDTF-GL − LaBraM-Base | -0.0891 (p < 0.001) | -0.1078 (p < 0.001) | -0.0575 (p = 0.005) |
+
 braindecode − original implementation, same pipeline: A − B, mean over runs, Welch p
 
 | A − B | bal. acc | κ | clip vote |
@@ -243,6 +274,7 @@ braindecode − original implementation, same pipeline: A − B, mean over runs,
 | EEGNet | ours (PyTorch) | 5 | 0.2468 ± 0.0084 | 0.0555 ± 0.0099 | 0.2116 ± 0.0199 | 0.2387 ± 0.0080 | 0.2607 ± 0.0364 |
 | DeepSleepNet (bd) | braindecode | 5 | 0.2421 ± 0.0117 | 0.0544 ± 0.0163 | 0.2283 ± 0.0176 | 0.2443 ± 0.0228 | 0.2593 ± 0.0262 |
 | EEG Conformer | released | 5 | 0.2366 ± 0.0089 | 0.0420 ± 0.0116 | 0.1888 ± 0.0196 | 0.2181 ± 0.0120 | 0.2252 ± 0.0084 |
+| dDTF-GL | ours (dDTF maps, XGBoost; no network) | 5 | 0.2315 ± 0.0019 | 0.0387 ± 0.0019 | 0.2237 ± 0.0024 | 0.2333 ± 0.0023 | 0.2607 ± 0.0110 |
 | LaBraM-Base | released | 5 | 0.2214 ± 0.0105 | 0.0257 ± 0.0128 | 0.1973 ± 0.0104 | 0.2196 ± 0.0071 | 0.2193 ± 0.0124 |
 | CBraMod | released | 5 | 0.2223 ± 0.0070 | 0.0230 ± 0.0083 | 0.1887 ± 0.0166 | 0.2100 ± 0.0097 | 0.2178 ± 0.0144 |
 | L-SeqSleepNet | released, off-label | 3 | (30-s windows) | (30-s windows) | (30-s windows) | (30-s windows) | 0.4074 ± 0.0370 |
@@ -271,6 +303,15 @@ DGCNN vs. the other supervised models: A − B, mean over runs, Welch p
 | DGCNN − EEGNet | +0.0095 (p = 0.135) | +0.0154 (p = 0.037) | +0.0267 (p = 0.180) |
 | DGCNN − EEG Conformer | +0.0197 (p = 0.010) | +0.0288 (p = 0.003) | +0.0622 (p < 0.001) |
 | DGCNN − ATCNet (bd) | +0.0035 (p = 0.536) | +0.0067 (p = 0.268) | +0.0178 (p = 0.195) |
+
+dDTF-GL against the other models: A − B, mean over runs, Welch p
+
+| A − B | bal. acc | κ | clip vote |
+|---|---|---|---|
+| dDTF-GL − DGCNN | -0.0248 (p = 0.004) | -0.0321 (p = 0.001) | -0.0267 (p = 0.004) |
+| dDTF-GL − EEGNet | -0.0153 (p = 0.013) | -0.0168 (p = 0.018) | +0.0000 (p = 1.000) |
+| dDTF-GL − CBraMod | +0.0092 (p = 0.040) | +0.0156 (p = 0.012) | +0.0430 (p < 0.001) |
+| dDTF-GL − LaBraM-Base | +0.0101 (p = 0.097) | +0.0130 (p = 0.086) | +0.0415 (p < 0.001) |
 <!-- /COMMON -->
 
 ## Data
