@@ -137,6 +137,7 @@ Every model run so far, grouped by task category and dataset. "Paper" is the num
 | | | | | | | LaBraM-Base | general | – | 0.8626 | – |
 | | | | | | | CBraMod | general | – | 0.8451 | – |
 | | | | | | | dDTF-GL | no network ᵒ | 0.766 | 0.7744 ᵖ | – |
+| | | | | | | dDTF-GL, XGBoost on the GPU | no network ᵒ | 0.765 | 0.7726 ᵖ | – |
 | | | | | | the dDTF-GL paper's subject-dependent setting: 7 folds over all windows (accuracy) | EEGNet | domain-specific | 0.692 ᵘ | 0.6814 ᵈ | – |
 | | | | | | | EEG Conformer | domain-specific | – | 0.8926 | – |
 | | | | | | | ATCNet | domain-specific | – | – | 0.8360 |
@@ -145,6 +146,7 @@ Every model run so far, grouped by task category and dataset. "Paper" is the num
 | | | | | | | LaBraM-Base | general | – | 0.9733 | – |
 | | | | | | | CBraMod | general | – | 0.9619 | – |
 | | | | | | | dDTF-GL | no network ᵒ | 0.898 | 0.8716 ᵖ | – |
+| | | | | | | dDTF-GL, XGBoost on the GPU | no network ᵒ | 0.896 | 0.8713 ᵖ | – |
 
 - **Model type.** *Domain-specific*: a supervised model trained from scratch on the task's own data (EEGNet, EEG
   Conformer, ATCNet, and the sleep models DeepSleepNet and L-SeqSleepNet). *General*: an EEG foundation model, pre-trained on large unlabeled EEG corpora and fine-tuned for
@@ -184,7 +186,8 @@ Every model run so far, grouped by task category and dataset. "Paper" is the num
   ᵖ STEW, the dDTF-GL paper's protocol ([stew-paper-protocol](methods/ddtf-gl/experiments/stew-paper-protocol)): dDTF-GL on Safari
   et al.'s released maps, the paper's input; on our calibrated maps 0.778 (SI) and 0.913 (SD); the authors' code bundle as released
   0.845 (SI; DWT features, 4-s windows of the raw signal); SD with whole blocks of each recording held out 0.861. Every model ran on the
-  same windows and splits; the networks with their shared STEW recipe, 50 epochs, final epoch kept. Not tested against the paper: its ±
+  same windows and splits; the networks with their shared STEW recipe, 50 epochs, final epoch kept. The GPU rows are the paper's "Our
+  Method (GPU)": the same with XGBoost on a GPU (GPU − CPU −0.002 and −0.0003, p ≥ 0.53). Not tested against the paper: its ±
   is a spread over subjects (SI) or folds (SD), not over runs. ᵘ The dDTF-GL paper's own EEGNet on raw EEG (its Tables 1–2).
 - ʲ DGCNN, SEED: 87.69 under the paper's own rule (peak of ~80 test evaluations, each subject's best 2 of 3 sessions; the authors' own code,
   run unmodified on the same features, 87.59), 77.79 with nothing chosen on the test set ([seed-paper-protocol](methods/dgcnn/experiments/seed-paper-protocol)). No significance test: the paper gives a single mean.
@@ -767,7 +770,7 @@ Found in the 2026-11-12 round (dDTF-GL):
   auxiliary XGBoost; it scores 0.845 subject-independent on STEW, above the paper's 0.766 for the dDTF method.
 - **The paper's input:** "following [4]": Safari et al. release their SIFT dDTF maps of STEW but not the code that made them. On those
   maps dDTF-GL reproduces the paper's subject-independent result (0.774, SD over subjects 0.147, against 0.766 ± 0.148), not its
-  subject-dependent one (0.872 vs. 0.898). Our own generator agrees with their maps only at r = 0.37 after calibration (0.13 before).
+  subject-dependent one (0.872 vs. 0.898); its GPU variant gives the same numbers (0.773 and 0.871; the paper: 0.765 and 0.896). Our own generator agrees with their maps only at r = 0.37 after calibration (0.13 before).
 - **The paper's claim of the highest accuracy:** in its own settings, on identical windows and splits, LaBraM-Base, CBraMod, DGCNN and
   EEG Conformer are ahead (SI 0.863, 0.845, 0.805, 0.784); the paper's baselines are weaker models, and its raw-EEG EEGNet reproduces.
 - **STEW's raw files:** the Emotiv DC offset (about 4,300 µV) and slow drift are in them. The 14 channel means of a 4-s window alone

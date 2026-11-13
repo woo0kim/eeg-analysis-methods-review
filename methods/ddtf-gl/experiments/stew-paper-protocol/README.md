@@ -28,19 +28,28 @@ over the 48 subjects. Paper: Tables 3 and 4, "Our Method (CPU)" (`results/result
 | SI | **Safari et al.'s released maps** | **0.7744** ± 0.0683 [0.0052]; subjects ± **0.1474** | 0.7732 | 0.7816 | 0.7744 |
 | SI | ours, calibrated | 0.7778 ± 0.0569 [0.0032]; subjects ± 0.1321 | 0.7763 | 0.7856 | 0.7778 |
 | SI | ours, first settings | 0.8000 ± 0.0430 [0.0016]; subjects ± 0.1297 | 0.7991 | 0.8044 | 0.8000 |
+| SI | Safari et al.'s maps, **XGBoost on the GPU** | 0.7726 ± 0.0701 [0.0033]; subjects ± 0.1493 | 0.7714 | 0.7796 | 0.7726 |
 | SI | *paper* | *0.766 ± 0.148* | *0.756 ± 0.161* | *0.781 ± 0.148* | *0.766 ± 0.148* |
+| SI | *paper, GPU* | *0.765 ± 0.149* | *0.756 ± 0.163* | *0.780 ± 0.150* | *0.765 ± 0.149* |
 | SI | the authors' bundle as released (DWT, 4-s windows) | 0.8450 ± 0.0368 (ddof 0) [0.0035] | 0.8436 | – | – |
 | SD, pooled folds | **Safari et al.'s released maps** | **0.8716** ± 0.0119 [0.0022] | 0.8715 | 0.8721 | 0.8716 |
 | SD, pooled folds | ours, calibrated | 0.9126 ± 0.0130 [0.0039] | 0.9125 | 0.9129 | 0.9126 |
 | SD, pooled folds | ours, first settings | 0.9153 ± 0.0119 [0.0020] | 0.9152 | 0.9156 | 0.9153 |
+| SD, pooled folds | Safari et al.'s maps, **XGBoost on the GPU** | 0.8713 ± 0.0140 [0.0037] | 0.8712 | 0.8718 | 0.8713 |
 | SD | *paper* | *0.898 ± 0.016* | *0.898 ± 0.016* | *0.899 ± 0.015* | *0.898 ± 0.015* |
+| SD | *paper, GPU* | *0.896 ± 0.017* | *0.896 ± 0.018* | *0.896 ± 0.017* | *0.896 ± 0.017* |
 | SD, whole blocks held out (control) | Safari et al.'s released maps | 0.8613 ± 0.0241 [0.0030] | 0.8612 | 0.8624 | 0.8613 |
+| SD, whole blocks held out (control) | Safari et al.'s maps, XGBoost on the GPU | 0.8630 ± 0.0201 [0.0024] | 0.8629 | 0.8640 | 0.8630 |
 | SD, whole blocks held out (control) | ours, calibrated | 0.8885 ± 0.0188 [0.0048] | 0.8885 | 0.8892 | 0.8885 |
 | SD, whole blocks held out (control) | ours, first settings | 0.8975 ± 0.0180 [0.0007] | 0.8974 | 0.8983 | 0.8975 |
 
 - **On Safari et al.'s maps the paper's subject-independent result reproduces exactly:** 0.774 against 0.766, F1 0.773 against 0.756,
   precision 0.782 against 0.781, and a spread over the 48 subjects of 0.147 against the paper's 0.148. The paper's ± is a spread over
   subjects, not folds (ours over folds: 0.068), and its input was most likely these released maps.
+- **The GPU variant ("Our Method (GPU)") gives the same numbers,** as the paper reports: GPU − CPU = −0.002 (SI, Welch p = 0.53),
+  −0.0003 (SD, p = 0.89) and +0.002 (blocked SD, p = 0.35), on the same maps, splits and seeds. SI 0.773 with an SD over subjects of
+  0.149 against the paper's GPU row, 0.765 ± 0.149. Fitting AXB and the classifier takes 3 s on a Quadro M6000 against 18–26 s on
+  the CPU; predicting is slower (0.07 against 0.01 ms per window) because the data stay in host memory.
 - **Its subject-dependent result does not:** 0.872 on the same maps with pooled folds, 0.026 below the paper's 0.898; our own maps give
   0.913–0.915 there. The paper does not describe this split; Safari et al.'s notebook pools the windows as we do. The SD spreads
   (0.012–0.013) are fold SDs like the paper's (0.016).
@@ -126,7 +135,7 @@ in the manuscript reports them.
 | SD split | not given | – | 7-fold stratified over pooled windows, shuffled by seed | the reading under which the paper's SD row is comparable with Safari et al.'s, which it quotes |
 | ± | not given | SD over the 7 folds (numpy, ddof 0) | SD over the 7 folds (ddof 1), mean over seeds; SI also SD over the 48 subjects | on Safari et al.'s maps the SD over subjects (0.147) matches the paper's SI SD (0.148); the fold SD (0.068) does not |
 | F1, precision, recall | not defined | macro F1 | macro (the paper's SI recall equals its accuracy, as macro recall does on balanced folds) | – |
-| GPU row | XGBoost on GPU | – | not run | the CPU row is the paper's headline; the environment's xgboost is the CPU build |
+| GPU row | XGBoost on GPU | – | `safari-gl-gpu`: AXB and the classifier with `device='cuda'`, XGBoost 3.4.2's CUDA build (the CPU runs' version), a Quadro M6000 on mcl-server; DFT and LNT on the CPU | the paper's GPU variant, on its CPU row's maps and splits |
 
 ### Settings we had to choose
 
@@ -144,7 +153,8 @@ in the manuscript reports them.
 
 The bundle's settings for DFT, LNT and XGBoost (table above); dDTF as in [../../README.md](../../README.md). Environment
 [../../env/conda_list.txt](../../env/conda_list.txt) (Python 3.11, numpy 2.4.6, scikit-learn 1.9.1, xgboost 3.4.2 CPU, pywavelets
-1.9.0, opencv 5.0.0). Hardware: dDTF-GL and the bundle on mcl-server, 2× Xeon E5-2620 v3 (24 threads), CPU only; the networks on
+1.9.0, opencv 5.0.0); the GPU variant [../../env/conda_list_gpu.txt](../../env/conda_list_gpu.txt) (the same with XGBoost's CUDA 12.9 build).
+Hardware: dDTF-GL and the bundle on mcl-server, 2× Xeon E5-2620 v3 (24 threads); its GPU variant on one of mcl-server's Quadro M6000; the networks on
 mcl-server2's RTX A6000 GPUs (shared with other users), with the shared STEW pipeline's environments (PyTorch 2.1.2, braindecode 1.8.1).
 
 ## Reproducing
@@ -155,6 +165,8 @@ code/reproduce.sh train            # features, the dDTF-GL runs and the 5 bundle
 # Safari et al.'s maps (github.com/safari-mohammadreza/MWL_MachineLearning @604d243, its files/ folder) as features, and the calibration:
 python ../../code/safari_maps.py <their files/> ~/repro-gl/features/STEW-6s/safari
 python ../../code/calibrate_safari.py <dir holding their files/> > results/calibration_safari.txt
+# the GPU variant (environment ../../env/environment_gpu.yml):
+CUDA_VISIBLE_DEVICES=0 GL_PY=<ddtf-gl-gpu python> ../../code/run_jobs.sh stew-paper-protocol "__safari-gl-gpu__"
 # the networks (GPU; the environments of the shared STEW pipeline, P6_WORK as in code/add_jobs6.py):
 python code/nets6.py build ~/repro-seed/stew6                       # windows6.npz: the same 6-s windows
 python code/add_jobs6.py eegnet conformer bd-atcnet bd-deepsleepnet dgcnn cbramod labram
@@ -165,7 +177,7 @@ scores of every epoch, recorded and never used) and `test_preds.npz` (final epoc
 (`preds.npz`); `code/reproduce.sh collect` turned them into the same two files, and `preds.npz` is not committed (too large).
 
 `logs/runs/<setting>__fold<k>__<variant>__s<seed>/` (settings `si`, `sd`, `sd-blocked`, and the controls `si4raw`, `si4hp`; variants
-`safari-gl`, `ddtf-gl`, `ddtf-gl-v0`, `dwt-gl`, `dc-gl`) holds `log.txt`, `metrics.json` (scores, feature counts per stage, model size,
+`safari-gl`, `safari-gl-gpu`, `ddtf-gl`, `ddtf-gl-v0`, `dwt-gl`, `dc-gl`) holds `log.txt`, `metrics.json` (scores, feature counts per stage, model size,
 timings) and `test_preds.npz` (labels, predictions, probabilities); `logs/runs/bundle__s<seed>/` the bundle's own report
 (`mwl_gl_si7.json`), its log and the four lines of its config that were changed (`config.diff`).
 
