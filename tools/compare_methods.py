@@ -1,8 +1,9 @@
 """Welch tests between the models run on CBraMod's splits (same samples, subject splits, seeds 0-4,
 checkpoint rule and metric code), read from the committed results.json files. Feeds SUMMARY.md.
 
-Four tables: the released-code models against each other; each braindecode implementation against the original
-implementation of the same model; the braindecode implementations against each other; and dDTF-GL against the others.
+Five tables: the released-code models against each other; each braindecode implementation against the original
+implementation of the same model; the braindecode implementations against each other; DGCNN against the others, and
+braindecode's DGCNN on raw samples against DE input; and dDTF-GL against the others.
 usage: python tools/compare_methods.py [metric]     # balanced_acc (default), kappa, weighted_f1, roc_auc, pr_auc
 """
 import json, os, sys
@@ -19,7 +20,10 @@ MODELS = {'EEGNet': (EEGNET_PT, 'eegnet'), 'CBraMod scratch': (CBRAMOD, 'scratch
           'CBraMod': (CBRAMOD, 'pretrained'), 'LaBraM-Base': (LABRAM, 'labram'),
           'EEGNet (bd)': (EEGNET_BD, 'eegnet-braindecode'), 'CBraMod scratch (bd)': (CBRAMOD_BD, 'scratch'),
           'CBraMod (bd)': (CBRAMOD_BD, 'pretrained'), 'LaBraM-Base (bd)': (LABRAM_BD, 'labram'),
-          'DGCNN': ('methods/dgcnn/experiments/cbramod-splits', 'dgcnn'), 'dDTF-GL': ('methods/ddtf-gl/experiments/cbramod-splits', 'ddtf-gl')}
+          'DGCNN': ('methods/dgcnn/experiments/cbramod-splits', 'dgcnn'),
+          'DGCNN (bd, DE)': ('methods/dgcnn/experiments/cbramod-splits', 'bd-dgcnn-de'),
+          'DGCNN (bd, raw)': ('methods/dgcnn/experiments/cbramod-splits', 'bd-dgcnn'),
+          'dDTF-GL': ('methods/ddtf-gl/experiments/cbramod-splits', 'ddtf-gl')}
 TABLES = [
     ('released code (EEGNet: our PyTorch implementation)',
      [('CBraMod', 'CBraMod scratch'), ('CBraMod', 'LaBraM-Base'), ('CBraMod', 'EEGNet'), ('LaBraM-Base', 'EEGNet')]),
@@ -29,6 +33,8 @@ TABLES = [
     ('braindecode implementations against each other',
      [('CBraMod (bd)', 'CBraMod scratch (bd)'), ('CBraMod (bd)', 'LaBraM-Base (bd)'), ('CBraMod (bd)', 'EEGNet (bd)'),
       ('LaBraM-Base (bd)', 'EEGNet (bd)')]),
+    ('DGCNN (DE input) against the released-code models, and braindecode\'s DGCNN on raw samples against DE input',
+     [('DGCNN', 'EEGNet'), ('DGCNN', 'CBraMod'), ('DGCNN', 'LaBraM-Base'), ('DGCNN (bd, raw)', 'DGCNN (bd, DE)')]),
     ('dDTF-GL (dDTF maps, XGBoost) against the models above and DGCNN',
      [('dDTF-GL', 'EEGNet'), ('dDTF-GL', 'CBraMod'), ('dDTF-GL', 'LaBraM-Base'), ('dDTF-GL', 'DGCNN')]),
 ]

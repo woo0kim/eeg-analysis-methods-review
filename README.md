@@ -8,7 +8,8 @@ raw output (training logs, per-epoch curves) to recompute its numbers without a 
 
 **[RESULTS.md](RESULTS.md)** collects every reproduced number by method and dataset.
 **[SUMMARY.md](SUMMARY.md)** summarizes them: results by task category and dataset (domain-specific vs. general
-models), methods grouped by characteristics, datasets, baselines, and all models compared on identical splits,
+models), methods grouped by characteristics, each method's results across datasets and the patterns they show (e.g. spectral-input
+models lead on depression and workload but trail on motor imagery), datasets, baselines, and all models compared on identical splits,
 including sleep staging on Sleep-EDF, where every model runs through one pipeline next to two sleep-specific models, emotion
 recognition on SEED and SEED-V, and mental workload on STEW, where every model again shares one pipeline.
 

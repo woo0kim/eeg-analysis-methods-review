@@ -267,6 +267,165 @@ from the method READMEs.
 | | does not reproduce | CBraMod (3 / 12 metrics within noise) | |
 | | mixed | EEGNet (6 / 12 within noise: above the paper on all BCI-IV-2a metrics and PhysioNet-MI weighted F1, below on MentalArithmetic and Mumtaz2016 balanced accuracy) | the paper's EEGNet came from BIOT's code with unreported settings |
 
+### Results by method
+
+Section 2 turned around: each method, then its results on every dataset it ran on. **Shared pipeline** is the comparable
+number: the model inside the one pipeline every model shares on that dataset (CBraMod's for the four cross-subject datasets,
+Sleep-EDF-78, SEED and SEED-V; the shared STEW recipe; Section 5), with its **rank by mean** among the models run there (one
+entry per model, 1 = best of n). Ranks do not mark ties; the tests are in Section 5 and in the patterns below. SEED-V's subject
+split is at chance for every model, so its ranks are noise. **Paper's protocol** is the reproduction of the method's own paper,
+paper → ours.
+
+- Metrics: balanced accuracy (motor imagery, Mumtaz2016, MentalArithmetic, SEED, SEED-V), κ (Sleep-EDF-78), accuracy (STEW).
+  STEW settings: 2-class (rest vs. task), 3-level, and the dDTF-GL paper's subject-independent (SI) and subject-dependent (SD)
+  settings on 6-s windows. "Paper" in the shared-pipeline column is the method's own paper (CBraMod) or the CBraMod or dDTF-GL
+  paper's baseline row.
+- bd: braindecode's implementation, the only one of ATCNet and DeepSleepNet that runs in the shared pipelines (their released
+  code is TensorFlow). braindecode re-runs of the other models are in Sections 2 and 7.
+- Within-subject cells "x / y": the paper's reporting rule / nothing chosen on the test set (Section 6; DGCNN on SEED: Section 1).
+
+| Method | Task | Dataset | Shared pipeline: ours (rank / n) | Paper's protocol: paper → ours |
+|---|---|---|---|---|
+| **LaBraM-Base**<br>*foundation model*: raw signal, Transformer, 5.8M, pre-trained | motor imagery | BCI-IV-2a | 0.4477 (3 / 5); CBraMod paper 0.4869 | its paper's TUAB and TUEV not run (access-gated) |
+| | motor imagery | PhysioNet-MI | 0.6098 (2 / 5); CBraMod paper 0.6173 | – |
+| | depression | Mumtaz2016 | 0.8905 (4 / 5); CBraMod paper 0.9409 | – |
+| | mental stress | MentalArithmetic | **0.6562 (1 / 5)**; CBraMod paper 0.6909 | – |
+| | sleep staging | Sleep-EDF-78 | **κ 0.7727 (1 / 9)** | – |
+| | emotion | SEED | trial **0.6300 (1 / 8)** · subject **0.5822 (1 / 8)** | – |
+| | emotion | SEED-V | trial **0.4136 (1 / 8)**, CBraMod paper 0.3976 · subject 0.2214 (8 / 8) | – |
+| | workload | STEW | 2-class **0.8179 (1 / 8)** · 3-level **0.5670 (1 / 8)** · SI **0.8626 (1 / 8)** · SD **0.9733 (1 / 8)** | – |
+| **CBraMod**<br>*foundation model*: raw signal, criss-cross Transformer, 4.9M backbone, pre-trained | motor imagery | BCI-IV-2a | 0.4571 (2 / 5); paper 0.5138 | its paper's protocol is the shared pipeline (paper numbers in the previous column) |
+| | motor imagery | PhysioNet-MI | **0.6265 (1 / 5)**; paper 0.6417 | – |
+| | depression | Mumtaz2016 | 0.8933 (3 / 5); paper 0.9560 | – |
+| | mental stress | MentalArithmetic | 0.5889 (3 / 5); paper 0.7256 | – |
+| | sleep staging | Sleep-EDF-78 | κ 0.7676 (4 / 9) | – |
+| | emotion | SEED | trial 0.6162 (2 / 8) · subject 0.5442 (2 / 8) | – |
+| | emotion | SEED-V | trial 0.3962 (3 / 8), paper 0.4091 · subject 0.2223 (7 / 8) | – |
+| | workload | STEW | 2-class 0.7998 (2 / 8) · 3-level 0.5661 (2 / 8) · SI 0.8451 (2 / 8) · SD 0.9619 (2 / 8) | – |
+| **EEGNet**<br>*small, raw input*: compact CNN, 2–4K, from scratch | motor imagery | BCI-IV-2a | **0.5288 (1 / 5)**; CBraMod paper 0.4482 | within-subject in EEG Conformer's loop (bd): 74.50 (EEG Conformer's Table II) → 72.62 / 67.36 % |
+| | motor imagery | PhysioNet-MI | 0.5948 (3 / 5); CBraMod paper 0.5814 | – |
+| | depression | Mumtaz2016 | 0.8828 (5 / 5); CBraMod paper 0.9232 | – |
+| | mental stress | MentalArithmetic | 0.5569 (5 / 5); CBraMod paper 0.6770 | – |
+| | sleep staging | Sleep-EDF-78 | κ 0.6815 (8 / 9) | – |
+| | emotion | SEED | trial 0.4909 (7 / 8) · subject 0.5227 (6 / 8) | – |
+| | emotion | SEED-V | trial 0.2894 (7 / 8), CBraMod paper 0.2961 · subject 0.2468 (3 / 8) | – |
+| | workload | STEW | 2-class 0.6648 (8 / 8) · 3-level 0.4975 (8 / 8) · SI 0.6647 (8 / 8) · SD 0.6814 (8 / 8) | the dDTF-GL paper's EEGNet: SI 0.683 → 0.6647, SD 0.692 → 0.6814 |
+| **EEG Conformer**<br>*small, raw input*: CNN + self-attention, 790K, from scratch | motor imagery | BCI-IV-2a | not run across subjects | within-subject: 78.66 → 78.72 / 70.01 % |
+| | sleep staging | Sleep-EDF-78 | κ 0.6876 (7 / 9) | – |
+| | emotion | SEED | trial 0.5360 (6 / 8) · subject 0.5378 (4 / 8) | session 1, 5 folds inside clips: 95.30 → 98.24 %; whole clips held out 71.59 % |
+| | emotion | SEED-V | trial 0.3205 (6 / 8), CBraMod paper 0.3537 · subject 0.2366 (5 / 8) | – |
+| | workload | STEW | 2-class 0.7364 (5 / 8) · 3-level 0.5118 (7 / 8) · SI 0.7842 (4 / 8) · SD 0.8926 (4 / 8) | – |
+| **ATCNet**<br>*small, raw input*: CNN + attention + TCN, 114K, from scratch | motor imagery | BCI-IV-2a | not run across subjects | within-subject: 85.38 → 84.18 / 79.52 %; leave one subject out: 70.97 → 69.06 / 60.23 % |
+| | sleep staging | Sleep-EDF-78 | κ 0.7709 (3 / 9), bd | – |
+| | emotion | SEED | trial 0.4892 (8 / 8) · subject 0.5410 (3 / 8), bd | – |
+| | emotion | SEED-V | trial 0.2701 (8 / 8) · subject 0.2528 (2 / 8), bd | – |
+| | workload | STEW | 2-class 0.7257 (6 / 8) · 3-level 0.5290 (5 / 8) · SI 0.7675 (6 / 8) · SD 0.8360 (7 / 8), bd | – |
+| **DeepSleepNet**<br>*sleep model*: raw 30-s epochs, two-scale CNN + BiLSTM, 40.5M (bd), from scratch | sleep staging | Sleep-EDF | Sleep-EDF-78: κ 0.7625 (5 / 9), bd; its released training on the same split 0.7030 | Sleep-EDF-20, 20-fold CV: 82.0 → 81.81 % (κ 0.76 → 0.754) |
+| | emotion | SEED | trial 0.5912 (3 / 8) · subject 0.5034 (8 / 8), bd, off-label | – |
+| | emotion | SEED-V | trial 0.3995 (2 / 8) · subject 0.2421 (4 / 8), bd, off-label | – |
+| | workload | STEW | 2-class 0.7168 (7 / 8) · 3-level 0.5468 (4 / 8) · SI 0.7408 (7 / 8) · SD 0.8495 (6 / 8), bd, off-label | – |
+| **L-SeqSleepNet**<br>*sleep model*: spectrograms through a learned filterbank, BiLSTMs over 200-epoch sequences, from scratch | sleep staging | Sleep-EDF | Sleep-EDF-78: κ 0.7725 (2 / 9), its own released training | Sleep-EDF-20, leave one subject out: 86.3 → 86.11 % (κ 0.813 → 0.811) |
+| | emotion | SEED, SEED-V | off-label on 30-s windows of 3 channels, not ranked: trial-split clip vote 0.513 (SEED), 0.358 (SEED-V); subject split not valid | – |
+| | workload | STEW | off-label on 30-s windows, not ranked: 2-class 0.7667 · 3-level 0.5407 | – |
+| **DGCNN**<br>*spectral input*: 5-band differential entropy per electrode, graph network, from scratch | motor imagery | BCI-IV-2a | 0.3458 (4 / 5) | within-subject in EEG Conformer's loop (no paper number): 50.40 / 44.42 % |
+| | motor imagery | PhysioNet-MI | 0.4822 (4 / 5) | – |
+| | depression | Mumtaz2016 | **0.9619 (1 / 5)** | – |
+| | mental stress | MentalArithmetic | 0.6236 (2 / 5) | – |
+| | sleep staging | Sleep-EDF-78 | κ 0.6941 (6 / 9) | – |
+| | emotion | SEED | trial 0.5741 (4 / 8) · subject 0.5215 (7 / 8) | within-subject: 90.40 → 87.69 / 77.79 %; leave one subject out: 79.95 → 77.58 % |
+| | emotion | SEED-V | trial 0.3866 (4 / 8) · subject 0.2563 (1 / 8) | – |
+| | workload | STEW | 2-class 0.7747 (3 / 8) · 3-level 0.5517 (3 / 8) · SI 0.8046 (3 / 8) · SD 0.9557 (3 / 8) | – |
+| **dDTF-GL**<br>*spectral input*: dDTF connectivity in frequency bands, feature selection + XGBoost, no network | motor imagery | BCI-IV-2a | 0.3276 (5 / 5) | – |
+| | motor imagery | PhysioNet-MI | 0.3274 (5 / 5) | – |
+| | depression | Mumtaz2016 | 0.9192 (2 / 5) | – |
+| | mental stress | MentalArithmetic | 0.5833 (4 / 5) | – |
+| | sleep staging | Sleep-EDF-78 | κ 0.5595 (9 / 9), each epoch alone | – |
+| | emotion | SEED | trial 0.5609 (5 / 8) · subject 0.5237 (5 / 8) | – |
+| | emotion | SEED-V | trial 0.3245 (5 / 8) · subject 0.2315 (6 / 8) | – |
+| | workload | STEW | 2-class 0.7398 (4 / 8) · 3-level 0.5185 (6 / 8) · SI 0.7744 (5 / 8) · SD 0.8716 (5 / 8) | SI 0.766 → 0.7744, SD 0.898 → 0.8716, on Safari et al.'s maps |
+
+### Patterns across datasets, by characteristic
+
+The methods grouped by what they take as input and whether they are pre-trained, then their ranks from the table above side
+by side. The columns run from cue-locked trials (motor imagery) through sustained states (a diagnosis from resting EEG,
+stress, workload, emotion) to sleep. Tests: `python tools/compare_methods.py` (fourth table: DGCNN, raw against DE input),
+`tools/compare_seed.py`, `tools/compare_stew.py`, `tools/compare_sleepedf.py`.
+
+| Group | Methods | Input | Pre-training | Parameters | Built for |
+|---|---|---|---|---|---|
+| Foundation models | LaBraM-Base, CBraMod | raw signal, cut into per-channel patches | LaBraM: ~2,500 h from ~20 datasets; CBraMod: the TUH EEG corpus | 5.8M; 4.9M backbone | any EEG task, fine-tuned per task |
+| Small supervised models, raw input | EEGNet, EEG Conformer, ATCNet | raw signal; temporal and spatial filters learned | none | 2–4K; 790K; 114K | motor imagery (EEGNet also ERPs; EEG Conformer also SEED) |
+| Sleep models | DeepSleepNet, L-SeqSleepNet | raw 30-s epochs; spectrograms through a learned filterbank | none | 40.5M (braindecode's single-epoch version, 2 channels); not counted | sleep staging, over sequences of 25 / 200 epochs |
+| Spectral-feature models | DGCNN, dDTF-GL | features fixed before the model: band power (5-band differential entropy per electrode and second); directed connectivity (dDTF) in frequency bands per window | none | not counted; no network (XGBoost) | emotion (SEED); mental workload (STEW) |
+
+Rank by mean in each shared pipeline (1 = best of n):
+
+| Group | Model | BCI-IV-2a | PhysioNet-MI | Mumtaz2016 | MentalArithmetic | STEW 2-class | STEW 3-level | SEED, trial | SEED-V, trial | SEED, subject | SEED-V, subject (chance) | Sleep-EDF-78 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Foundation | LaBraM-Base | 3 / 5 | 2 / 5 | 4 / 5 | **1** / 5 | **1** / 8 | **1** / 8 | **1** / 8 | **1** / 8 | **1** / 8 | 8 / 8 | **1** / 9 |
+| | CBraMod | 2 / 5 | **1** / 5 | 3 / 5 | 3 / 5 | 2 / 8 | 2 / 8 | 2 / 8 | 3 / 8 | 2 / 8 | 7 / 8 | 4 / 9 |
+| Small, raw input | EEGNet | **1** / 5 | 3 / 5 | 5 / 5 | 5 / 5 | 8 / 8 | 8 / 8 | 7 / 8 | 7 / 8 | 6 / 8 | 3 / 8 | 8 / 9 |
+| | EEG Conformer | – | – | – | – | 5 / 8 | 7 / 8 | 6 / 8 | 6 / 8 | 4 / 8 | 5 / 8 | 7 / 9 |
+| | ATCNet (bd) | – | – | – | – | 6 / 8 | 5 / 8 | 8 / 8 | 8 / 8 | 3 / 8 | 2 / 8 | 3 / 9 |
+| Sleep | DeepSleepNet (bd) | – | – | – | – | 7 / 8 | 4 / 8 | 3 / 8 | 2 / 8 | 8 / 8 | 4 / 8 | 5 / 9 |
+| | L-SeqSleepNet | – | – | – | – | off-label | off-label | off-label | off-label | not valid | not valid | 2 / 9 |
+| Spectral input | DGCNN | 4 / 5 | 4 / 5 | **1** / 5 | 2 / 5 | 3 / 8 | 3 / 8 | 4 / 8 | 4 / 8 | 7 / 8 | 1 / 8 | 6 / 9 |
+| | dDTF-GL | 5 / 5 | 5 / 5 | 2 / 5 | 4 / 5 | 4 / 8 | 6 / 8 | 5 / 8 | 5 / 8 | 5 / 8 | 6 / 8 | 9 / 9 |
+
+STEW's SI and SD settings give the same top three as its 2-class task (LaBraM-Base, CBraMod, DGCNN).
+
+1. **The input decides more than the task a model was built for.** DGCNN was built for emotion and dDTF-GL for workload; what
+   they share is spectral input, band power per electrode (DGCNN) or frequency-domain connectivity (dDTF-GL).
+   - Both are **the top two on Mumtaz2016** (depression vs. healthy, resting EEG): DGCNN 0.9619 is above every other model
+     (p ≤ 0.003) and dDTF-GL 0.9192 above both foundation models (p ≤ 0.004).
+   - DGCNN is **the best model without pre-training on all four STEW settings** (third of eight behind the foundation models;
+     2-class: above EEG Conformer, ATCNet, EEGNet and dDTF-GL, p ≤ 0.002).
+   - Both are **the bottom two on both motor-imagery datasets** (0.33–0.48, chance 0.25).
+   - The same network with the other input repeats the split: braindecode's DGCNN on raw samples, against DE input
+     (braindecode's DGCNN on DE for the four cross-subject datasets, our port elsewhere; the two agree, Section 7), gains 0.087
+     (PhysioNet-MI) and 0.096 (BCI-IV-2a) on motor imagery and loses 0.055–0.106 on every other dataset (Mumtaz2016,
+     MentalArithmetic, STEW 2-class, SEED, SEED-V, Sleep-EDF κ), each p ≤ 0.004. The model's original task does not predict any of this;
+     its input does.
+   - **MentalArithmetic does not separate the groups.** DGCNN is second there by mean (0.6236) but within noise of every model
+     (p ≥ 0.089; its SD over seeds is 0.067).
+   - **Sleep staging is a state too, but spectral input is not enough there.** DGCNN (κ 0.6941) sits with EEG Conformer and
+     EEGNet, 0.073 below CBraMod (p < 0.001), and dDTF-GL, which classifies each epoch alone, is last. Raw-input encoders take the
+     top places (LaBraM-Base, ATCNet, CBraMod, DeepSleepNet) next to L-SeqSleepNet.
+   - A reading, not tested here: on Mumtaz2016, STEW and SEED the class is a state held for seconds to minutes, which shifts band
+     power across the whole window. Motor imagery is a cue-locked event whose class lies in when and where power changes inside
+     the trial, which raw input keeps and a per-second band-power summary blurs. Sleep stages are scored partly on transient
+     waveforms (spindles, K-complexes), which a band-power summary also averages out.
+2. **Pre-training buys consistency, not a win everywhere.** A foundation model is first by mean on 8 of the 11 settings
+   (LaBraM-Base on 7, CBraMod on PhysioNet-MI). The exceptions are BCI-IV-2a, where EEGNet beats both (p ≤ 0.021); Mumtaz2016,
+   where DGCNN beats both (p < 0.001); and SEED-V across subjects, at chance for every model. First is not always significant:
+   on Sleep-EDF-78 four models tie (p ≥ 0.40), and on MentalArithmetic LaBraM-Base is level with DGCNN (p = 0.38). Pre-training
+   itself (CBraMod against CBraMod without it) helps on STEW (+0.101), PhysioNet-MI (+0.053), SEED (+0.029) and Sleep-EDF
+   (+0.023 κ), and on none of BCI-IV-2a, Mumtaz2016 and MentalArithmetic (p ≥ 0.58).
+3. **The small raw-input models depend on the task and the window length.**
+   - EEGNet (2–4K parameters) is the best model on BCI-IV-2a across subjects, and last or second to last on 7 of the other 10
+     settings.
+   - ATCNet's rank follows the sample length: last on SEED's and SEED-V's 1-s trial-split samples, where its training loss
+     barely moves (Section 5), 5th–6th of 8 on STEW's 4-s windows, and 3rd of 9 on Sleep-EDF's 30-s epochs, level with CBraMod
+     (p = 0.56) with 114K parameters against 4.9M.
+   - EEG Conformer is mid-table everywhere it ran (4th–7th). Size alone does not explain the sleep ranking: EEG Conformer
+     (790K) sits with EEGNet (κ 0.6876 and 0.6815), while ATCNet (114K) ties the foundation models.
+4. **The models that fit 1-s samples well lose most when the test subjects are unseen.** On SEED, moving from the trial split
+   (every subject in training) to the subject split costs LaBraM-Base 0.048, CBraMod 0.072, DeepSleepNet 0.088, DGCNN 0.053 and
+   dDTF-GL 0.037. It costs the three small CNNs nothing (EEG Conformer +0.002, EEGNet +0.032, ATCNet +0.052). The order turns
+   over: DeepSleepNet, run off-label, goes from 3rd to 8th and ATCNet from 8th to 3rd. Rankings on trial splits, the protocol of
+   CBraMod's SEED-V benchmark, partly reward fitting the test subjects' own data.
+5. **SEED-V across subjects separates nothing:** balanced accuracy 0.22–0.26 for every model (chance 0.20), so its ranks,
+   including DGCNN's first place, are noise.
+
+What this means for comparisons:
+
+- **A ranking on one task category does not carry over to another.** EEGNet goes from first (BCI-IV-2a) to last (STEW), DGCNN
+  from first (Mumtaz2016) to fourth of five (motor imagery).
+- **Input type is a variable to report next to model family.** Without pre-training, a band-power model (DGCNN on DE) is the one
+  to beat on the resting-state and workload datasets; on motor imagery it tells little.
+- **A foundation model is the safest default,** first on 8 of 11 settings, but not the best on every dataset, and its lead over
+  the next model is often within noise.
+
 ## 4. Datasets
 
 ### Datasets run here

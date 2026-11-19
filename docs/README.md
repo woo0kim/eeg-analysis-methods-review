@@ -8,6 +8,7 @@ docs/
 │   └── YYYY-MM-DD_<method>_weekly-report.docx | _weekly-slides.pptx
 ├── reports/sleepedf/                the Sleep-EDF report, which covers every method on one dataset
 ├── reports/seed-stew/               the SEED, SEED-V and STEW report (every method), with DGCNN added
+├── reports/review-paper/            the review-paper report: every method by dataset, patterns, target venues
 └── templates/                       blank weekly report template
 ```
 
@@ -25,6 +26,7 @@ narrative that went to the weekly meeting.
 | 2026-10-22 | ATCNet; braindecode re-implementations of all methods | [report](reports/atcnet/2026-10-22_atcnet_weekly-report.docx) | [slides](reports/atcnet/2026-10-22_atcnet_weekly-slides.pptx) | [atcnet/bciciv2a-model-selection](../methods/atcnet/experiments/bciciv2a-model-selection), [atcnet/braindecode-bciciv2a](../methods/atcnet/experiments/braindecode-bciciv2a), [eeg-conformer/braindecode-bciciv2a](../methods/eeg-conformer/experiments/braindecode-bciciv2a), [cbramod/braindecode-public-datasets](../methods/cbramod/experiments/braindecode-public-datasets), [labram/braindecode-cbramod-splits](../methods/labram/experiments/braindecode-cbramod-splits), [eegnet/braindecode-cbramod-splits](../methods/eegnet/experiments/braindecode-cbramod-splits) |
 | 2026-11-01 | Sleep-EDF: all seven methods; DeepSleepNet and L-SeqSleepNet added | [report](reports/sleepedf/2026-11-01_sleepedf_weekly-report.docx) | [slides](reports/sleepedf/2026-11-01_sleepedf_weekly-slides.pptx) | [cbramod/finetune-sleepedf](../methods/cbramod/experiments/finetune-sleepedf) (shared pipeline and common test set) and the `sleepedf-cbramod-pipeline` / `braindecode-sleepedf` experiments of each method; [deepsleepnet/sleepedf20-20fold](../methods/deepsleepnet/experiments/sleepedf20-20fold), [deepsleepnet/sleepedf78-cbramod-split](../methods/deepsleepnet/experiments/sleepedf78-cbramod-split), [l-seqsleepnet/sleepedf20-loso](../methods/l-seqsleepnet/experiments/sleepedf20-loso), [l-seqsleepnet/sleepedf78-cbramod-split](../methods/l-seqsleepnet/experiments/sleepedf78-cbramod-split) |
 | 2026-11-08 | SEED, SEED-V and STEW: all methods; DGCNN added and run on every dataset | [report](reports/seed-stew/2026-11-08_seed-stew_weekly-report.docx) | [slides](reports/seed-stew/2026-11-08_seed-stew_weekly-slides.pptx) | [cbramod/finetune-seed](../methods/cbramod/experiments/finetune-seed) and [cbramod/finetune-stew](../methods/cbramod/experiments/finetune-stew) (shared pipelines) and the `seed-cbramod-pipeline`, `stew-cbramod-pipeline`, `braindecode-seed` and `braindecode-stew` experiments of each method; [dgcnn/seed-paper-protocol](../methods/dgcnn/experiments/seed-paper-protocol), [eeg-conformer/seed-5fold](../methods/eeg-conformer/experiments/seed-5fold), [dgcnn](../methods/dgcnn) (all its experiments), [l-seqsleepnet/seed-offlabel](../methods/l-seqsleepnet/experiments/seed-offlabel), [l-seqsleepnet/stew-offlabel](../methods/l-seqsleepnet/experiments/stew-offlabel) |
+| 2026-11-17 | Review paper: every method by dataset, patterns by characteristic, target venues | [report](reports/review-paper/2026-11-17_review-paper_weekly-report.docx) | [slides](reports/review-paper/2026-11-17_review-paper_weekly-slides.pptx) | no new runs: [SUMMARY.md](../SUMMARY.md) Section 3 (Results by method; Patterns across datasets), [tools/compare_methods.py](../tools/compare_methods.py) and the other `compare_*` scripts, [literature/review-papers-reproduction-vs-citation.md](literature/review-papers-reproduction-vs-citation.md) |
 
 Notes on how the reports relate to the committed code:
 
@@ -58,6 +60,14 @@ Notes on how the reports relate to the committed code:
   `results.json` files through `tools/compare_seed.py`, `tools/compare_stew.py` and `tools/fig_seed_stew.py`. The report
   and deck were generated from the Sleep-EDF report and deck (2026-11-01) as templates. SEED and SEED-V are
   license-gated: neither file contains data from them, only results.
+- **Review paper, 2026-11-17.** No new training. Every number comes from SUMMARY.md Section 3, which comes from
+  `tools/compare_methods.py` (its DGCNN table was added that week), `compare_seed.py`, `compare_stew.py` and
+  `compare_sleepedf.py`. Two tests in the "best model per setting" slide and the pre-training paragraph (LaBraM-Base against
+  DeepSleepNet on SEED-V's trial split, p = 0.026; against CBraMod on STEW's 3 levels, p = 0.87) were computed with those
+  scripts' loaders and are not printed by them. Figures A–C were drawn from the same numbers for the report; no script in the
+  repository makes them. The venue information (impact factors, deadlines) was collected on 2026-11-15 from publisher pages
+  and aggregator sites, not from the JCR, and the report says so. The report and deck were generated from the dDTF-GL report
+  and deck (2026-11-15) as templates.
 
 ## Templates
 
