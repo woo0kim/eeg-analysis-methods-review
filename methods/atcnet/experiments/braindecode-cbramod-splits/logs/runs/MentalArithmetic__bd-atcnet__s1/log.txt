@@ -1,0 +1,375 @@
+Namespace(seed=1, cuda=0, epochs=50, batch_size=64, lr=0.0001, weight_decay=0.05, optimizer='AdamW', clip_value=1, dropout=0.1, classifier='all_patch_reps', downstream_dataset='MentalArithmetic', datasets_dir='/home/wkim/data/mental_arithmetic/processed', num_of_classes=0, model_dir='/home/wkim/repro-gaps/runs/cbramod-splits/MentalArithmetic__bd-atcnet__s1/ckpt', num_workers=16, label_smoothing=0.1, multi_lr=True, frozen=False, use_pretrained_weights=False, foundation_dir='')
+1343 172 192
+1707
+bd-atcnet params: 113173
+Wrap(
+  (m): ATCNet(
+    (ensuredims): Ensure4d()
+    (dimshuffle): Rearrange('batch C T 1 -> batch 1 T C')
+    (conv_block): _ConvBlock(
+      (conv1): Conv2d(1, 16, kernel_size=(64, 1), stride=(1, 1), padding=same, bias=False)
+      (bn1): BatchNorm2d(16, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+      (conv2): Conv2d(16, 32, kernel_size=(1, 20), stride=(1, 1), padding=valid, groups=16, bias=False)
+      (bn2): BatchNorm2d(32, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+      (activation2): ELU(alpha=1.0)
+      (pool2): AvgPool2d(kernel_size=(8, 1), stride=(8, 1), padding=0)
+      (drop2): Dropout2d(p=0.3, inplace=False)
+      (conv3): Conv2d(32, 32, kernel_size=(16, 1), stride=(1, 1), padding=same, bias=False)
+      (bn3): BatchNorm2d(32, eps=0.0001, momentum=0.1, affine=True, track_running_stats=True)
+      (activation3): ELU(alpha=1.0)
+      (pool3): AvgPool2d(kernel_size=(7, 1), stride=(7, 1), padding=0)
+      (drop3): Dropout2d(p=0.3, inplace=False)
+    )
+    (attention_blocks): ModuleList(
+      (0-4): 5 x _AttentionBlock(
+        (dimshuffle): Rearrange('batch C T -> batch T C')
+        (ln): LayerNorm((32,), eps=1e-06, elementwise_affine=True)
+        (mha): _MHA(
+          (fc_q): Linear(in_features=32, out_features=16, bias=True)
+          (fc_k): Linear(in_features=32, out_features=16, bias=True)
+          (fc_v): Linear(in_features=32, out_features=16, bias=True)
+          (fc_o): Linear(in_features=16, out_features=32, bias=True)
+          (dropout): Dropout(p=0.5, inplace=False)
+        )
+        (drop): Dropout(p=0.3, inplace=False)
+      )
+    )
+    (temporal_conv_nets): ModuleList(
+      (0-4): 5 x Sequential(
+        (0): _TCNResidualBlock(
+          (activation): ELU(alpha=1.0)
+          (conv1): CausalConv1d(32, 32, kernel_size=(4,), stride=(1,), padding=(3,))
+          (bn1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (drop1): Dropout(p=0.3, inplace=False)
+          (conv2): CausalConv1d(32, 32, kernel_size=(4,), stride=(1,), padding=(3,))
+          (bn2): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (drop2): Dropout(p=0.3, inplace=False)
+          (reshaping_conv): Identity()
+        )
+        (1): _TCNResidualBlock(
+          (activation): ELU(alpha=1.0)
+          (conv1): CausalConv1d(32, 32, kernel_size=(4,), stride=(1,), padding=(6,), dilation=(2,))
+          (bn1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (drop1): Dropout(p=0.3, inplace=False)
+          (conv2): CausalConv1d(32, 32, kernel_size=(4,), stride=(1,), padding=(6,), dilation=(2,))
+          (bn2): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (drop2): Dropout(p=0.3, inplace=False)
+          (reshaping_conv): Identity()
+        )
+      )
+    )
+    (final_layer): ModuleList(
+      (0-4): 5 x ParametrizedMaxNormLinear(
+        in_features=32, out_features=1, bias=True
+        (parametrizations): ModuleDict(
+          (weight): ParametrizationList(
+            (0): MaxNorm()
+          )
+        )
+      )
+    )
+    (out_fun): Identity()
+  )
+)
+  0%|          | 0/21 [00:00<?, ?it/s]/home/wkim/miniforge3/envs/bd-labram/lib/python3.11/site-packages/torch/nn/modules/conv.py:456: UserWarning: Using padding='same' with even kernel lengths and odd dilation may require a zero-padded copy of the input be created (Triggered internally at ../aten/src/ATen/native/Convolution.cpp:1008.)
+  return F.conv2d(input, weight, bias, self.stride,
+/home/wkim/miniforge3/envs/bd-labram/lib/python3.11/site-packages/torch/nn/modules/conv.py:456: UserWarning: Applied workaround for CuDNN issue, install nvrtc.so (Triggered internally at ../aten/src/ATen/native/cudnn/Conv_v8.cpp:80.)
+  return F.conv2d(input, weight, bias, self.stride,
+ 71%|███████▏  | 15/21 [00:10<00:04,  1.50it/s]100%|██████████| 21/21 [00:13<00:00,  1.52it/s]
+  0%|          | 0/3 [00:00<?, ?it/s] 67%|██████▋   | 2/3 [00:01<00:00,  1.97it/s]100%|██████████| 3/3 [00:01<00:00,  2.22it/s]
+Epoch 1 : Training Loss: 0.65614, acc: 0.49362, pr_auc: 0.32924, roc_auc: 0.57140, LR: 0.00010, Time elapsed 0.26 mins
+[[  1 123]
+ [  1  47]]
+roc_auc increasing....saving weights !! 
+Val Evaluation: acc: 0.49362, pr_auc: 0.32924, roc_auc: 0.57140
+  0%|          | 0/21 [00:00<?, ?it/s] 76%|███████▌  | 16/21 [00:10<00:03,  1.51it/s]100%|██████████| 21/21 [00:13<00:00,  1.50it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.37it/s]100%|██████████| 3/3 [00:01<00:00,  2.37it/s]
+Epoch 2 : Training Loss: 0.59105, acc: 0.49731, pr_auc: 0.32340, roc_auc: 0.56586, LR: 0.00010, Time elapsed 0.25 mins
+[[113  11]
+ [ 44   4]]
+  0%|          | 0/21 [00:00<?, ?it/s] 71%|███████▏  | 15/21 [00:10<00:04,  1.43it/s]100%|██████████| 21/21 [00:14<00:00,  1.44it/s]
+  0%|          | 0/3 [00:00<?, ?it/s] 67%|██████▋   | 2/3 [00:01<00:00,  1.46it/s]100%|██████████| 3/3 [00:01<00:00,  1.55it/s]
+Epoch 3 : Training Loss: 0.56865, acc: 0.50235, pr_auc: 0.36673, roc_auc: 0.61828, LR: 0.00010, Time elapsed 0.28 mins
+[[122   2]
+ [ 47   1]]
+roc_auc increasing....saving weights !! 
+Val Evaluation: acc: 0.50235, pr_auc: 0.36673, roc_auc: 0.61828
+  0%|          | 0/21 [00:00<?, ?it/s] 71%|███████▏  | 15/21 [00:10<00:04,  1.44it/s]100%|██████████| 21/21 [00:14<00:00,  1.47it/s]
+  0%|          | 0/3 [00:00<?, ?it/s] 67%|██████▋   | 2/3 [00:01<00:00,  1.54it/s]100%|██████████| 3/3 [00:01<00:00,  1.70it/s]
+Epoch 4 : Training Loss: 0.54987, acc: 0.49597, pr_auc: 0.41460, roc_auc: 0.68683, LR: 0.00010, Time elapsed 0.28 mins
+[[123   1]
+ [ 48   0]]
+roc_auc increasing....saving weights !! 
+Val Evaluation: acc: 0.49597, pr_auc: 0.41460, roc_auc: 0.68683
+  0%|          | 0/21 [00:00<?, ?it/s] 81%|████████  | 17/21 [00:10<00:02,  1.61it/s]100%|██████████| 21/21 [00:13<00:00,  1.59it/s]
+  0%|          | 0/3 [00:00<?, ?it/s] 67%|██████▋   | 2/3 [00:01<00:00,  1.89it/s]100%|██████████| 3/3 [00:01<00:00,  2.16it/s]
+Epoch 5 : Training Loss: 0.53122, acc: 0.49832, pr_auc: 0.46518, roc_auc: 0.72043, LR: 0.00010, Time elapsed 0.24 mins
+[[121   3]
+ [ 47   1]]
+roc_auc increasing....saving weights !! 
+Val Evaluation: acc: 0.49832, pr_auc: 0.46518, roc_auc: 0.72043
+  0%|          | 0/21 [00:00<?, ?it/s] 81%|████████  | 17/21 [00:10<00:02,  1.62it/s]100%|██████████| 21/21 [00:12<00:00,  1.62it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.34it/s]100%|██████████| 3/3 [00:01<00:00,  2.34it/s]
+Epoch 6 : Training Loss: 0.52580, acc: 0.53595, pr_auc: 0.48045, roc_auc: 0.73001, LR: 0.00010, Time elapsed 0.24 mins
+[[120   4]
+ [ 43   5]]
+roc_auc increasing....saving weights !! 
+Val Evaluation: acc: 0.53595, pr_auc: 0.48045, roc_auc: 0.73001
+  0%|          | 0/21 [00:00<?, ?it/s] 76%|███████▌  | 16/21 [00:10<00:03,  1.51it/s]100%|██████████| 21/21 [00:13<00:00,  1.51it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.35it/s]100%|██████████| 3/3 [00:01<00:00,  2.35it/s]
+Epoch 7 : Training Loss: 0.52531, acc: 0.52151, pr_auc: 0.49208, roc_auc: 0.74328, LR: 0.00010, Time elapsed 0.25 mins
+[[119   5]
+ [ 44   4]]
+roc_auc increasing....saving weights !! 
+Val Evaluation: acc: 0.52151, pr_auc: 0.49208, roc_auc: 0.74328
+  0%|          | 0/21 [00:00<?, ?it/s] 71%|███████▏  | 15/21 [00:10<00:04,  1.44it/s]100%|██████████| 21/21 [00:14<00:00,  1.43it/s]
+  0%|          | 0/3 [00:00<?, ?it/s] 67%|██████▋   | 2/3 [00:01<00:00,  1.57it/s]100%|██████████| 3/3 [00:01<00:00,  1.75it/s]
+Epoch 8 : Training Loss: 0.50771, acc: 0.51109, pr_auc: 0.49991, roc_auc: 0.75218, LR: 0.00009, Time elapsed 0.27 mins
+[[119   5]
+ [ 45   3]]
+roc_auc increasing....saving weights !! 
+Val Evaluation: acc: 0.51109, pr_auc: 0.49991, roc_auc: 0.75218
+  0%|          | 0/21 [00:00<?, ?it/s] 81%|████████  | 17/21 [00:10<00:02,  1.66it/s]100%|██████████| 21/21 [00:13<00:00,  1.60it/s]
+  0%|          | 0/3 [00:00<?, ?it/s] 67%|██████▋   | 2/3 [00:01<00:00,  1.86it/s]100%|██████████| 3/3 [00:01<00:00,  2.13it/s]
+Epoch 9 : Training Loss: 0.49084, acc: 0.61996, pr_auc: 0.49475, roc_auc: 0.75655, LR: 0.00009, Time elapsed 0.24 mins
+[[115   9]
+ [ 33  15]]
+roc_auc increasing....saving weights !! 
+Val Evaluation: acc: 0.61996, pr_auc: 0.49475, roc_auc: 0.75655
+  0%|          | 0/21 [00:00<?, ?it/s] 71%|███████▏  | 15/21 [00:10<00:04,  1.50it/s]100%|██████████| 21/21 [00:14<00:00,  1.49it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.30it/s]100%|██████████| 3/3 [00:01<00:00,  2.30it/s]
+Epoch 10 : Training Loss: 0.48613, acc: 0.61828, pr_auc: 0.48566, roc_auc: 0.75773, LR: 0.00009, Time elapsed 0.26 mins
+[[112  12]
+ [ 32  16]]
+roc_auc increasing....saving weights !! 
+Val Evaluation: acc: 0.61828, pr_auc: 0.48566, roc_auc: 0.75773
+  0%|          | 0/21 [00:00<?, ?it/s] 71%|███████▏  | 15/21 [00:10<00:04,  1.45it/s]100%|██████████| 21/21 [00:14<00:00,  1.44it/s]
+  0%|          | 0/3 [00:00<?, ?it/s] 67%|██████▋   | 2/3 [00:01<00:00,  1.34it/s]100%|██████████| 3/3 [00:01<00:00,  1.52it/s]
+Epoch 11 : Training Loss: 0.46548, acc: 0.69120, pr_auc: 0.50801, roc_auc: 0.77369, LR: 0.00009, Time elapsed 0.28 mins
+[[112  12]
+ [ 25  23]]
+roc_auc increasing....saving weights !! 
+Val Evaluation: acc: 0.69120, pr_auc: 0.50801, roc_auc: 0.77369
+  0%|          | 0/21 [00:00<?, ?it/s] 71%|███████▏  | 15/21 [00:10<00:04,  1.45it/s]100%|██████████| 21/21 [00:14<00:00,  1.49it/s]
+  0%|          | 0/3 [00:00<?, ?it/s] 67%|██████▋   | 2/3 [00:01<00:00,  1.58it/s]100%|██████████| 3/3 [00:01<00:00,  1.78it/s]
+Epoch 12 : Training Loss: 0.45891, acc: 0.64315, pr_auc: 0.50401, roc_auc: 0.78175, LR: 0.00009, Time elapsed 0.26 mins
+[[113  11]
+ [ 30  18]]
+roc_auc increasing....saving weights !! 
+Val Evaluation: acc: 0.64315, pr_auc: 0.50401, roc_auc: 0.78175
+  0%|          | 0/21 [00:00<?, ?it/s] 76%|███████▌  | 16/21 [00:10<00:03,  1.59it/s]100%|██████████| 21/21 [00:13<00:00,  1.51it/s]
+  0%|          | 0/3 [00:00<?, ?it/s] 67%|██████▋   | 2/3 [00:01<00:00,  1.90it/s]100%|██████████| 3/3 [00:01<00:00,  2.18it/s]
+Epoch 13 : Training Loss: 0.45453, acc: 0.64718, pr_auc: 0.53802, roc_auc: 0.79856, LR: 0.00008, Time elapsed 0.25 mins
+[[114  10]
+ [ 30  18]]
+roc_auc increasing....saving weights !! 
+Val Evaluation: acc: 0.64718, pr_auc: 0.53802, roc_auc: 0.79856
+  0%|          | 0/21 [00:00<?, ?it/s] 76%|███████▌  | 16/21 [00:10<00:03,  1.54it/s]100%|██████████| 21/21 [00:13<00:00,  1.54it/s]
+  0%|          | 0/3 [00:00<?, ?it/s] 67%|██████▋   | 2/3 [00:01<00:00,  1.47it/s]100%|██████████| 3/3 [00:01<00:00,  1.67it/s]
+Epoch 14 : Training Loss: 0.44353, acc: 0.68078, pr_auc: 0.55751, roc_auc: 0.80796, LR: 0.00008, Time elapsed 0.26 mins
+[[112  12]
+ [ 26  22]]
+roc_auc increasing....saving weights !! 
+Val Evaluation: acc: 0.68078, pr_auc: 0.55751, roc_auc: 0.80796
+  0%|          | 0/21 [00:00<?, ?it/s] 76%|███████▌  | 16/21 [00:10<00:03,  1.54it/s]100%|██████████| 21/21 [00:13<00:00,  1.58it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.24it/s]100%|██████████| 3/3 [00:01<00:00,  2.24it/s]
+Epoch 15 : Training Loss: 0.42016, acc: 0.65995, pr_auc: 0.55273, roc_auc: 0.80460, LR: 0.00008, Time elapsed 0.24 mins
+[[112  12]
+ [ 28  20]]
+  0%|          | 0/21 [00:00<?, ?it/s] 81%|████████  | 17/21 [00:10<00:02,  1.66it/s]100%|██████████| 21/21 [00:12<00:00,  1.68it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.43it/s]100%|██████████| 3/3 [00:01<00:00,  2.43it/s]
+Epoch 16 : Training Loss: 0.40765, acc: 0.70397, pr_auc: 0.59808, roc_auc: 0.81216, LR: 0.00008, Time elapsed 0.23 mins
+[[110  14]
+ [ 23  25]]
+roc_auc increasing....saving weights !! 
+Val Evaluation: acc: 0.70397, pr_auc: 0.59808, roc_auc: 0.81216
+  0%|          | 0/21 [00:00<?, ?it/s] 81%|████████  | 17/21 [00:10<00:02,  1.68it/s]100%|██████████| 21/21 [00:12<00:00,  1.68it/s]
+  0%|          | 0/3 [00:00<?, ?it/s] 67%|██████▋   | 2/3 [00:01<00:00,  1.93it/s]100%|██████████| 3/3 [00:01<00:00,  2.12it/s]
+Epoch 17 : Training Loss: 0.39049, acc: 0.65356, pr_auc: 0.58305, roc_auc: 0.81216, LR: 0.00007, Time elapsed 0.23 mins
+[[113  11]
+ [ 29  19]]
+  0%|          | 0/21 [00:00<?, ?it/s] 76%|███████▌  | 16/21 [00:10<00:03,  1.54it/s]100%|██████████| 21/21 [00:13<00:00,  1.52it/s]
+  0%|          | 0/3 [00:00<?, ?it/s] 67%|██████▋   | 2/3 [00:01<00:00,  1.99it/s]100%|██████████| 3/3 [00:01<00:00,  2.17it/s]
+Epoch 18 : Training Loss: 0.40361, acc: 0.71035, pr_auc: 0.57561, roc_auc: 0.81989, LR: 0.00007, Time elapsed 0.25 mins
+[[109  15]
+ [ 22  26]]
+roc_auc increasing....saving weights !! 
+Val Evaluation: acc: 0.71035, pr_auc: 0.57561, roc_auc: 0.81989
+  0%|          | 0/21 [00:00<?, ?it/s] 76%|███████▌  | 16/21 [00:10<00:03,  1.56it/s]100%|██████████| 21/21 [00:13<00:00,  1.58it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.42it/s]100%|██████████| 3/3 [00:01<00:00,  2.42it/s]
+Epoch 19 : Training Loss: 0.38501, acc: 0.67440, pr_auc: 0.61584, roc_auc: 0.81905, LR: 0.00007, Time elapsed 0.24 mins
+[[113  11]
+ [ 27  21]]
+  0%|          | 0/21 [00:00<?, ?it/s] 81%|████████  | 17/21 [00:10<00:02,  1.61it/s]100%|██████████| 21/21 [00:12<00:00,  1.64it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.37it/s]100%|██████████| 3/3 [00:01<00:00,  2.37it/s]
+Epoch 20 : Training Loss: 0.36360, acc: 0.71673, pr_auc: 0.64889, roc_auc: 0.82897, LR: 0.00007, Time elapsed 0.23 mins
+[[108  16]
+ [ 21  27]]
+roc_auc increasing....saving weights !! 
+Val Evaluation: acc: 0.71673, pr_auc: 0.64889, roc_auc: 0.82897
+  0%|          | 0/21 [00:00<?, ?it/s] 76%|███████▌  | 16/21 [00:10<00:03,  1.56it/s]100%|██████████| 21/21 [00:13<00:00,  1.58it/s]
+  0%|          | 0/3 [00:00<?, ?it/s] 67%|██████▋   | 2/3 [00:01<00:00,  1.82it/s]100%|██████████| 3/3 [00:01<00:00,  2.11it/s]
+Epoch 21 : Training Loss: 0.36712, acc: 0.67675, pr_auc: 0.65567, roc_auc: 0.83031, LR: 0.00006, Time elapsed 0.25 mins
+[[111  13]
+ [ 26  22]]
+roc_auc increasing....saving weights !! 
+Val Evaluation: acc: 0.67675, pr_auc: 0.65567, roc_auc: 0.83031
+  0%|          | 0/21 [00:00<?, ?it/s] 81%|████████  | 17/21 [00:10<00:02,  1.61it/s]100%|██████████| 21/21 [00:13<00:00,  1.60it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.22it/s]100%|██████████| 3/3 [00:01<00:00,  2.22it/s]
+Epoch 22 : Training Loss: 0.34346, acc: 0.69422, pr_auc: 0.66918, roc_auc: 0.83804, LR: 0.00006, Time elapsed 0.24 mins
+[[105  19]
+ [ 22  26]]
+roc_auc increasing....saving weights !! 
+Val Evaluation: acc: 0.69422, pr_auc: 0.66918, roc_auc: 0.83804
+  0%|          | 0/21 [00:00<?, ?it/s] 76%|███████▌  | 16/21 [00:10<00:03,  1.58it/s]100%|██████████| 21/21 [00:13<00:00,  1.60it/s]
+  0%|          | 0/3 [00:00<?, ?it/s] 67%|██████▋   | 2/3 [00:01<00:00,  1.47it/s]100%|██████████| 3/3 [00:01<00:00,  1.61it/s]
+Epoch 23 : Training Loss: 0.33114, acc: 0.70228, pr_auc: 0.67180, roc_auc: 0.83333, LR: 0.00006, Time elapsed 0.25 mins
+[[107  17]
+ [ 22  26]]
+  0%|          | 0/21 [00:00<?, ?it/s] 81%|████████  | 17/21 [00:10<00:02,  1.61it/s]100%|██████████| 21/21 [00:13<00:00,  1.60it/s]
+  0%|          | 0/3 [00:00<?, ?it/s] 67%|██████▋   | 2/3 [00:01<00:00,  1.68it/s]100%|██████████| 3/3 [00:01<00:00,  1.99it/s]
+Epoch 24 : Training Loss: 0.32269, acc: 0.69120, pr_auc: 0.68063, roc_auc: 0.83165, LR: 0.00005, Time elapsed 0.24 mins
+[[112  12]
+ [ 25  23]]
+  0%|          | 0/21 [00:00<?, ?it/s] 81%|████████  | 17/21 [00:10<00:02,  1.67it/s]100%|██████████| 21/21 [00:12<00:00,  1.63it/s]
+  0%|          | 0/3 [00:00<?, ?it/s] 67%|██████▋   | 2/3 [00:01<00:00,  1.62it/s]100%|██████████| 3/3 [00:01<00:00,  1.88it/s]
+Epoch 25 : Training Loss: 0.33948, acc: 0.67272, pr_auc: 0.67912, roc_auc: 0.83065, LR: 0.00005, Time elapsed 0.24 mins
+[[110  14]
+ [ 26  22]]
+  0%|          | 0/21 [00:00<?, ?it/s] 71%|███████▏  | 15/21 [00:10<00:04,  1.46it/s]100%|██████████| 21/21 [00:13<00:00,  1.53it/s]
+  0%|          | 0/3 [00:00<?, ?it/s] 67%|██████▋   | 2/3 [00:01<00:00,  1.83it/s]100%|██████████| 3/3 [00:01<00:00,  2.10it/s]
+Epoch 26 : Training Loss: 0.31383, acc: 0.67272, pr_auc: 0.68289, roc_auc: 0.83417, LR: 0.00005, Time elapsed 0.25 mins
+[[110  14]
+ [ 26  22]]
+  0%|          | 0/21 [00:00<?, ?it/s] 81%|████████  | 17/21 [00:10<00:02,  1.58it/s]100%|██████████| 21/21 [00:13<00:00,  1.58it/s]
+  0%|          | 0/3 [00:00<?, ?it/s] 67%|██████▋   | 2/3 [00:01<00:00,  1.91it/s]100%|██████████| 3/3 [00:01<00:00,  2.03it/s]
+Epoch 27 : Training Loss: 0.30939, acc: 0.70228, pr_auc: 0.68037, roc_auc: 0.83921, LR: 0.00004, Time elapsed 0.25 mins
+[[107  17]
+ [ 22  26]]
+roc_auc increasing....saving weights !! 
+Val Evaluation: acc: 0.70228, pr_auc: 0.68037, roc_auc: 0.83921
+  0%|          | 0/21 [00:00<?, ?it/s] 76%|███████▌  | 16/21 [00:10<00:03,  1.60it/s]100%|██████████| 21/21 [00:13<00:00,  1.60it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.25it/s]100%|██████████| 3/3 [00:01<00:00,  2.25it/s]
+Epoch 28 : Training Loss: 0.31019, acc: 0.68716, pr_auc: 0.67909, roc_auc: 0.83602, LR: 0.00004, Time elapsed 0.24 mins
+[[111  13]
+ [ 25  23]]
+  0%|          | 0/21 [00:00<?, ?it/s] 76%|███████▌  | 16/21 [00:10<00:03,  1.53it/s]100%|██████████| 21/21 [00:13<00:00,  1.58it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.43it/s]100%|██████████| 3/3 [00:01<00:00,  2.43it/s]
+Epoch 29 : Training Loss: 0.29925, acc: 0.69187, pr_auc: 0.67729, roc_auc: 0.83753, LR: 0.00004, Time elapsed 0.24 mins
+[[107  17]
+ [ 23  25]]
+  0%|          | 0/21 [00:00<?, ?it/s] 86%|████████▌ | 18/21 [00:10<00:01,  1.77it/s]100%|██████████| 21/21 [00:11<00:00,  1.78it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.45it/s]100%|██████████| 3/3 [00:01<00:00,  2.45it/s]
+Epoch 30 : Training Loss: 0.31018, acc: 0.68145, pr_auc: 0.67780, roc_auc: 0.83384, LR: 0.00004, Time elapsed 0.22 mins
+[[107  17]
+ [ 24  24]]
+  0%|          | 0/21 [00:00<?, ?it/s] 90%|█████████ | 19/21 [00:10<00:01,  1.80it/s]100%|██████████| 21/21 [00:11<00:00,  1.76it/s]
+  0%|          | 0/3 [00:00<?, ?it/s] 67%|██████▋   | 2/3 [00:01<00:00,  1.69it/s]100%|██████████| 3/3 [00:01<00:00,  1.89it/s]
+Epoch 31 : Training Loss: 0.27898, acc: 0.67507, pr_auc: 0.68183, roc_auc: 0.83569, LR: 0.00003, Time elapsed 0.22 mins
+[[108  16]
+ [ 25  23]]
+  0%|          | 0/21 [00:00<?, ?it/s] 81%|████████  | 17/21 [00:10<00:02,  1.63it/s]100%|██████████| 21/21 [00:12<00:00,  1.68it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.54it/s]100%|██████████| 3/3 [00:01<00:00,  2.54it/s]
+Epoch 32 : Training Loss: 0.29632, acc: 0.67507, pr_auc: 0.68716, roc_auc: 0.84056, LR: 0.00003, Time elapsed 0.23 mins
+[[108  16]
+ [ 25  23]]
+roc_auc increasing....saving weights !! 
+Val Evaluation: acc: 0.67507, pr_auc: 0.68716, roc_auc: 0.84056
+  0%|          | 0/21 [00:00<?, ?it/s] 86%|████████▌ | 18/21 [00:10<00:01,  1.77it/s]100%|██████████| 21/21 [00:11<00:00,  1.76it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.50it/s]100%|██████████| 3/3 [00:01<00:00,  2.50it/s]
+Epoch 33 : Training Loss: 0.30599, acc: 0.68784, pr_auc: 0.68869, roc_auc: 0.84056, LR: 0.00003, Time elapsed 0.22 mins
+[[106  18]
+ [ 23  25]]
+  0%|          | 0/21 [00:00<?, ?it/s] 90%|█████████ | 19/21 [00:10<00:01,  1.86it/s]100%|██████████| 21/21 [00:11<00:00,  1.86it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.53it/s]100%|██████████| 3/3 [00:01<00:00,  2.53it/s]
+Epoch 34 : Training Loss: 0.30041, acc: 0.68716, pr_auc: 0.69334, roc_auc: 0.83871, LR: 0.00002, Time elapsed 0.21 mins
+[[111  13]
+ [ 25  23]]
+  0%|          | 0/21 [00:00<?, ?it/s] 90%|█████████ | 19/21 [00:10<00:01,  1.89it/s]100%|██████████| 21/21 [00:11<00:00,  1.89it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.53it/s]100%|██████████| 3/3 [00:01<00:00,  2.52it/s]
+Epoch 35 : Training Loss: 0.27861, acc: 0.69590, pr_auc: 0.68599, roc_auc: 0.83737, LR: 0.00002, Time elapsed 0.21 mins
+[[108  16]
+ [ 23  25]]
+  0%|          | 0/21 [00:00<?, ?it/s] 86%|████████▌ | 18/21 [00:10<00:01,  1.78it/s]100%|██████████| 21/21 [00:11<00:00,  1.80it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.50it/s]100%|██████████| 3/3 [00:01<00:00,  2.50it/s]
+Epoch 36 : Training Loss: 0.27578, acc: 0.67507, pr_auc: 0.68716, roc_auc: 0.83737, LR: 0.00002, Time elapsed 0.21 mins
+[[108  16]
+ [ 25  23]]
+  0%|          | 0/21 [00:00<?, ?it/s] 90%|█████████ | 19/21 [00:10<00:01,  1.88it/s]100%|██████████| 21/21 [00:11<00:00,  1.88it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.51it/s]100%|██████████| 3/3 [00:01<00:00,  2.51it/s]
+Epoch 37 : Training Loss: 0.28630, acc: 0.68952, pr_auc: 0.68669, roc_auc: 0.83854, LR: 0.00002, Time elapsed 0.21 mins
+[[109  15]
+ [ 24  24]]
+  0%|          | 0/21 [00:00<?, ?it/s] 90%|█████████ | 19/21 [00:10<00:01,  1.84it/s]100%|██████████| 21/21 [00:11<00:00,  1.84it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.55it/s]100%|██████████| 3/3 [00:01<00:00,  2.55it/s]
+Epoch 38 : Training Loss: 0.26680, acc: 0.67910, pr_auc: 0.68977, roc_auc: 0.83989, LR: 0.00001, Time elapsed 0.21 mins
+[[109  15]
+ [ 25  23]]
+  0%|          | 0/21 [00:00<?, ?it/s] 90%|█████████ | 19/21 [00:10<00:01,  1.85it/s]100%|██████████| 21/21 [00:11<00:00,  1.84it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.46it/s]100%|██████████| 3/3 [00:01<00:00,  2.46it/s]
+Epoch 39 : Training Loss: 0.26407, acc: 0.68313, pr_auc: 0.69213, roc_auc: 0.83989, LR: 0.00001, Time elapsed 0.21 mins
+[[110  14]
+ [ 25  23]]
+  0%|          | 0/21 [00:00<?, ?it/s] 90%|█████████ | 19/21 [00:10<00:01,  1.87it/s]100%|██████████| 21/21 [00:11<00:00,  1.87it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.37it/s]100%|██████████| 3/3 [00:01<00:00,  2.37it/s]
+Epoch 40 : Training Loss: 0.28732, acc: 0.67103, pr_auc: 0.68851, roc_auc: 0.83905, LR: 0.00001, Time elapsed 0.21 mins
+[[107  17]
+ [ 25  23]]
+  0%|          | 0/21 [00:00<?, ?it/s] 90%|█████████ | 19/21 [00:10<00:01,  1.88it/s]100%|██████████| 21/21 [00:11<00:00,  1.88it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.51it/s]100%|██████████| 3/3 [00:01<00:00,  2.51it/s]
+Epoch 41 : Training Loss: 0.26953, acc: 0.68145, pr_auc: 0.68707, roc_auc: 0.83720, LR: 0.00001, Time elapsed 0.21 mins
+[[107  17]
+ [ 24  24]]
+  0%|          | 0/21 [00:00<?, ?it/s] 90%|█████████ | 19/21 [00:10<00:01,  1.87it/s]100%|██████████| 21/21 [00:11<00:00,  1.88it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.52it/s]100%|██████████| 3/3 [00:01<00:00,  2.52it/s]
+Epoch 42 : Training Loss: 0.26368, acc: 0.67272, pr_auc: 0.68755, roc_auc: 0.83636, LR: 0.00001, Time elapsed 0.21 mins
+[[110  14]
+ [ 26  22]]
+  0%|          | 0/21 [00:00<?, ?it/s] 90%|█████████ | 19/21 [00:10<00:01,  1.89it/s]100%|██████████| 21/21 [00:11<00:00,  1.87it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.49it/s]100%|██████████| 3/3 [00:01<00:00,  2.48it/s]
+Epoch 43 : Training Loss: 0.27061, acc: 0.68313, pr_auc: 0.68910, roc_auc: 0.83636, LR: 0.00001, Time elapsed 0.21 mins
+[[110  14]
+ [ 25  23]]
+  0%|          | 0/21 [00:00<?, ?it/s] 90%|█████████ | 19/21 [00:10<00:01,  1.89it/s]100%|██████████| 21/21 [00:11<00:00,  1.89it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.53it/s]100%|██████████| 3/3 [00:01<00:00,  2.53it/s]
+Epoch 44 : Training Loss: 0.26088, acc: 0.67507, pr_auc: 0.68624, roc_auc: 0.83602, LR: 0.00000, Time elapsed 0.20 mins
+[[108  16]
+ [ 25  23]]
+  0%|          | 0/21 [00:00<?, ?it/s] 90%|█████████ | 19/21 [00:10<00:01,  1.89it/s]100%|██████████| 21/21 [00:11<00:00,  1.86it/s]
+  0%|          | 0/3 [00:00<?, ?it/s] 67%|██████▋   | 2/3 [00:01<00:00,  1.69it/s]100%|██████████| 3/3 [00:01<00:00,  1.88it/s]
+Epoch 45 : Training Loss: 0.25875, acc: 0.67910, pr_auc: 0.68753, roc_auc: 0.83653, LR: 0.00000, Time elapsed 0.22 mins
+[[109  15]
+ [ 25  23]]
+  0%|          | 0/21 [00:00<?, ?it/s] 71%|███████▏  | 15/21 [00:10<00:04,  1.47it/s]100%|██████████| 21/21 [00:13<00:00,  1.53it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.53it/s]100%|██████████| 3/3 [00:01<00:00,  2.53it/s]
+Epoch 46 : Training Loss: 0.28192, acc: 0.67675, pr_auc: 0.68858, roc_auc: 0.83585, LR: 0.00000, Time elapsed 0.25 mins
+[[111  13]
+ [ 26  22]]
+  0%|          | 0/21 [00:00<?, ?it/s] 90%|█████████ | 19/21 [00:10<00:01,  1.86it/s]100%|██████████| 21/21 [00:11<00:00,  1.87it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.51it/s]100%|██████████| 3/3 [00:01<00:00,  2.51it/s]
+Epoch 47 : Training Loss: 0.28638, acc: 0.67910, pr_auc: 0.68781, roc_auc: 0.83552, LR: 0.00000, Time elapsed 0.21 mins
+[[109  15]
+ [ 25  23]]
+  0%|          | 0/21 [00:00<?, ?it/s] 90%|█████████ | 19/21 [00:10<00:01,  1.81it/s]100%|██████████| 21/21 [00:11<00:00,  1.82it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.43it/s]100%|██████████| 3/3 [00:01<00:00,  2.43it/s]
+Epoch 48 : Training Loss: 0.28612, acc: 0.67910, pr_auc: 0.68750, roc_auc: 0.83535, LR: 0.00000, Time elapsed 0.21 mins
+[[109  15]
+ [ 25  23]]
+  0%|          | 0/21 [00:00<?, ?it/s] 90%|█████████ | 19/21 [00:10<00:01,  1.88it/s]100%|██████████| 21/21 [00:11<00:00,  1.88it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.50it/s]100%|██████████| 3/3 [00:01<00:00,  2.49it/s]
+Epoch 49 : Training Loss: 0.27808, acc: 0.68313, pr_auc: 0.68588, roc_auc: 0.83569, LR: 0.00000, Time elapsed 0.21 mins
+[[110  14]
+ [ 25  23]]
+  0%|          | 0/21 [00:00<?, ?it/s] 90%|█████████ | 19/21 [00:10<00:01,  1.86it/s]100%|██████████| 21/21 [00:11<00:00,  1.86it/s]
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.51it/s]100%|██████████| 3/3 [00:01<00:00,  2.51it/s]
+Epoch 50 : Training Loss: 0.27758, acc: 0.68313, pr_auc: 0.68581, roc_auc: 0.83535, LR: 0.00000, Time elapsed 0.21 mins
+[[110  14]
+ [ 25  23]]
+***************************Test************************
+  0%|          | 0/3 [00:00<?, ?it/s]100%|██████████| 3/3 [00:01<00:00,  2.25it/s]100%|██████████| 3/3 [00:01<00:00,  2.25it/s]
+***************************Test results************************
+Test Evaluation: acc: 0.72569, pr_auc: 0.70174, roc_auc: 0.79919
+[[134  10]
+ [ 23  25]]
+model save in /home/wkim/repro-gaps/runs/cbramod-splits/MentalArithmetic__bd-atcnet__s1/ckpt/epoch32_acc_0.72569_pr_0.70174_roc_0.79919.pth
+Done!!!!!

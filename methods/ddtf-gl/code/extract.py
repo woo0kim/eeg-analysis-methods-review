@@ -8,6 +8,9 @@ ddtf: dDTF maps (ddtf.py) with the settings calibrated on Safari et al.'s releas
 dc:   control: the mean of each channel over the window (STEW-raw: the Emotiv DC level)
 dwt:  the bundle's DWT statistics (upstream mwl_gl_si7.extract_dwt_features: Haar level 4, 9 statistics per channel and level, 16
       cross-channel summaries per level), on the raw windows, as the bundle's script computes them
+spec: spectral power of each channel over the whole window (spectral.py): log10 band power in DGCNN's five bands, then each band's
+      share of the five bands' total: 10 per channel
+spect: log10 band power of each channel in each 1-s segment of the window: 5 per channel and second (not for 1-s windows)
 
 Writes $GL_WORK/features/<dataset>/<features>/: X.npy (n, F) float32, meta.npz (labels, subjects, keys ...), info.json.
 """
@@ -40,6 +43,9 @@ def work(idx):
         return ddtf.band_ddtf(x, ORDER, SRC.fs, form='v0').reshape(len(idx), -1)
     if KIND == 'dc':                                     # control: each channel's mean over the window (its DC level)
         return x.mean(-1).astype(np.float32)
+    if KIND in ('spec', 'spect'):
+        import spectral
+        return (spectral.window_power(x, SRC.fs) if KIND == 'spec' else spectral.segment_power(x, SRC.fs)).reshape(len(idx), -1)
     sys.path.insert(0, UPSTREAM)
     from mwl_gl_si7 import extract_dwt_features
     return extract_dwt_features(x.astype(np.float32), 'haar', 4, 8, progress=False)
@@ -49,7 +55,7 @@ def main():
     global SRC, ORDER, KIND
     ap = argparse.ArgumentParser()
     ap.add_argument('dataset')
-    ap.add_argument('--features', default='ddtf', choices=['ddtf', 'ddtf-v0', 'dwt', 'dc'])
+    ap.add_argument('--features', default='ddtf', choices=['ddtf', 'ddtf-v0', 'dwt', 'dc', 'spec', 'spect'])
     ap.add_argument('--workers', type=int, default=20)
     ap.add_argument('--order', type=int, default=0, help='MVAR order; 0 = choose by AIC')
     a = ap.parse_args()
@@ -94,6 +100,12 @@ def main():
         info.update(order=ORDER, bands=[list(b) for b in ddtf.BANDS], freq_grid_hz=[1, int(SRC.fs // 2)])
         print(f'MVAR order {ORDER} (AIC over p = 1..{pmax}: {info.get("order_histogram")})', flush=True)
         chunk = min(256, ddtf.chunk_size(C, SRC.fs))
+    elif a.features in ('spec', 'spect'):
+        import spectral
+        info.update(bands=[list(b) for b in spectral.BANDS], spectrum='Hann-windowed periodogram of the mean-removed signal',
+                    layout='spec: [log10 power (C x 5), relative power (C x 5)]' if a.features == 'spec'
+                    else 'spect: log10 power (C x seconds x 5)')
+        chunk = 256
     elif a.features == 'dwt':
         info.update(dwt=dict(wavelet='haar', level=4, corr_top_k=8))
         chunk = 64

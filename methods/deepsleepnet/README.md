@@ -29,6 +29,8 @@ Sleep-EDF (version of 2013): the 20 Sleep Cassette subjects (39 nights), Fpz-Cz,
 
 ## Experiments
 
+**Scope (since 2026-11-19): subject-independent protocols only.** The subject-dependent experiments below are kept, but their numbers are no longer reported in SUMMARY.md, RESULTS.md or the reports: the SEED / SEED-V trial-split runs (every subject in training and test) of [braindecode-seed](experiments/braindecode-seed).
+
 | Experiment | Dataset | Question | Finding |
 |---|---|---|---|
 | [sleepedf20-20fold](experiments/sleepedf20-20fold) | Sleep-EDF-20 | Does the released code reproduce 82.0% / MF1 76.9 / κ 0.76 with the paper's 20-fold protocol? | Yes: 81.8% / 76.7 / 0.754 on exactly the paper's 41,950 epochs, with per-stage F1 within 1.4 points. The count matches because `predict.py` drops each night's last n mod 25 epochs: the paper's class counts are those after the drop. |
@@ -36,3 +38,4 @@ Sleep-EDF (version of 2013): the 20 Sleep Cassette subjects (39 nights), Fpz-Cz,
 | [braindecode-sleepedf](experiments/braindecode-sleepedf) | Sleep-EDF-78 | braindecode's `DeepSleepNet` as the epoch encoder of CBraMod's sleep-staging pipeline, like every other model | It ties braindecode's LaBraM for the highest balanced accuracy of all models (0.767), 0.013 above CBraMod (p = 0.027), and its κ (0.762) is level with CBraMod's. That is 0.060 κ above the released DeepSleepNet on the same split. |
 | [braindecode-seed](experiments/braindecode-seed) | SEED, SEED-V | braindecode's `DeepSleepNet` (off-label) in the shared SEED pipeline | Level with CBraMod on SEED-V's trial split (0.400 vs. 0.396); the weakest across subjects on SEED |
 | [braindecode-stew](experiments/braindecode-stew) | STEW | braindecode's `DeepSleepNet` on STEW | 0.717 on rest vs. task, between EEG Conformer and CBraMod without pre-training |
+| [braindecode-cbramod-splits](experiments/braindecode-cbramod-splits) | BCI-IV-2a, PhysioNet-MI, Mumtaz2016, MentalArithmetic | braindecode's `DeepSleepNet` (off-label) across subjects in CBraMod's pipeline | Level with the best model on BCI-IV-2a (0.525 vs. EEGNet's 0.529, p = 0.85) and above both foundation models there; fifth on PhysioNet-MI, last on Mumtaz2016. 110–303M parameters: its recurrent layers take every channel's features. |

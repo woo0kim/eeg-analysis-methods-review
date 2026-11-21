@@ -32,6 +32,8 @@ accuracy 86.3 ± 0.2%, κ 0.813 ± 0.003, MF1 79.3 ± 0.4; per-stage F1 W 91.6, 
 
 ## Experiments
 
+**Scope (since 2026-11-19): subject-independent protocols only.** The subject-dependent experiments below are kept, but their numbers are no longer reported in SUMMARY.md, RESULTS.md or the reports: [seed-offlabel](experiments/seed-offlabel) (its trial split is subject-dependent and its subject split is not valid).
+
 | Experiment | Dataset | Question | Finding |
 |---|---|---|---|
 | [sleepedf20-loso](experiments/sleepedf20-loso) | Sleep-EDF-20 | Do the released code and data reproduce 86.3% / κ 0.813 / MF1 79.3 (random initialisation)? | Yes, in one of the 5 repetitions: 86.1% / 0.811 / 79.4, with per-stage F1 within 0.6 points. The released scripts test every fold on subject 0's list (fixed here); they fold the sequence 20 × 10 and train a fixed 11,000 steps, where the paper describes 10 × 20 with early stopping. The released evaluation batch needs more than 12 GB, so it was reduced (prediction-neutral). |

@@ -12,6 +12,8 @@
 
 ## Experiments
 
+**Scope (since 2026-11-19): subject-independent protocols only.** The subject-dependent experiments below are kept, but their numbers are no longer reported in SUMMARY.md, RESULTS.md or the reports: the SEED / SEED-V trial-split runs (every subject in training and test) of [finetune-seed](experiments/finetune-seed) (SEED-V's trial split is the CBraMod paper's own protocol) and [braindecode-seed](experiments/braindecode-seed).
+
 | Experiment | Datasets | Question | Finding |
 |---|---|---|---|
 | [finetune-public-datasets](experiments/finetune-public-datasets) | PhysioNet-MI, BCIC-IV-2a, Mumtaz2016, MentalArithmetic | Do the released code and weights reproduce the paper's fine-tuning results? | No: all 12 metrics fall below the paper (balanced accuracy −0.015 to −0.137). EEGNet trained through the same pipeline ([eegnet/pytorch-cbramod-splits](../eegnet/experiments/pytorch-cbramod-splits)) beats CBraMod on BCIC-IV-2a. Against [LaBraM-Base run the same way](../labram/experiments/finetune-cbramod-splits), CBraMod wins only on PhysioNet-MI. |

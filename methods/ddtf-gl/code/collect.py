@@ -28,7 +28,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 CBRAMOD = os.path.normpath(os.path.join(HERE, '../../cbramod/experiments'))
 LABEL = {'ddtf-gl': 'dDTF-GL', 'ddtf-gl-noaxb': 'dDTF-GL, no AXB', 'dwt-gl': 'DWT-GL (bundle features), no AXB', 'dwt-gl-axb': 'DWT-GL (bundle features) + AXB',
          'ddtf-gl-v0': 'dDTF-GL, first map settings', 'ddtf-gl-noaxb-v0': 'dDTF-GL, first map settings, no AXB', 'safari-gl': "dDTF-GL on Safari et al.'s maps",
-         'safari-gl-gpu': "dDTF-GL (GPU) on Safari et al.'s maps"}
+         'safari-gl-gpu': "dDTF-GL (GPU) on Safari et al.'s maps", 'ddtf-gl-plus': 'dDTF-GL+ (tuned features)'}
 SETTING = {'ddtf-gl': "our implementation of the paper's dDTF -> DFT -> AXB -> LNT -> XGBoost",
            'ddtf-gl-noaxb': 'dDTF -> DFT -> LNT -> XGBoost (no auxiliary XGBoost)',
            'dwt-gl': "the authors' bundle chain (DWT statistics -> DFT -> LNT -> XGBoost) on the shared windows and folds",
@@ -36,7 +36,9 @@ SETTING = {'ddtf-gl': "our implementation of the paper's dDTF -> DFT -> AXB -> L
            'ddtf-gl-v0': "the paper's chain on dDTF maps with our first settings (no re-reference, ffDTF x squared pCoh)",
            'ddtf-gl-noaxb-v0': 'dDTF maps with our first settings -> DFT -> LNT -> XGBoost',
            'safari-gl': "the paper's DFT -> AXB -> LNT -> XGBoost on Safari et al.'s released SIFT dDTF maps",
-           'safari-gl-gpu': "the same with XGBoost (AXB and classifier) on the GPU, the paper's GPU variant"}
+           'safari-gl-gpu': "the same with XGBoost (AXB and classifier) on the GPU, the paper's GPU variant",
+           'ddtf-gl-plus': "dDTF-GL with features, feature counts, projections and classifier chosen on validation data "
+                           "(experiments/feature-tuning; configuration per dataset in its selection.json)"}
 METHOD = 'dDTF-GL'
 PAPER = {  # Cao, Li & Kuo, Tables 3 (SD) and 4 (SI), "Our Method (CPU)": accuracy, F1, precision, recall, mean and SD
     'sd': {'accuracy': (0.898, 0.016), 'f1': (0.898, 0.016), 'precision': (0.899, 0.015), 'recall': (0.898, 0.015)},
@@ -151,7 +153,7 @@ def stew_paper(R, OUT, bundle_dir):
                                 fold_sd={n: float(np.std([q[n] for q in per], ddof=1)) for n in names}, costs=costs([folds[f][2] for f in range(7)])))
     print("STEW, the paper's protocol (6-s windows, 4-s step). Mean over folds; ± = SD over the 7 folds (the paper's ±), averaged over seeds;")
     print('[seeds] = SD over seeds of the fold mean. Paper: Cao et al., Tables 3 (SD) and 4 (SI), "Our Method (CPU)".\n')
-    for prot, variant in itertools.product(('si', 'sd', 'sd-blocked'), ('safari-gl', 'safari-gl-gpu', 'ddtf-gl', 'ddtf-gl-v0')):
+    for prot, variant in itertools.product(('si', 'sd', 'sd-blocked'), ('safari-gl', 'safari-gl-gpu', 'ddtf-gl', 'ddtf-gl-v0', 'ddtf-gl-plus')):
         rs = [r for r in out['runs'] if r['protocol'] == prot and r['model'] == variant]
         if not rs:
             continue
@@ -340,7 +342,7 @@ def splits(R, OUT):
         names = ['balanced_acc', 'pr_auc', 'roc_auc'] if binary else ['balanced_acc', 'kappa', 'weighted_f1']
         rows.append(dict(dataset=ds, setting=model, seed=int(seed[1:]), metric_names=names, metrics=[m['test'][k] for k in names],
                          val_metrics=[m['val'][k] for k in names], accuracy=m['test']['accuracy'], costs=costs([m]),
-                         mvar_order=m['features'].get('order')))
+                         mvar_order=m.get('features', {}).get('order')))
     summary = []
     for key in sorted({(r['dataset'], r['setting']) for r in rows}):
         rs = sorted((r for r in rows if (r['dataset'], r['setting']) == key), key=lambda r: r['seed'])
@@ -419,7 +421,7 @@ def seed(R, OUT):
                          metrics=[balanced_accuracy_score(y, p), cohen_kappa_score(y, p), f1_score(y, p, average='weighted'), accuracy_score(y, p),
                                   f1_score(y, p, average='macro'), float(np.mean(votes))],
                          val_kappa=m['val']['kappa'], per_class_f1=f1_score(y, p, average=None, labels=list(range(k))).tolist(),
-                         cm=np.bincount(k * y + p, minlength=k * k).reshape(k, k).tolist(), costs=costs([m]), mvar_order=m['features'].get('order')))
+                         cm=np.bincount(k * y + p, minlength=k * k).reshape(k, k).tolist(), costs=costs([m]), mvar_order=m.get('features', {}).get('order')))
     summary = []
     for key in sorted({(r['dataset'], r['split'], r['model']) for r in rows}):
         rs = sorted((r for r in rows if (r['dataset'], r['split'], r['model']) == key), key=lambda r: r['seed'])

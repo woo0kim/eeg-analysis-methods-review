@@ -43,6 +43,7 @@ MODELS = [
     ('DGCNN', 'DGCNN', 'ours (DE input)', 'pipeline', M.format('dgcnn', 'sleepedf-cbramod-pipeline'), 'dgcnn'),
     ('DGCNN (bd)', 'DGCNN', 'braindecode (raw input)', 'pipeline', M.format('dgcnn', 'sleepedf-cbramod-pipeline'), 'bd-dgcnn'),
     ('dDTF-GL', 'dDTF-GL', 'ours (dDTF maps, XGBoost)', 'features', M.format('ddtf-gl', 'sleepedf-cbramod-pipeline'), 'ddtf-gl'),
+    ('dDTF-GL+', 'dDTF-GL', 'dDTF-GL+: ours, tuned on validation data', 'features', M.format('ddtf-gl', 'sleepedf-cbramod-pipeline'), 'ddtf-gl-plus'),
 ]
 METRICS = [('balanced_acc', 'bal. acc'), ('kappa', 'κ'), ('macro_f1', 'macro F1'), ('accuracy', 'accuracy'),
            ('weighted_f1', 'weighted F1')]
@@ -56,6 +57,8 @@ PAIRS = [  # the questions of the Sleep-EDF report
     ('task-agnostic supervised models vs. CBraMod',
      [('CBraMod', 'ATCNet (bd)'), ('CBraMod', 'EEGNet'), ('CBraMod', 'EEG Conformer'), ('CBraMod', 'DGCNN')]),
     ('dDTF-GL (each epoch alone, no sequence head) vs. the pipeline models', [('EEGNet', 'dDTF-GL'), ('DGCNN', 'dDTF-GL'), ('CBraMod', 'dDTF-GL')]),
+    ('dDTF-GL+ (tuned; each epoch alone) vs. dDTF-GL and the pipeline models',
+     [('dDTF-GL+', 'dDTF-GL'), ('dDTF-GL+', 'EEGNet'), ('dDTF-GL+', 'EEG Conformer'), ('dDTF-GL+', 'DeepSleepNet'), ('CBraMod', 'dDTF-GL+')]),
     ('braindecode − original implementation, same pipeline',
      [('CBraMod (bd)', 'CBraMod'), ('LaBraM-Base (bd)', 'LaBraM-Base'), ('EEG Conformer (bd)', 'EEG Conformer'),
       ('EEGNet (bd)', 'EEGNet'), ('DGCNN (bd)', 'DGCNN')]),

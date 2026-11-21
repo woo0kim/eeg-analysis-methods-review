@@ -11,6 +11,8 @@
 
 ## Experiments
 
+**Scope (since 2026-11-19): subject-independent protocols only.** The subject-dependent experiments below are kept, but their numbers are no longer reported in SUMMARY.md, RESULTS.md or the reports: the SEED / SEED-V trial-split runs (every subject in training and test) of [seed-cbramod-pipeline](experiments/seed-cbramod-pipeline) and [braindecode-seed](experiments/braindecode-seed).
+
 | Experiment | Datasets | Question | Finding |
 |---|---|---|---|
 | [finetune-cbramod-splits](experiments/finetune-cbramod-splits) | PhysioNet-MI, BCIC-IV-2a, Mumtaz2016, MentalArithmetic | How does LaBraM-Base do under exactly the data, splits, seeds and scoring of our CBraMod runs? This is the comparison the CBraMod paper makes with LaBraM's numbers from its own runs. | LaBraM-Base reproduces the CBraMod paper's LaBraM numbers on 10 of 12 metrics. Under identical conditions CBraMod is better only on PhysioNet-MI; the two tie on BCIC-IV-2a and Mumtaz2016, and LaBraM is better on MentalArithmetic (balanced accuracy +0.067, p = 0.015). |

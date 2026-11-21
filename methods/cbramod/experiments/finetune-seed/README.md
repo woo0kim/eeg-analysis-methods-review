@@ -141,16 +141,24 @@ braindecode − original implementation, same pipeline: A − B, mean over runs,
 | Model | Implementation | Runs | bal. acc | κ | weighted F1 | accuracy | clip vote |
 |---|---|---|---|---|---|---|---|
 | LaBraM-Base | released | 5 | 0.5822 ± 0.0105 | 0.3788 ± 0.0159 | 0.5820 ± 0.0103 | 0.5863 ± 0.0107 | 0.6415 ± 0.0193 |
+| dDTF-GL+ | ours, tuned on validation data (ddtf-gl/experiments/feature-tuning) | 5 | 0.5473 ± 0.0052 | 0.3255 ± 0.0079 | 0.5363 ± 0.0043 | 0.5512 ± 0.0053 | 0.5541 ± 0.0033 |
 | CBraMod | released | 5 | 0.5442 ± 0.0092 | 0.3211 ± 0.0143 | 0.5415 ± 0.0081 | 0.5479 ± 0.0096 | 0.5852 ± 0.0196 |
 | ATCNet (bd) | braindecode | 5 | 0.5410 ± 0.0057 | 0.3165 ± 0.0086 | 0.5186 ± 0.0083 | 0.5461 ± 0.0056 | 0.5881 ± 0.0285 |
 | EEG Conformer | released | 5 | 0.5378 ± 0.0105 | 0.3122 ± 0.0157 | 0.5134 ± 0.0112 | 0.5433 ± 0.0102 | 0.5644 ± 0.0062 |
 | dDTF-GL | ours (dDTF maps, XGBoost; no network) | 5 | 0.5237 ± 0.0015 | 0.2897 ± 0.0022 | 0.5224 ± 0.0015 | 0.5270 ± 0.0015 | 0.5407 ± 0.0091 |
 | EEGNet | ours (PyTorch) | 5 | 0.5227 ± 0.0240 | 0.2882 ± 0.0371 | 0.5157 ± 0.0219 | 0.5264 ± 0.0248 | 0.5481 ± 0.0448 |
 | DGCNN | ours (PyTorch, DE input) | 5 | 0.5215 ± 0.0139 | 0.2861 ± 0.0210 | 0.5234 ± 0.0126 | 0.5243 ± 0.0142 | 0.5393 ± 0.0379 |
+| CBraMod scratch | released, no pre-training | 5 | 0.5145 ± 0.0293 | 0.2749 ± 0.0443 | 0.5150 ± 0.0286 | 0.5166 ± 0.0295 | 0.5407 ± 0.0432 |
 | DeepSleepNet (bd) | braindecode | 5 | 0.5034 ± 0.0293 | 0.2592 ± 0.0444 | 0.5023 ± 0.0301 | 0.5060 ± 0.0299 | 0.5363 ± 0.0580 |
 | L-SeqSleepNet | released, off-label | 3 | (30-s windows) | (30-s windows) | (30-s windows) | (30-s windows) | 0.7877 ± 0.0280 |
 
 L-SeqSleepNet (off-label) classifies 30-s windows in sequences of 20; only its clip vote compares. On this split its sequences span clips shown to every subject in the same order, so they can read a clip's identity from its position: the number is not valid.
+
+pre-training: A − B, mean over runs, Welch p
+
+| A − B | bal. acc | κ | clip vote |
+|---|---|---|---|
+| CBraMod − CBraMod scratch | +0.0296 (p = 0.086) | +0.0462 (p = 0.079) | +0.0444 (p = 0.084) |
 
 foundation models: A − B, mean over runs, Welch p
 
@@ -183,6 +191,15 @@ dDTF-GL against the other models: A − B, mean over runs, Welch p
 | dDTF-GL − EEGNet | +0.0010 (p = 0.929) | +0.0015 (p = 0.935) | -0.0074 (p = 0.734) |
 | dDTF-GL − CBraMod | -0.0205 (p = 0.007) | -0.0314 (p = 0.007) | -0.0444 (p = 0.004) |
 | dDTF-GL − LaBraM-Base | -0.0585 (p < 0.001) | -0.0891 (p < 0.001) | -0.1007 (p < 0.001) |
+
+dDTF-GL+ (tuned) against dDTF-GL and the best models: A − B, mean over runs, Welch p
+
+| A − B | bal. acc | κ | clip vote |
+|---|---|---|---|
+| dDTF-GL+ − dDTF-GL | +0.0236 (p < 0.001) | +0.0358 (p < 0.001) | +0.0133 (p = 0.027) |
+| dDTF-GL+ − LaBraM-Base | -0.0349 (p < 0.001) | -0.0533 (p < 0.001) | -0.0874 (p < 0.001) |
+| dDTF-GL+ − CBraMod | +0.0031 (p = 0.539) | +0.0044 (p = 0.565) | -0.0311 (p = 0.023) |
+| dDTF-GL+ − ATCNet (bd) | +0.0063 (p = 0.104) | +0.0090 (p = 0.124) | -0.0341 (p = 0.055) |
 
 ### SEED-V, trial split, as CBraMod on SEED-V (chance: 0.200)
 
@@ -270,6 +287,7 @@ braindecode − original implementation, same pipeline: A − B, mean over runs,
 | Model | Implementation | Runs | bal. acc | κ | weighted F1 | accuracy | clip vote |
 |---|---|---|---|---|---|---|---|
 | DGCNN | ours (PyTorch, DE input) | 5 | 0.2563 ± 0.0097 | 0.0708 ± 0.0096 | 0.2453 ± 0.0056 | 0.2498 ± 0.0065 | 0.2874 ± 0.0097 |
+| dDTF-GL+ | ours, tuned on validation data (ddtf-gl/experiments/feature-tuning) | 5 | 0.2578 ± 0.0036 | 0.0678 ± 0.0040 | 0.2333 ± 0.0049 | 0.2464 ± 0.0046 | 0.2770 ± 0.0066 |
 | ATCNet (bd) | braindecode | 5 | 0.2528 ± 0.0071 | 0.0641 ± 0.0081 | 0.2324 ± 0.0100 | 0.2434 ± 0.0059 | 0.2696 ± 0.0249 |
 | EEGNet | ours (PyTorch) | 5 | 0.2468 ± 0.0084 | 0.0555 ± 0.0099 | 0.2116 ± 0.0199 | 0.2387 ± 0.0080 | 0.2607 ± 0.0364 |
 | DeepSleepNet (bd) | braindecode | 5 | 0.2421 ± 0.0117 | 0.0544 ± 0.0163 | 0.2283 ± 0.0176 | 0.2443 ± 0.0228 | 0.2593 ± 0.0262 |
@@ -277,9 +295,16 @@ braindecode − original implementation, same pipeline: A − B, mean over runs,
 | dDTF-GL | ours (dDTF maps, XGBoost; no network) | 5 | 0.2315 ± 0.0019 | 0.0387 ± 0.0019 | 0.2237 ± 0.0024 | 0.2333 ± 0.0023 | 0.2607 ± 0.0110 |
 | LaBraM-Base | released | 5 | 0.2214 ± 0.0105 | 0.0257 ± 0.0128 | 0.1973 ± 0.0104 | 0.2196 ± 0.0071 | 0.2193 ± 0.0124 |
 | CBraMod | released | 5 | 0.2223 ± 0.0070 | 0.0230 ± 0.0083 | 0.1887 ± 0.0166 | 0.2100 ± 0.0097 | 0.2178 ± 0.0144 |
+| CBraMod scratch | released, no pre-training | 5 | 0.2048 ± 0.0127 | 0.0066 ± 0.0162 | 0.1450 ± 0.0526 | 0.2409 ± 0.0294 | 0.2119 ± 0.0265 |
 | L-SeqSleepNet | released, off-label | 3 | (30-s windows) | (30-s windows) | (30-s windows) | (30-s windows) | 0.4074 ± 0.0370 |
 
 L-SeqSleepNet (off-label) classifies 30-s windows in sequences of 20; only its clip vote compares. On this split its sequences span clips shown to every subject in the same order, so they can read a clip's identity from its position: the number is not valid.
+
+pre-training: A − B, mean over runs, Welch p
+
+| A − B | bal. acc | κ | clip vote |
+|---|---|---|---|
+| CBraMod − CBraMod scratch | +0.0175 (p = 0.034) | +0.0164 (p = 0.090) | +0.0059 (p = 0.676) |
 
 foundation models: A − B, mean over runs, Welch p
 
@@ -312,6 +337,15 @@ dDTF-GL against the other models: A − B, mean over runs, Welch p
 | dDTF-GL − EEGNet | -0.0153 (p = 0.013) | -0.0168 (p = 0.018) | +0.0000 (p = 1.000) |
 | dDTF-GL − CBraMod | +0.0092 (p = 0.040) | +0.0156 (p = 0.012) | +0.0430 (p < 0.001) |
 | dDTF-GL − LaBraM-Base | +0.0101 (p = 0.097) | +0.0130 (p = 0.086) | +0.0415 (p < 0.001) |
+
+dDTF-GL+ (tuned) against dDTF-GL and the best models: A − B, mean over runs, Welch p
+
+| A − B | bal. acc | κ | clip vote |
+|---|---|---|---|
+| dDTF-GL+ − dDTF-GL | +0.0263 (p < 0.001) | +0.0291 (p < 0.001) | +0.0163 (p = 0.027) |
+| dDTF-GL+ − LaBraM-Base | +0.0364 (p < 0.001) | +0.0420 (p = 0.001) | +0.0578 (p < 0.001) |
+| dDTF-GL+ − CBraMod | +0.0354 (p < 0.001) | +0.0447 (p < 0.001) | +0.0593 (p < 0.001) |
+| dDTF-GL+ − ATCNet (bd) | +0.0050 (p = 0.215) | +0.0037 (p = 0.402) | +0.0074 (p = 0.551) |
 <!-- /COMMON -->
 
 ## Data

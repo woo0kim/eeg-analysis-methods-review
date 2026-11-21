@@ -69,6 +69,7 @@ Every model on the same windows and folds (`python tools/compare_stew.py`).
 
 | Model | Implementation | Seeds | accuracy | bal. acc | κ | weighted F1 |
 |---|---|---|---|---|---|---|
+| dDTF-GL+ | ours, tuned on validation data (ddtf-gl/experiments/feature-tuning) | 5 | 0.8191 ± 0.0024 | 0.8191 ± 0.0024 | 0.6383 ± 0.0048 | 0.8188 ± 0.0024 |
 | LaBraM-Base | released | 5 | 0.8179 ± 0.0107 | 0.8179 ± 0.0107 | 0.6359 ± 0.0214 | 0.8177 ± 0.0108 |
 | LaBraM-Base (bd) | braindecode | 5 | 0.8153 ± 0.0134 | 0.8153 ± 0.0134 | 0.6307 ± 0.0268 | 0.8149 ± 0.0136 |
 | CBraMod | released | 5 | 0.7998 ± 0.0095 | 0.7998 ± 0.0095 | 0.5997 ± 0.0189 | 0.7993 ± 0.0095 |
@@ -77,8 +78,9 @@ Every model on the same windows and folds (`python tools/compare_stew.py`).
 | DWT-GL + AXB | DWT statistics with the auxiliary XGBoost | 5 | 0.7817 ± 0.0067 | 0.7817 ± 0.0067 | 0.5634 ± 0.0135 | 0.7812 ± 0.0069 |
 | DWT-GL (bundle) | the authors' bundle chain: DWT statistics, no AXB | 5 | 0.7773 ± 0.0038 | 0.7773 ± 0.0038 | 0.5546 ± 0.0076 | 0.7766 ± 0.0038 |
 | DGCNN | ours (PyTorch, DE input) | 5 | 0.7747 ± 0.0073 | 0.7747 ± 0.0073 | 0.5493 ± 0.0145 | 0.7735 ± 0.0075 |
-| dDTF-GL, no AXB | ours, without the auxiliary XGBoost | 5 | 0.7646 ± 0.0055 | 0.7646 ± 0.0055 | 0.5293 ± 0.0110 | 0.7645 ± 0.0055 |
-| dDTF-GL | ours (dDTF maps, XGBoost; no network) | 5 | 0.7623 ± 0.0034 | 0.7623 ± 0.0034 | 0.5247 ± 0.0068 | 0.7622 ± 0.0034 |
+| dDTF-GL, first map settings | ours, maps before the calibration on Safari et al.'s | 5 | 0.7623 ± 0.0034 | 0.7623 ± 0.0034 | 0.5247 ± 0.0068 | 0.7622 ± 0.0034 |
+| dDTF-GL, no AXB | ours, without the auxiliary XGBoost | 5 | 0.7429 ± 0.0018 | 0.7429 ± 0.0018 | 0.4858 ± 0.0036 | 0.7424 ± 0.0018 |
+| dDTF-GL | ours (dDTF maps, XGBoost; no network) | 5 | 0.7398 ± 0.0043 | 0.7398 ± 0.0043 | 0.4796 ± 0.0085 | 0.7393 ± 0.0043 |
 | EEG Conformer | released model | 5 | 0.7364 ± 0.0151 | 0.7364 ± 0.0151 | 0.4728 ± 0.0301 | 0.7349 ± 0.0151 |
 | EEG Conformer (bd) | braindecode | 5 | 0.7325 ± 0.0111 | 0.7325 ± 0.0111 | 0.4650 ± 0.0222 | 0.7317 ± 0.0115 |
 | ATCNet (bd) | braindecode | 5 | 0.7257 ± 0.0054 | 0.7257 ± 0.0054 | 0.4514 ± 0.0109 | 0.7246 ± 0.0058 |
@@ -124,18 +126,28 @@ dDTF-GL against the other models: A − B, mean over seeds, Welch p
 
 | A − B | accuracy | κ |
 |---|---|---|
-| dDTF-GL − LaBraM-Base | -0.0556 (p < 0.001) | -0.1112 (p < 0.001) |
-| dDTF-GL − CBraMod | -0.0375 (p < 0.001) | -0.0750 (p < 0.001) |
-| dDTF-GL − DGCNN | -0.0123 (p = 0.015) | -0.0247 (p = 0.015) |
-| dDTF-GL − EEG Conformer | +0.0259 (p = 0.017) | +0.0519 (p = 0.017) |
-| dDTF-GL − EEGNet | +0.0975 (p < 0.001) | +0.1950 (p < 0.001) |
+| dDTF-GL − LaBraM-Base | -0.0781 (p < 0.001) | -0.1563 (p < 0.001) |
+| dDTF-GL − CBraMod | -0.0600 (p < 0.001) | -0.1201 (p < 0.001) |
+| dDTF-GL − DGCNN | -0.0349 (p < 0.001) | -0.0697 (p < 0.001) |
+| dDTF-GL − EEG Conformer | +0.0034 (p = 0.649) | +0.0068 (p = 0.649) |
+| dDTF-GL − EEGNet | +0.0750 (p < 0.001) | +0.1499 (p < 0.001) |
+
+dDTF-GL+ (tuned) against dDTF-GL and the best models: A − B, mean over seeds, Welch p
+
+| A − B | accuracy | κ |
+|---|---|---|
+| dDTF-GL+ − dDTF-GL | +0.0793 (p < 0.001) | +0.1587 (p < 0.001) |
+| dDTF-GL+ − LaBraM-Base | +0.0012 (p = 0.819) | +0.0024 (p = 0.819) |
+| dDTF-GL+ − CBraMod | +0.0193 (p = 0.009) | +0.0386 (p = 0.009) |
+| dDTF-GL+ − DGCNN | +0.0445 (p < 0.001) | +0.0889 (p < 0.001) |
 
 dDTF-GL: input and AXB: A − B, mean over seeds, Welch p
 
 | A − B | accuracy | κ |
 |---|---|---|
-| dDTF-GL − dDTF-GL, no AXB | -0.0023 (p = 0.454) | -0.0046 (p = 0.454) |
-| dDTF-GL − DWT-GL (bundle) | -0.0150 (p < 0.001) | -0.0299 (p < 0.001) |
+| dDTF-GL − dDTF-GL, no AXB | -0.0031 (p = 0.190) | -0.0062 (p = 0.190) |
+| dDTF-GL − dDTF-GL, first map settings | -0.0225 (p < 0.001) | -0.0451 (p < 0.001) |
+| dDTF-GL − DWT-GL (bundle) | -0.0375 (p < 0.001) | -0.0750 (p < 0.001) |
 | DWT-GL + AXB − DWT-GL (bundle) | +0.0044 (p = 0.250) | +0.0088 (p = 0.250) |
 
 braindecode − original implementation, same pipeline: A − B, mean over seeds, Welch p
@@ -156,6 +168,7 @@ braindecode − original implementation, same pipeline: A − B, mean over seeds
 | LaBraM-Base (bd) | braindecode | 5 | 0.5739 ± 0.0133 | 0.5263 ± 0.0125 | 0.3317 ± 0.0184 | 0.5649 ± 0.0065 |
 | CBraMod | released | 5 | 0.5661 ± 0.0086 | 0.5150 ± 0.0131 | 0.3147 ± 0.0172 | 0.5510 ± 0.0105 |
 | LaBraM-Base | released | 5 | 0.5670 ± 0.0082 | 0.5085 ± 0.0150 | 0.3132 ± 0.0182 | 0.5502 ± 0.0147 |
+| dDTF-GL+ | ours, tuned on validation data (ddtf-gl/experiments/feature-tuning) | 5 | 0.5636 ± 0.0019 | 0.5003 ± 0.0022 | 0.3114 ± 0.0027 | 0.5553 ± 0.0016 |
 | DWT-GL (bundle) | the authors' bundle chain: DWT statistics, no AXB | 5 | 0.5559 ± 0.0017 | 0.5058 ± 0.0015 | 0.3056 ± 0.0026 | 0.5551 ± 0.0017 |
 | DWT-GL + AXB | DWT statistics with the auxiliary XGBoost | 5 | 0.5525 ± 0.0068 | 0.5050 ± 0.0066 | 0.3014 ± 0.0091 | 0.5529 ± 0.0054 |
 | DGCNN | ours (PyTorch, DE input) | 5 | 0.5517 ± 0.0074 | 0.5017 ± 0.0068 | 0.2971 ± 0.0110 | 0.5455 ± 0.0072 |
@@ -163,9 +176,10 @@ braindecode − original implementation, same pipeline: A − B, mean over seeds
 | CBraMod (bd) | braindecode | 5 | 0.5447 ± 0.0053 | 0.4945 ± 0.0067 | 0.2842 ± 0.0079 | 0.5378 ± 0.0050 |
 | DeepSleepNet (bd) | braindecode | 5 | 0.5468 ± 0.0090 | 0.4899 ± 0.0107 | 0.2700 ± 0.0153 | 0.5263 ± 0.0102 |
 | ATCNet (bd) | braindecode | 5 | 0.5290 ± 0.0057 | 0.4849 ± 0.0091 | 0.2568 ± 0.0120 | 0.5014 ± 0.0041 |
-| dDTF-GL, no AXB | ours, without the auxiliary XGBoost | 5 | 0.5338 ± 0.0021 | 0.4716 ± 0.0024 | 0.2550 ± 0.0037 | 0.5188 ± 0.0024 |
-| dDTF-GL | ours (dDTF maps, XGBoost; no network) | 5 | 0.5303 ± 0.0017 | 0.4715 ± 0.0028 | 0.2520 ± 0.0034 | 0.5174 ± 0.0024 |
+| dDTF-GL, first map settings | ours, maps before the calibration on Safari et al.'s | 5 | 0.5303 ± 0.0017 | 0.4715 ± 0.0028 | 0.2520 ± 0.0034 | 0.5174 ± 0.0024 |
+| dDTF-GL, no AXB | ours, without the auxiliary XGBoost | 5 | 0.5260 ± 0.0045 | 0.4676 ± 0.0045 | 0.2465 ± 0.0073 | 0.5149 ± 0.0047 |
 | EEG Conformer | released model | 5 | 0.5118 ± 0.0173 | 0.4792 ± 0.0129 | 0.2459 ± 0.0229 | 0.4975 ± 0.0173 |
+| dDTF-GL | ours (dDTF maps, XGBoost; no network) | 5 | 0.5185 ± 0.0052 | 0.4626 ± 0.0059 | 0.2365 ± 0.0075 | 0.5091 ± 0.0051 |
 | EEG Conformer (bd) | braindecode | 5 | 0.4896 ± 0.0108 | 0.4573 ± 0.0099 | 0.2124 ± 0.0163 | 0.4747 ± 0.0099 |
 | CBraMod scratch | released, no pre-training | 5 | 0.4965 ± 0.0081 | 0.4527 ± 0.0063 | 0.2047 ± 0.0102 | 0.4842 ± 0.0055 |
 | DGCNN (bd, raw) | braindecode, raw input | 5 | 0.4876 ± 0.0074 | 0.4361 ± 0.0091 | 0.1814 ± 0.0120 | 0.4718 ± 0.0075 |
@@ -208,18 +222,28 @@ dDTF-GL against the other models: A − B, mean over seeds, Welch p
 
 | A − B | accuracy | κ |
 |---|---|---|
-| dDTF-GL − LaBraM-Base | -0.0366 (p < 0.001) | -0.0611 (p = 0.001) |
-| dDTF-GL − CBraMod | -0.0357 (p < 0.001) | -0.0627 (p < 0.001) |
-| dDTF-GL − DGCNN | -0.0214 (p = 0.002) | -0.0450 (p < 0.001) |
-| dDTF-GL − EEG Conformer | +0.0185 (p = 0.075) | +0.0061 (p = 0.588) |
-| dDTF-GL − EEGNet | +0.0329 (p = 0.021) | +0.1133 (p = 0.005) |
+| dDTF-GL − LaBraM-Base | -0.0485 (p < 0.001) | -0.0767 (p < 0.001) |
+| dDTF-GL − CBraMod | -0.0476 (p < 0.001) | -0.0783 (p < 0.001) |
+| dDTF-GL − DGCNN | -0.0332 (p < 0.001) | -0.0606 (p < 0.001) |
+| dDTF-GL − EEG Conformer | +0.0067 (p = 0.449) | -0.0095 (p = 0.421) |
+| dDTF-GL − EEGNet | +0.0210 (p = 0.077) | +0.0977 (p = 0.008) |
+
+dDTF-GL+ (tuned) against dDTF-GL and the best models: A − B, mean over seeds, Welch p
+
+| A − B | accuracy | κ |
+|---|---|---|
+| dDTF-GL+ − dDTF-GL | +0.0451 (p < 0.001) | +0.0750 (p < 0.001) |
+| dDTF-GL+ − LaBraM-Base | -0.0034 (p = 0.421) | -0.0017 (p = 0.844) |
+| dDTF-GL+ − CBraMod | -0.0024 (p = 0.567) | -0.0033 (p = 0.694) |
+| dDTF-GL+ − DGCNN | +0.0119 (p = 0.021) | +0.0144 (p = 0.041) |
 
 dDTF-GL: input and AXB: A − B, mean over seeds, Welch p
 
 | A − B | accuracy | κ |
 |---|---|---|
-| dDTF-GL − dDTF-GL, no AXB | -0.0034 (p = 0.023) | -0.0030 (p = 0.221) |
-| dDTF-GL − DWT-GL (bundle) | -0.0255 (p < 0.001) | -0.0536 (p < 0.001) |
+| dDTF-GL − dDTF-GL, no AXB | -0.0075 (p = 0.040) | -0.0100 (p = 0.065) |
+| dDTF-GL − dDTF-GL, first map settings | -0.0118 (p = 0.005) | -0.0155 (p = 0.007) |
+| dDTF-GL − DWT-GL (bundle) | -0.0374 (p < 0.001) | -0.0692 (p < 0.001) |
 | DWT-GL + AXB − DWT-GL (bundle) | -0.0034 (p = 0.335) | -0.0042 (p = 0.368) |
 
 braindecode − original implementation, same pipeline: A − B, mean over seeds, Welch p

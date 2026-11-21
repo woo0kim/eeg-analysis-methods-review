@@ -19,6 +19,8 @@ convolution, then fully connected layers. Paper: 90.40% subject-dependent and 79
 
 ## Experiments
 
+**Scope (since 2026-11-19): subject-independent protocols only.** The subject-dependent experiments below are kept, but their numbers are no longer reported in SUMMARY.md, RESULTS.md or the reports: [bciciv2a-epoch-selection](experiments/bciciv2a-epoch-selection) (within-subject), the within-subject protocol of [seed-paper-protocol](experiments/seed-paper-protocol) (its leave-one-subject-out protocol stays in scope), and the SEED / SEED-V trial-split runs (every subject in training and test) of [seed-cbramod-pipeline](experiments/seed-cbramod-pipeline) and [braindecode-seed](experiments/braindecode-seed).
+
 | Experiment | Question | Finding |
 |---|---|---|
 | [seed-paper-protocol](experiments/seed-paper-protocol) | Do the paper's SEED numbers reproduce, and how are they computed? | 90.40% is the peak of ~80 test evaluations over each subject's best 2 of 3 sessions. Under that rule our port gets 87.69% and the authors' own code, run unmodified, 87.59%: the 2.7 pp gap is not the port; with no test selection, 77.79%, level with a linear SVM (79.42%, p = 0.33). Across subjects the paper holds: 77.58% against its 79.95%, with no test selection, and 58.85% for the SVM. |

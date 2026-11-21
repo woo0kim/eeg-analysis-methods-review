@@ -21,6 +21,8 @@ cross-subject runs inside CBraMod's experiment used our own PyTorch implementati
 
 ## Experiments
 
+**Scope (since 2026-11-19): subject-independent protocols only.** The subject-dependent experiments below are kept, but their numbers are no longer reported in SUMMARY.md, RESULTS.md or the reports: [bciciv2a-epoch-selection](experiments/bciciv2a-epoch-selection) (within-subject), and the SEED / SEED-V trial-split runs (every subject in training and test) of [seed-cbramod-pipeline](experiments/seed-cbramod-pipeline) and [braindecode-seed](experiments/braindecode-seed).
+
 | Experiment | Dataset | Question | Finding |
 |---|---|---|---|
 | [bciciv2a-epoch-selection](experiments/bciciv2a-epoch-selection) | BCI IV 2a, within-subject | Does EEG Conformer's lead over EEGNet survive when both are trained by Conformer's released loop and their reported epoch is chosen by the same rule? | Only under the test-set maximum. Under that rule Conformer leads by 6.10 pp (78.72 vs. 72.62%, all 9 subjects, Wilcoxon p = 0.0039). At the last-100-epoch mean or the final epoch the two are level (EEGNet ahead by 0.76 and 0.14 pp). With a validation split Conformer leads by 2.65 pp (70.01 vs. 67.36%), not significantly (p = 0.16). Conformer's test accuracy fluctuates about 5× more from epoch to epoch, so the maximum inflates it more. |

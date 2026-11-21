@@ -1,5 +1,9 @@
 """Collect every methods/*/experiments/*/results/summary.csv into RESULTS.md.
 
+Only subject-independent protocols are listed (the repository's scope since 2026-11-19): rows whose protocol is within-subject,
+subject-dependent, or SEED's / SEED-V's trial split (every subject in training and test) are left out. Their experiments stay in
+methods/ unchanged.
+
 usage: python tools/build_results_index.py
 """
 import csv, glob, os
@@ -11,6 +15,14 @@ for path in sorted(glob.glob(os.path.join(ROOT, 'methods/*/experiments/*/results
     exp = os.path.relpath(os.path.dirname(os.path.dirname(path)), ROOT)
     with open(path, newline='') as f:
         rows += [dict(r, experiment=exp) for r in csv.DictReader(f)]
+
+
+def subject_dependent(protocol):
+    return protocol.startswith(('within-subject', 'subject-dependent', 'all subjects pooled'))
+
+
+hidden = sum(subject_dependent(r['protocol']) for r in rows)
+rows = [r for r in rows if not subject_dependent(r['protocol'])]
 
 
 def num(x):
@@ -54,6 +66,8 @@ lines = ['# Results index', '',
          '',
          'Every number links back to the experiment that produced it. Δ is reproduced − paper. Results are only',
          'comparable across methods when the protocol (subject split) matches.', '',
+         f'Subject-independent protocols only: {hidden} rows from subject-dependent protocols (within-subject BCI-IV-2a and SEED,',
+         "SEED's and SEED-V's trial split, STEW's subject-dependent setting) are left out; their experiments stay in methods/.", '',
          '## Coverage', '',
          '| Method | ' + ' | '.join(datasets) + ' |', '|---|' + '---|' * len(datasets)]
 for m in methods:

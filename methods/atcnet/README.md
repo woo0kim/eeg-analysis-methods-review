@@ -25,6 +25,8 @@ concatenated). 113,732 trainable parameters (the paper's 115.2K includes the Bat
 
 ## Experiments
 
+**Scope (since 2026-11-19): subject-independent protocols only.** The subject-dependent experiments below are kept, but their numbers are no longer reported in SUMMARY.md, RESULTS.md or the reports: the within-subject runs of [bciciv2a-model-selection](experiments/bciciv2a-model-selection) and [braindecode-bciciv2a](experiments/braindecode-bciciv2a) (their leave-one-subject-out runs stay in scope), and the SEED / SEED-V trial-split runs (every subject in training and test) of [braindecode-seed](experiments/braindecode-seed).
+
 | Experiment | Dataset | Question | Finding |
 |---|---|---|---|
 | [bciciv2a-model-selection](experiments/bciciv2a-model-selection) | BCI IV 2a | Does the released code reproduce 85.38% (subject-dependent) and 70.97% (LOSO), and what does the number depend on? | 85.38% is the authors' best of 10 runs per subject, each run checkpointed on the test set: their 2022 log says so, and their saved best-of-10 models give exactly 85.38% on our data. Our 90 runs of that 2022 code average 81.47% (the authors' runs: 81.98%). With a validation split, the authors' current `main_TrainValTest.py` gives 79.52% (10 seeds, −5.86 pp). LOSO: 69.06% mean, 70.16% best of 3 (paper 70.97%); with a validation split (`main_TrainValTest.py`) 60.23%. Today's `main_TrainTest.py` is a rewritten model (L2, max-norm, lr schedule) and scores 86.89% per run under the old test-set protocol. |
@@ -32,6 +34,7 @@ concatenated). 113,732 trainable parameters (the paper's 115.2K includes the Bat
 | [braindecode-sleepedf](experiments/braindecode-sleepedf) | Sleep-EDF-78 | How does ATCNet (braindecode; the released code is TensorFlow) do as the epoch encoder of CBraMod's sleep-staging pipeline, against every other model under the same conditions? | κ 0.771 on the common test set puts it level with the pre-trained foundation models (CBraMod −0.003, p = 0.56), with an encoder of 112k parameters. It is the most stable model across seeds (κ SD 0.004), but at about 24 h per run also the slowest. Its paper has no sleep data. |
 | [braindecode-seed](experiments/braindecode-seed) | SEED, SEED-V | braindecode's `ATCNet` in the shared SEED pipeline | Trial split: SEED-V 0.270, the lowest of all models; SEED 0.489, level with EEGNet. It underfits 1-s samples under CBraMod's training settings. Subject splits: SEED 0.541, level with CBraMod and second to LaBraM-Base; SEED-V 0.253, inside every model's 0.22–0.26 |
 | [braindecode-stew](experiments/braindecode-stew) | STEW | braindecode's `ATCNet` on STEW | Mid-table: rest vs. task 0.726, level with EEG Conformer, above EEGNet, below DGCNN and CBraMod; 3 levels 0.529 |
+| [braindecode-cbramod-splits](experiments/braindecode-cbramod-splits) | BCI-IV-2a, PhysioNet-MI, Mumtaz2016, MentalArithmetic | braindecode's `ATCNet` across subjects in CBraMod's pipeline | Level with the foundation models: second on PhysioNet-MI (0.614, behind CBraMod's 0.627), first by mean on MentalArithmetic (0.695; LaBraM-Base 0.656, p = 0.32), third on Mumtaz2016, within noise of the best on BCI-IV-2a (0.490 vs. EEGNet's 0.529, p = 0.12). |
 
 ## Not yet covered
 

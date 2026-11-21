@@ -16,7 +16,7 @@ case "$1" in
   train)
     for ds in SEED SEED-V; do
       for m in cbramod cbramod-scratch; do "$PY" "$C/add_jobs.py" $ds trial555 50 $m 0 1 2 3 4; done
-      for m in cbramod; do "$PY" "$C/add_jobs.py" $ds subject 80 $m 0 1 2 3 4; done
+      for m in cbramod cbramod-scratch; do "$PY" "$C/add_jobs.py" $ds subject 80 $m 0 1 2 3 4; done
     done ;;
   *) echo "usage: $0 collect|train"; exit 1 ;;
 esac

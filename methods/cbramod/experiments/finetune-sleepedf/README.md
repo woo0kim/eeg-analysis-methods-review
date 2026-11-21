@@ -74,6 +74,7 @@ Sleep-EDF-78 (Sleep Cassette), common test set: 20976 epochs of the 8 test subje
 | CBraMod | released | CBraMod pipeline | 5 | 0.7537 ± 0.0087 | 0.7676 ± 0.0110 | 0.7536 ± 0.0098 | 0.8348 ± 0.0082 | 0.8298 ± 0.0081 |
 | DeepSleepNet | braindecode | CBraMod pipeline | 5 | 0.7666 ± 0.0053 | 0.7625 ± 0.0214 | 0.7522 ± 0.0158 | 0.8291 ± 0.0171 | 0.8258 ± 0.0152 |
 | CBraMod, no pre-training | released | CBraMod pipeline | 5 | 0.7316 ± 0.0155 | 0.7446 ± 0.0099 | 0.7344 ± 0.0152 | 0.8193 ± 0.0066 | 0.8130 ± 0.0095 |
+| dDTF-GL | dDTF-GL+: ours, tuned on validation data | each epoch alone (no sequence head) | 5 | 0.7072 ± 0.0012 | 0.7207 ± 0.0009 | 0.7023 ± 0.0014 | 0.8009 ± 0.0007 | 0.7945 ± 0.0007 |
 | DeepSleepNet | released (TF 1.15) | own released code | 3 | 0.7247 ± 0.0104 | 0.7030 ± 0.0103 | 0.7140 ± 0.0121 | 0.7841 ± 0.0080 | 0.7895 ± 0.0079 |
 | EEG Conformer | braindecode | CBraMod pipeline | 5 | 0.6799 ± 0.0303 | 0.7011 ± 0.0345 | 0.6917 ± 0.0326 | 0.7875 ± 0.0256 | 0.7838 ± 0.0246 |
 | DGCNN | ours (DE input) | CBraMod pipeline | 5 | 0.6983 ± 0.0100 | 0.6941 ± 0.0081 | 0.6917 ± 0.0117 | 0.7806 ± 0.0060 | 0.7782 ± 0.0075 |
@@ -81,7 +82,7 @@ Sleep-EDF-78 (Sleep Cassette), common test set: 20976 epochs of the 8 test subje
 | EEGNet | ours (PyTorch) | CBraMod pipeline | 5 | 0.6852 ± 0.0137 | 0.6815 ± 0.0154 | 0.6785 ± 0.0073 | 0.7719 ± 0.0126 | 0.7689 ± 0.0086 |
 | EEGNet | braindecode | CBraMod pipeline | 5 | 0.6866 ± 0.0162 | 0.6808 ± 0.0157 | 0.6817 ± 0.0117 | 0.7708 ± 0.0120 | 0.7713 ± 0.0091 |
 | DGCNN | braindecode (raw input) | CBraMod pipeline | 5 | 0.6017 ± 0.0260 | 0.5956 ± 0.0192 | 0.6059 ± 0.0175 | 0.7114 ± 0.0146 | 0.7110 ± 0.0126 |
-| dDTF-GL | ours (dDTF maps, XGBoost) | each epoch alone (no sequence head) | 5 | 0.5267 ± 0.0042 | 0.5682 ± 0.0062 | 0.5281 ± 0.0037 | 0.7011 ± 0.0042 | 0.6753 ± 0.0039 |
+| dDTF-GL | ours (dDTF maps, XGBoost) | each epoch alone (no sequence head) | 5 | 0.5219 ± 0.0012 | 0.5595 ± 0.0006 | 0.5229 ± 0.0013 | 0.6948 ± 0.0003 | 0.6701 ± 0.0006 |
 
 Per-stage F1 (mean over runs)
 
@@ -95,6 +96,7 @@ Per-stage F1 (mean over runs)
 | CBraMod | released | 0.9460 | 0.4157 | 0.8348 | 0.7954 | 0.7758 |
 | DeepSleepNet | braindecode | 0.9365 | 0.4192 | 0.8355 | 0.8098 | 0.7599 |
 | CBraMod, no pre-training | released | 0.9347 | 0.3837 | 0.8228 | 0.8123 | 0.7186 |
+| dDTF-GL | dDTF-GL+: ours, tuned on validation data | 0.9262 | 0.3077 | 0.8240 | 0.7966 | 0.6570 |
 | DeepSleepNet | released (TF 1.15) | 0.9308 | 0.4268 | 0.7518 | 0.6970 | 0.7638 |
 | EEG Conformer | braindecode | 0.8987 | 0.3670 | 0.8274 | 0.7064 | 0.6588 |
 | DGCNN | ours (DE input) | 0.9015 | 0.3269 | 0.8070 | 0.7803 | 0.6425 |
@@ -102,7 +104,7 @@ Per-stage F1 (mean over runs)
 | EEGNet | ours (PyTorch) | 0.8998 | 0.3108 | 0.8013 | 0.7865 | 0.5942 |
 | EEGNet | braindecode | 0.9059 | 0.3330 | 0.7944 | 0.7685 | 0.6068 |
 | DGCNN | braindecode (raw input) | 0.8599 | 0.2560 | 0.7564 | 0.6996 | 0.4577 |
-| dDTF-GL | ours (dDTF maps, XGBoost) | 0.8712 | 0.0615 | 0.7355 | 0.5525 | 0.4197 |
+| dDTF-GL | ours (dDTF maps, XGBoost) | 0.8666 | 0.0860 | 0.7272 | 0.5207 | 0.4142 |
 
 pre-training: A − B, mean over runs, Welch p
 
@@ -145,9 +147,19 @@ dDTF-GL (each epoch alone, no sequence head) vs. the pipeline models: A − B, m
 
 | A − B | bal. acc | κ | macro F1 |
 |---|---|---|---|
-| EEGNet − dDTF-GL | +0.1586 (p < 0.001) | +0.1132 (p < 0.001) | +0.1504 (p < 0.001) |
-| DGCNN − dDTF-GL | +0.1717 (p < 0.001) | +0.1259 (p < 0.001) | +0.1636 (p < 0.001) |
-| CBraMod − dDTF-GL | +0.2270 (p < 0.001) | +0.1993 (p < 0.001) | +0.2255 (p < 0.001) |
+| EEGNet − dDTF-GL | +0.1634 (p < 0.001) | +0.1220 (p < 0.001) | +0.1556 (p < 0.001) |
+| DGCNN − dDTF-GL | +0.1765 (p < 0.001) | +0.1347 (p < 0.001) | +0.1687 (p < 0.001) |
+| CBraMod − dDTF-GL | +0.2318 (p < 0.001) | +0.2081 (p < 0.001) | +0.2306 (p < 0.001) |
+
+dDTF-GL+ (tuned; each epoch alone) vs. dDTF-GL and the pipeline models: A − B, mean over runs, Welch p
+
+| A − B | bal. acc | κ | macro F1 |
+|---|---|---|---|
+| dDTF-GL+ − dDTF-GL | +0.1853 (p < 0.001) | +0.1612 (p < 0.001) | +0.1793 (p < 0.001) |
+| dDTF-GL+ − EEGNet | +0.0220 (p = 0.023) | +0.0392 (p = 0.005) | +0.0238 (p = 0.002) |
+| dDTF-GL+ − EEG Conformer | +0.0624 (p = 0.006) | +0.0331 (p = 0.018) | +0.0438 (p = 0.014) |
+| dDTF-GL+ − DeepSleepNet | -0.0175 (p = 0.098) | +0.0177 (p = 0.097) | -0.0117 (p = 0.234) |
+| CBraMod − dDTF-GL+ | +0.0465 (p < 0.001) | +0.0469 (p < 0.001) | +0.0513 (p < 0.001) |
 
 braindecode − original implementation, same pipeline: A − B, mean over runs, Welch p
 

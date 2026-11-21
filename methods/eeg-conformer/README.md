@@ -11,6 +11,8 @@
 
 ## Experiments
 
+**Scope (since 2026-11-19): subject-independent protocols only.** The subject-dependent experiments below are kept, but their numbers are no longer reported in SUMMARY.md, RESULTS.md or the reports: [bciciv2a-epoch-selection](experiments/bciciv2a-epoch-selection) and [braindecode-bciciv2a](experiments/braindecode-bciciv2a) (within-subject, the paper's protocol), [seed-5fold](experiments/seed-5fold) (within-subject), and the SEED / SEED-V trial-split runs (every subject in training and test) of [seed-cbramod-pipeline](experiments/seed-cbramod-pipeline) and [braindecode-seed](experiments/braindecode-seed). Its subject-independent results are the shared pipelines' cross-subject splits, including [cbramod-splits](experiments/cbramod-splits).
+
 | Experiment | Dataset | Question | Finding |
 |---|---|---|---|
 | [bciciv2a-epoch-selection](experiments/bciciv2a-epoch-selection) | BCI IV 2a | How much of the reported accuracy comes from picking the best of 2000 test-set evaluations? | The released rule reproduces the paper (78.72% vs. 78.66%), but a held-out validation split gives 70.01% and the last-100-epoch mean 68.77%. |
@@ -22,6 +24,7 @@
 | [braindecode-seed](experiments/braindecode-seed) | SEED, SEED-V | Does braindecode's `EEGConformer` match? | Slightly lower (−0.010, p = 0.10; −0.024, p = 0.019) |
 | [stew-cbramod-pipeline](experiments/stew-cbramod-pipeline) | STEW | The released model on STEW | 0.736 on rest vs. task, behind DGCNN and the foundation models |
 | [braindecode-stew](experiments/braindecode-stew) | STEW | Does braindecode's `EEGConformer` match? | On rest vs. task (−0.004, p = 0.65); 0.022 lower on 3 levels (p = 0.018), as on SEED-V |
+| [cbramod-splits](experiments/cbramod-splits) | BCI-IV-2a, PhysioNet-MI, Mumtaz2016, MentalArithmetic | The released model, and braindecode's, across subjects in CBraMod's pipeline; do the CBraMod paper's EEG Conformer rows reproduce? | Not in either direction: above the paper on BCI-IV-2a (0.504 vs. 0.470, p = 0.003), below it on the other three (−0.026 to −0.137, p ≤ 0.014). Level with EEGNet on BCI-IV-2a and above both foundation models there; in the bottom three elsewhere. braindecode's model is within noise of the released one (p ≥ 0.35). |
 
 Its EEGNet baseline (Table II) was re-run through the same training loop and epoch-selection rules in
 [methods/eegnet/experiments/bciciv2a-epoch-selection](../eegnet/experiments/bciciv2a-epoch-selection). Conformer's

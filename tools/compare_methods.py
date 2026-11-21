@@ -1,9 +1,10 @@
 """Welch tests between the models run on CBraMod's splits (same samples, subject splits, seeds 0-4,
 checkpoint rule and metric code), read from the committed results.json files. Feeds SUMMARY.md.
 
-Five tables: the released-code models against each other; each braindecode implementation against the original
+Six tables: the released-code models against each other; each braindecode implementation against the original
 implementation of the same model; the braindecode implementations against each other; DGCNN against the others, and
-braindecode's DGCNN on raw samples against DE input; and dDTF-GL against the others.
+braindecode's DGCNN on raw samples against DE input; dDTF-GL against the others; and, last, every model of the rank grid
+(SUMMARY.md Section 3) on each dataset, sorted by mean, with Welch p against the best.
 usage: python tools/compare_methods.py [metric]     # balanced_acc (default), kappa, weighted_f1, roc_auc, pr_auc
 """
 import json, os, sys
@@ -23,13 +24,19 @@ MODELS = {'EEGNet': (EEGNET_PT, 'eegnet'), 'CBraMod scratch': (CBRAMOD, 'scratch
           'DGCNN': ('methods/dgcnn/experiments/cbramod-splits', 'dgcnn'),
           'DGCNN (bd, DE)': ('methods/dgcnn/experiments/cbramod-splits', 'bd-dgcnn-de'),
           'DGCNN (bd, raw)': ('methods/dgcnn/experiments/cbramod-splits', 'bd-dgcnn'),
-          'dDTF-GL': ('methods/ddtf-gl/experiments/cbramod-splits', 'ddtf-gl')}
+          'dDTF-GL': ('methods/ddtf-gl/experiments/cbramod-splits', 'ddtf-gl'),
+          'EEG Conformer': ('methods/eeg-conformer/experiments/cbramod-splits', 'conformer'),
+          'EEG Conformer (bd)': ('methods/eeg-conformer/experiments/cbramod-splits', 'bd-conformer'),
+          'ATCNet (bd)': ('methods/atcnet/experiments/braindecode-cbramod-splits', 'bd-atcnet'),
+          'DeepSleepNet (bd)': ('methods/deepsleepnet/experiments/braindecode-cbramod-splits', 'bd-deepsleepnet'),
+          'dDTF-GL+': ('methods/ddtf-gl/experiments/cbramod-splits', 'ddtf-gl-plus')}
+RANKED = ['EEGNet', 'EEG Conformer', 'ATCNet (bd)', 'DeepSleepNet (bd)', 'DGCNN', 'dDTF-GL', 'dDTF-GL+', 'LaBraM-Base', 'CBraMod']
 TABLES = [
     ('released code (EEGNet: our PyTorch implementation)',
      [('CBraMod', 'CBraMod scratch'), ('CBraMod', 'LaBraM-Base'), ('CBraMod', 'EEGNet'), ('LaBraM-Base', 'EEGNet')]),
     ('braindecode implementation (bd) − original implementation, same pipeline',
      [('CBraMod (bd)', 'CBraMod'), ('CBraMod scratch (bd)', 'CBraMod scratch'), ('LaBraM-Base (bd)', 'LaBraM-Base'),
-      ('EEGNet (bd)', 'EEGNet')]),
+      ('EEGNet (bd)', 'EEGNet'), ('EEG Conformer (bd)', 'EEG Conformer')]),
     ('braindecode implementations against each other',
      [('CBraMod (bd)', 'CBraMod scratch (bd)'), ('CBraMod (bd)', 'LaBraM-Base (bd)'), ('CBraMod (bd)', 'EEGNet (bd)'),
       ('LaBraM-Base (bd)', 'EEGNet (bd)')]),
@@ -70,3 +77,17 @@ for title, pairs in TABLES:
             cells.append(f'{d:+.4f} (p {"< 0.001" if p < 0.001 else f"= {p:.3f}"})')
         print(f'| {DATASETS[ds]} | ' + ' | '.join(cells) + ' |')
     print()
+
+fmt_p = lambda p: 'p < 0.001' if p < 0.001 else f'p = {p:.3f}'   # noqa: E731
+print(f'{metric}, every model of the rank grid on each dataset, best first: mean ± SD over seeds 0–4, Welch p against the best\n')
+for ds in DATASETS:
+    vals = {m: values(m, ds) for m in RANKED}
+    vals = {m: v for m, v in vals.items() if len(v) == 5}
+    order = sorted(vals, key=lambda m: -sum(vals[m]) / 5)
+    best = order[0]
+    cells = []
+    for i, m in enumerate(order):
+        v = vals[m]
+        mu, sd = sum(v) / 5, stats.tstd(v)
+        cells.append(f'{i + 1}. {m} {mu:.4f} ± {sd:.4f}' + ('' if m == best else f' ({fmt_p(stats.ttest_ind(vals[best], v, equal_var=False).pvalue)})'))
+    print(f'{DATASETS[ds]} (n = {len(order)}): ' + '; '.join(cells) + '\n')
